@@ -8,7 +8,7 @@ namespace ImportData
 {
     class Addendum : Entity
     {
-        public int PropertiesCount = 7;
+        public int PropertiesCount = 22;
         /// <summary>
         /// Получить наименование число запрашиваемых параметров.
         /// </summary>
@@ -100,7 +100,7 @@ namespace ImportData
 
                 if (documents == null)
                 {
-                    var message = string.Format("Приложение не может быть импортировано. Не найден ведущий документ с реквизитами \"Дата документа\" {0}, \"Рег. №\" {1}.", regDateLeadingDocument.ToString("o"), regNumberLeadingDocument);
+                    var message = string.Format("Приложение не может быть импортировано. Найдены совпадения или не найден ведущий документ с реквизитами \"Дата документа\" {0}, \"Рег. №\" {1}.", regDateLeadingDocument.ToString("d"), regNumberLeadingDocument);
                     exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
                     logger.Error(message);
 

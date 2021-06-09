@@ -1,5 +1,6 @@
 ﻿namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Наша организация")]
     public class IBusinessUnits : IRecipients
     {
         public string TIN { get; set; }

@@ -1,5 +1,6 @@
 ﻿namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Валюта")]
     class ICurrency
     {
         public string Name { get; set; }

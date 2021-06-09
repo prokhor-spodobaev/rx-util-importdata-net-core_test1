@@ -1,5 +1,6 @@
 ﻿namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Сотрудник")]
     public class IEmployees : IRecipients
     {
         public string Phone { get; set; }

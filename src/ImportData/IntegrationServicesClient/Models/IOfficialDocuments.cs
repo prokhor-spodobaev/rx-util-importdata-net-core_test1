@@ -2,6 +2,7 @@
 
 namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Официальный документ")]
     public class IOfficialDocuments : IElectronicDocuments
     {
         public string RegistrationNumber { get; set; }

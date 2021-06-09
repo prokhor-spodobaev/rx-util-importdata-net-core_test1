@@ -2,6 +2,7 @@
 
 namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Договор")]
     class IContracts : IOfficialDocuments
     {
         public IEmployees Assignee { get; set; }

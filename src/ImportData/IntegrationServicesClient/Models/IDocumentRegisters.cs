@@ -1,5 +1,6 @@
 ﻿namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Журналы регистрации")]
     public class IDocumentRegisters
     {
         public string Name { get; set; }

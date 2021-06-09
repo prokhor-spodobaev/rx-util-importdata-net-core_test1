@@ -5,6 +5,7 @@ using System.Text;
 
 namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Электронный документ")]
     public class IElectronicDocuments
     {
         public string Name { get; set; }

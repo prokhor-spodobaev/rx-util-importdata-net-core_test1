@@ -1,7 +1,6 @@
-﻿using System;
-
-namespace ImportData.IntegrationServicesClient.Models
+﻿namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Субъект прав")]
     public class IRecipients
     {
         //public Guid Sid { get; set; }

@@ -122,7 +122,7 @@ namespace ImportData
                 {
                     #region Аутентификация.
                     ConfigSettingsService.SetSourcePath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DefaultConfigSettingsName));
-                    Client.Setup(login, password);
+                    Client.Setup(login, password, logger);
                     #endregion
 
                     #region Выполнение импорта сущностей.

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using NLog;
 using Simple.OData.Client;
 
 namespace ImportData.IntegrationServicesClient
@@ -31,7 +32,7 @@ namespace ImportData.IntegrationServicesClient
         /// </summary>
         /// <param name="userName">Имя пользователя.</param>
         /// <param name="password">Пароль.</param>
-        public static void Setup(string userName, string password)
+        public static void Setup(string userName, string password, Logger logger)
         {
             if (string.IsNullOrWhiteSpace(userName))
                 throw new ArgumentException("Не указано имя пользователя для подключения к сервису интеграции.");
@@ -41,6 +42,8 @@ namespace ImportData.IntegrationServicesClient
             // Получение адреса сервиса интеграции из конфига.
             if (instance == null)
                 instance = new Client(userName, password, ConfigSettingsService.GetConfigSettingsValueByName(Constants.ConfigServices.IntegrationServiceUrlParamName));
+
+            logger.Info("Подготовка клиента OData.");
         }
 
         /// <summary>

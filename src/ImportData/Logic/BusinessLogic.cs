@@ -15,6 +15,23 @@ namespace ImportData
     {
         public static IEnumerable<string> ErrorList;
 
+        private static string PrintInfo(Type t)
+        {
+            Attribute[] attrs = Attribute.GetCustomAttributes(t);
+
+            foreach (Attribute attr in attrs)
+            {
+                if (attr is EntityName)
+                {
+                    EntityName a = (EntityName)attr;
+
+                    return a.GetName();
+                }
+            }
+
+            return string.Empty;
+        }
+
         #region Работа с сервисом интеграции.
         /// <summary>
         /// Получение сущностей по фильтру.
@@ -28,6 +45,8 @@ namespace ImportData
         {
             Expression<Func<T, bool>> condition = expression;
             var filter = new ODataExpression(condition);
+
+            logger.Info(string.Format("Получение сущности {0}", PrintInfo(typeof(T))));
 
             var entities = Client.GetEntitiesByFilter<T>(filter);
 
@@ -63,6 +82,8 @@ namespace ImportData
         /// <returns>Созданная сущность.</returns>
         public static T CreateEntity<T>(T entity, List<Structures.ExceptionsStruct> exceptionList, Logger logger) where T : class
         {
+            logger.Info(string.Format("Создание сущности {0}", PrintInfo(typeof(T))));
+
             var entities = Client.CreateEntity<T>(entity);
 
             return entities;

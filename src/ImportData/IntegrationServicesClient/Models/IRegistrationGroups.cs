@@ -1,5 +1,6 @@
 ﻿namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Группа регистрации")]
     public class IRegistrationGroups : IRecipients
     {
         public string Index { get; set; }

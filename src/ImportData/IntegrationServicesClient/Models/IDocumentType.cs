@@ -1,5 +1,6 @@
 ﻿namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Типы документов")]
     public class IDocumentType
     {
         public int Id { get; set; }

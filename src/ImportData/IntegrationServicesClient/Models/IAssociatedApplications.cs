@@ -2,6 +2,7 @@
 
 namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Приложение-обработчик")]
     public class IAssociatedApplications
     {
         public string Name { get; set; }

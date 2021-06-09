@@ -1,5 +1,6 @@
 ﻿namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Группа документов")]
     public class IDocumentGroupBases
     {
         public string Name { get; set; }

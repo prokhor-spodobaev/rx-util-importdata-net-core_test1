@@ -1,5 +1,6 @@
 ﻿namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Должность")]
     public  class IJobTitles
     {
         public string Name { get; set; }

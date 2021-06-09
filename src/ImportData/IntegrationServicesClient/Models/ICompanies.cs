@@ -1,5 +1,6 @@
 ﻿namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Организация")]
     class ICompanies : ICounterparties
     {
         public string TRRC { get; set; }

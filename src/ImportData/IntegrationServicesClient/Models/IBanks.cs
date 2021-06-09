@@ -1,5 +1,6 @@
 ﻿namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Банк")]
     public  class IBanks : ICounterparties
     {
         //public string Name { get; set; }

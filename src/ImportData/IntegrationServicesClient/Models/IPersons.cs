@@ -2,6 +2,7 @@
 
 namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Персоны")]
     public class IPersons : ICounterparties
     {
         public string LastName { get; set; }

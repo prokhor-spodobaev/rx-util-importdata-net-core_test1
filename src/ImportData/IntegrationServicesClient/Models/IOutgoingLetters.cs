@@ -1,5 +1,6 @@
 ﻿namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Исходящее письмо")]
     class IOutgoingLetters : IOfficialDocuments
     {
         public bool IsManyAddressees { get; set; }

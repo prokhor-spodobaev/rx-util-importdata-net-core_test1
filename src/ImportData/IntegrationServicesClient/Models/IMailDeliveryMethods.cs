@@ -1,5 +1,6 @@
 ﻿namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Способы доставки")]
     class IMailDeliveryMethods
     {
         public string Name { get; set; }

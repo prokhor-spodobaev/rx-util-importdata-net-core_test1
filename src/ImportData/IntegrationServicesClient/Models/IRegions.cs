@@ -1,5 +1,6 @@
 ﻿namespace ImportData.IntegrationServicesClient.Models
 {
+    [EntityName("Регионы")]
     public class IRegions
     {
         public string Name { get; set; }
