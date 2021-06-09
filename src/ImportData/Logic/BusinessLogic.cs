@@ -114,6 +114,7 @@ namespace ImportData
         public static IEnumerable<Structures.ExceptionsStruct> ImportBody(IElectronicDocuments edoc, string pathToBody, Logger logger)
         {
             var exceptionList = new List<Structures.ExceptionsStruct>();
+            logger.Info("Импорт тела документа");
 
             try
             {

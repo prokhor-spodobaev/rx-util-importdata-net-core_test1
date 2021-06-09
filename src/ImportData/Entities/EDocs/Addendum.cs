@@ -142,16 +142,6 @@ namespace ImportData
                     if (!string.IsNullOrWhiteSpace(filePath))
                     {
                         var importBody = BusinessLogic.ImportBody(createdAddendum, filePath, logger);
-
-                        if (importBody != null || importBody != null)
-                        {
-                            exceptionList.AddRange(importBody);
-                            var message = string.Format("Приложение не может быть импортировано. Ошибка при создании тела документа \"Файл\" {0}.", filePath);
-                            exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-                            logger.Error(message);
-
-                            return exceptionList;
-                        }
                     }
 
                     var documentRegisterId = 0;
