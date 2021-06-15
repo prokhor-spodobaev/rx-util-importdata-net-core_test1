@@ -4,6 +4,7 @@ using System.Globalization;
 using NLog;
 using ImportData.IntegrationServicesClient.Models;
 using System.IO;
+using System.Linq;
 
 namespace ImportData
 {
@@ -223,6 +224,39 @@ namespace ImportData
 
             try
             {
+                if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+                {
+                    var contracts = BusinessLogic.InstanceOData().For<IContracts>().Filter(x => x.RegistrationNumber == regNumber && x.RegistrationDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'")).Expand(c => c.Counterparty).Filter(c => c.Counterparty.Id == counterparty.Id).FindEntriesAsync().Result.FirstOrDefault();
+
+                    // Обновление сущности при условии, что найдено одно совпадение.
+                    if (contracts != null)
+                    {
+                        contracts.Name = fileNameWithoutExtension;
+                        contracts.Created = DateTimeOffset.UtcNow;
+                        contracts.DocumentRegister = documentRegisters;
+                        contracts.Counterparty = counterparty;
+                        contracts.DocumentKind = documentKind;
+                        contracts.DocumentGroup = contractCategory;
+                        contracts.Subject = subject;
+                        contracts.BusinessUnit = businessUnit;
+                        contracts.Department = department;
+                        contracts.ValidFrom = validFrom != DateTimeOffset.MinValue ? validFrom : Constants.defaultDateTime;
+                        contracts.ValidTill = validTill != DateTimeOffset.MinValue ? validTill : Constants.defaultDateTime;
+                        contracts.TotalAmount = totalAmount;
+                        contracts.Currency = currency;
+                        contracts.LifeCycleState = lifeCycleState;
+                        contracts.ResponsibleEmployee = responsibleEmployee;
+                        contracts.OurSignatory = ourSignatory;
+                        contracts.Note = note;
+                        contracts.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate : Constants.defaultDateTime;
+                        contracts.RegistrationNumber = regNumber;
+
+                        var updatedEntity = BusinessLogic.UpdateEntity<IContracts>(contracts, exceptionList, logger);
+
+                        return exceptionList;
+                    }
+                }
+
                 var contract = new IContracts();
 
                 // Обязательные поля.

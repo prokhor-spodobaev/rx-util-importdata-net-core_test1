@@ -237,6 +237,52 @@ namespace ImportData
 
             try
             {
+                var contracts = BusinessLogic.GetEntityWithFilter<IContracts>(x => x.RegistrationDate == regDateLeadingDocument && x.RegistrationNumber == regNumberLeadingDocument && x.Counterparty == counterparty, exceptionList, logger);
+
+                // Провера на существование Ведущего документа.
+                if (contracts == null)
+                {
+                    var message = string.Format("Доп.соглашение не может быть импортировано. Не найден ведущий документ с реквизитами \"Дата документа\" {0}, \"Рег. №\" {1} и \"Контрагент\" {2}.", regDateLeadingDocument.ToString("d"), regNumberLeadingDocument, counterparty.Name);
+                    exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+                    logger.Error(message);
+
+                    return exceptionList;
+                }
+
+                if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+                {
+                    var supAgreements = BusinessLogic.GetEntityWithFilter<ISupAgreements>(x => x.RegistrationNumber == regNumber, exceptionList, logger);
+
+                    // Обновление сущности при условии, что найдено одно совпадение.
+                    if (supAgreements != null)
+                    {
+                        supAgreements.Name = fileNameWithoutExtension;
+                        supAgreements.Created = DateTimeOffset.UtcNow;
+                        supAgreements.DocumentRegister = documentRegisters;
+                        supAgreements.LeadingDocument = leadingDocument;
+                        supAgreements.Counterparty = counterparty;
+                        supAgreements.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate : Constants.defaultDateTime;
+                        supAgreements.RegistrationNumber = regNumber;
+                        supAgreements.DocumentKind = documentKind;
+                        supAgreements.Subject = subject;
+                        supAgreements.BusinessUnit = businessUnit;
+                        supAgreements.Department = department;
+                        supAgreements.ValidFrom = validFrom != DateTimeOffset.MinValue ? validFrom : Constants.defaultDateTime;
+                        supAgreements.ValidTill = validTill != DateTimeOffset.MinValue ? validTill : Constants.defaultDateTime;
+                        supAgreements.TotalAmount = totalAmount;
+                        supAgreements.Currency = currency;
+                        supAgreements.LifeCycleState = lifeCycleState;
+                        supAgreements.ResponsibleEmployee = responsibleEmployee;
+                        supAgreements.OurSignatory = ourSignatory;
+                        supAgreements.Note = note;
+
+                        var updatedEntity = BusinessLogic.UpdateEntity<ISupAgreements>(supAgreements, exceptionList, logger);
+
+                        return exceptionList;
+                    }
+                }
+
+
                 var supAgreement = new ISupAgreements();
 
                 supAgreement.Name = fileNameWithoutExtension;

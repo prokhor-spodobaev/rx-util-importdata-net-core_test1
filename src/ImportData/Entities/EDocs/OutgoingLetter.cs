@@ -127,6 +127,37 @@ namespace ImportData
 
             try
             {
+                if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+                {
+                    var outgoingLetters = BusinessLogic.GetEntityWithFilter<IOutgoingLetters>(x => x.RegistrationNumber == regNumber && x.RegistrationDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"), exceptionList, logger);
+
+                    // Обновление сущности при условии, что найдено одно совпадение.
+                    if (outgoingLetters != null)
+                    {
+                        outgoingLetters.Name = fileNameWithoutExtension;
+                        outgoingLetters.DocumentRegister = documentRegisters;
+                        outgoingLetters.Correspondent = counterparty;
+
+                        outgoingLetters.Created = DateTimeOffset.UtcNow;
+                        outgoingLetters.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate : Constants.defaultDateTime;
+
+                        outgoingLetters.RegistrationNumber = regNumber;
+                        outgoingLetters.DocumentKind = documentKind;
+                        outgoingLetters.Subject = subject;
+                        outgoingLetters.Department = department;
+
+                        if (department != null)
+                            outgoingLetters.BusinessUnit = department.BusinessUnit;
+
+                        outgoingLetters.PreparedBy = preparedBy;
+                        outgoingLetters.Note = note;
+
+                        var updatedEntity = BusinessLogic.UpdateEntity<IOutgoingLetters>(outgoingLetters, exceptionList, logger);
+
+                        return exceptionList;
+                    }
+                }
+
                 var outgoingLetter = new IOutgoingLetters();
 
                 outgoingLetter.Name = fileNameWithoutExtension;

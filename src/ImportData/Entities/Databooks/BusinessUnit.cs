@@ -104,30 +104,63 @@ namespace ImportData
 
             try
             {
-                var busunessUnit = new IBusinessUnits();
+                if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+                {
+                    var businessUnits = BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == name || x.TIN == tin || x.PSRN == psrn, exceptionList, logger);
 
-                busunessUnit.Name = name;
-                busunessUnit.LegalName = legalName;
-                busunessUnit.HeadCompany = headCompany;
-                busunessUnit.CEO = ceo;
-                busunessUnit.TIN = tin;
-                busunessUnit.TRRC = trrc;
-                busunessUnit.PSRN = psrn;
-                busunessUnit.NCEO = nceo;
-                busunessUnit.NCEA = ncea;
-                busunessUnit.City = city;
-                busunessUnit.Region = region;
-                busunessUnit.LegalAddress = legalAdress;
-                busunessUnit.PostalAddress = postalAdress;
-                busunessUnit.Phones = phones;
-                busunessUnit.Email = email;
-                busunessUnit.Homepage = homepage;
-                busunessUnit.Note = note;
-                busunessUnit.Account = account;
-                busunessUnit.Bank = bank;
-                busunessUnit.Status = "Active";
+                    if (businessUnits != null)
+                    {
+                        businessUnits.Name = name;
+                        businessUnits.LegalName = legalName;
+                        businessUnits.HeadCompany = headCompany;
+                        businessUnits.CEO = ceo;
+                        businessUnits.TIN = tin;
+                        businessUnits.TRRC = trrc;
+                        businessUnits.PSRN = psrn;
+                        businessUnits.NCEO = nceo;
+                        businessUnits.NCEA = ncea;
+                        businessUnits.City = city;
+                        businessUnits.Region = region;
+                        businessUnits.LegalAddress = legalAdress;
+                        businessUnits.PostalAddress = postalAdress;
+                        businessUnits.Phones = phones;
+                        businessUnits.Email = email;
+                        businessUnits.Homepage = homepage;
+                        businessUnits.Note = note;
+                        businessUnits.Account = account;
+                        businessUnits.Bank = bank;
+                        businessUnits.Status = "Active";
 
-                BusinessLogic.CreateEntity<IBusinessUnits>(busunessUnit, exceptionList, logger);
+                        var updatedEntity = BusinessLogic.UpdateEntity<IBusinessUnits>(businessUnits, exceptionList, logger);
+
+                        return exceptionList;
+                    }
+                }
+
+                var businessUnit = new IBusinessUnits();
+
+                businessUnit.Name = name;
+                businessUnit.LegalName = legalName;
+                businessUnit.HeadCompany = headCompany;
+                businessUnit.CEO = ceo;
+                businessUnit.TIN = tin;
+                businessUnit.TRRC = trrc;
+                businessUnit.PSRN = psrn;
+                businessUnit.NCEO = nceo;
+                businessUnit.NCEA = ncea;
+                businessUnit.City = city;
+                businessUnit.Region = region;
+                businessUnit.LegalAddress = legalAdress;
+                businessUnit.PostalAddress = postalAdress;
+                businessUnit.Phones = phones;
+                businessUnit.Email = email;
+                businessUnit.Homepage = homepage;
+                businessUnit.Note = note;
+                businessUnit.Account = account;
+                businessUnit.Bank = bank;
+                businessUnit.Status = "Active";
+
+                BusinessLogic.CreateEntity<IBusinessUnits>(businessUnit, exceptionList, logger);
             }
             catch (Exception ex)
             {

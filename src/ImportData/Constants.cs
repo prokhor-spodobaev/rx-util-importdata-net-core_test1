@@ -48,6 +48,8 @@ namespace ImportData
       public const string ImportOutgoingLetters = "importoutgoingletters";
       public const string ImportOrders = "importorders";
       public const string ImportAddendums = "importaddendums";
+      public const string ImportDepartments = "importdepartments";
+      public const string ImportEmployees = "importemployees";
 
       public static Dictionary<string, string> dictActions = new Dictionary<string, string>
       {
@@ -59,7 +61,9 @@ namespace ImportData
         {ImportIncomingLetters, ImportIncomingLetters},
         {ImportOutgoingLetters, ImportOutgoingLetters},
         {ImportOrders, ImportOrders},
-        {ImportAddendums, ImportAddendums}
+        {ImportAddendums, ImportAddendums},
+        {ImportDepartments, ImportDepartments},
+        {ImportEmployees, ImportEmployees}
       };
     }
 
@@ -81,7 +85,7 @@ namespace ImportData
         public const string RequestTimeoutParamName = "INTEGRATION_SERVICE_REQUEST_TIMEOUT";
     }
 
-    public static readonly DateTimeOffset defaultDateTime = new DateTime(1970, 1, 1);
+    public static readonly DateTimeOffset defaultDateTime = new DateTime(1971, 1, 1);
     public const string ignoreDuplicates = "ignore_duplicates";
     public static Dictionary<string, string> dictIgnoreDuplicates = new Dictionary<string, string>
     {

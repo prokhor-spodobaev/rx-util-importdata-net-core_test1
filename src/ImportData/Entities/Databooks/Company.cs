@@ -136,6 +136,40 @@ namespace ImportData
                     return exceptionList;
                 }
 
+                if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+                {
+                    var companies = BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name || (x.TIN == tin && x.TRRC == trrc) || x.PSRN == psrn, exceptionList, logger);
+
+                    // Обновление сущности при условии, что найдено одно совпадение.
+                    if (companies != null)
+                    {
+                        companies.Name = name;
+                        companies.LegalName = legalName;
+                        companies.HeadCompany = headCompany;
+                        companies.Nonresident = nonresident;
+                        companies.TIN = tin;
+                        companies.TRRC = trrc;
+                        companies.PSRN = psrn;
+                        companies.NCEO = nceo;
+                        companies.NCEA = ncea;
+                        companies.City = city;
+                        companies.Region = region;
+                        companies.LegalAddress = legalAdress;
+                        companies.PostalAddress = postalAdress;
+                        companies.Phones = phones;
+                        companies.Email = email;
+                        companies.Homepage = homepage;
+                        companies.Note = note;
+                        companies.Account = account;
+                        companies.Bank = bank;
+                        companies.Status = "Active";
+
+                        var updatedEntity = BusinessLogic.UpdateEntity<ICompanies>(companies, exceptionList, logger);
+
+                        return exceptionList;
+                    }
+                }
+
                 var company = new ICompanies();
 
                 company.Name = name;

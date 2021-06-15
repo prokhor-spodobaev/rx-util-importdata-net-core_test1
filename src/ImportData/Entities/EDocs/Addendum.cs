@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NLog;
 using ImportData.IntegrationServicesClient.Models;
 using System.IO;
+using System.Linq;
 
 namespace ImportData
 {
@@ -66,7 +67,7 @@ namespace ImportData
                     return exceptionList;
                 }
 
-                subject = this.Parameters[shift + 4];
+                subject = this.Parameters[shift + 6];
 
                 variableForParameters = this.Parameters[shift + 8].Trim();
                 var department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters, exceptionList, logger);
@@ -96,9 +97,10 @@ namespace ImportData
 
                 note = this.Parameters[shift + 17].Trim();
 
-                var documents = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(d => d.RegistrationNumber == regNumberLeadingDocument && d.RegistrationDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDateLeadingDocument.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"), exceptionList, logger);
 
-                if (documents == null)
+                var leadingDocuments = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(d => d.RegistrationNumber == regNumberLeadingDocument && d.RegistrationDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDateLeadingDocument.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"), exceptionList, logger);
+
+                if (leadingDocuments == null)
                 {
                     var message = string.Format("Приложение не может быть импортировано. Найдены совпадения или не найден ведущий документ с реквизитами \"Дата документа\" {0}, \"Рег. №\" {1}.", regDateLeadingDocument.ToString("d"), regNumberLeadingDocument);
                     exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
@@ -122,6 +124,39 @@ namespace ImportData
 
                 try
                 {
+                    if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+                    {
+                        var addendums = BusinessLogic.InstanceOData()
+                            .For<IAddendums>()
+                            .Expand(c => c.LeadingDocument)
+                            .Expand(c => c.DocumentKind)
+                            .Filter(c => c.LeadingDocument.Id == leadingDocuments.Id && c.DocumentKind.Id == documentKind.Id && c.Subject == subject)
+                            .FindEntriesAsync()
+                            .Result
+                            .FirstOrDefault();
+
+                        // Обновление сущности при условии, что найдено одно совпадение.
+                        if (addendums != null)
+                        {
+                            addendums.DocumentRegister = documentRegisters;
+                            addendums.Name = fileNameWithoutExtension;
+                            addendums.Department = department;
+
+                            addendums.RegistrationDate = regDateLeadingDocument != DateTimeOffset.MinValue ? regDateLeadingDocument : Constants.defaultDateTime;
+
+                            addendums.Created = DateTimeOffset.UtcNow;
+                            addendums.LeadingDocument = leadingDocuments;
+                            addendums.DocumentKind = documentKind;
+                            addendums.Subject = subject;
+                            addendums.LifeCycleState = lifeCycleState;
+                            addendums.Note = note;
+
+                            var updatedEntity = BusinessLogic.UpdateEntity<IAddendums>(addendums, exceptionList, logger);
+
+                            return exceptionList;
+                        }
+                    }
+
                     var addendum = new IAddendums();
                     // Обязательные поля.
                     addendum.DocumentRegister = documentRegisters;
@@ -131,7 +166,7 @@ namespace ImportData
                     addendum.RegistrationDate = regDateLeadingDocument != DateTimeOffset.MinValue ? regDateLeadingDocument : Constants.defaultDateTime;
 
                     addendum.Created = DateTimeOffset.UtcNow;
-                    addendum.LeadingDocument = documents;
+                    addendum.LeadingDocument = leadingDocuments;
                     addendum.DocumentKind = documentKind;
                     addendum.Subject = subject;
                     addendum.LifeCycleState = lifeCycleState;

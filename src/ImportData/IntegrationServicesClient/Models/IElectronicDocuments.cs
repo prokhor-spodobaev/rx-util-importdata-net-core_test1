@@ -10,7 +10,7 @@ namespace ImportData.IntegrationServicesClient.Models
     {
         public string Name { get; set; }
         public DateTimeOffset Created { get; set; }
-        public string Modified { get; set; }
+        public DateTimeOffset Modified { get; set; }
         public bool HasRelations { get; set; }
         public int LastVersionSignatureType { get; set; }
         public bool LastVersionApproved { get; set; }
