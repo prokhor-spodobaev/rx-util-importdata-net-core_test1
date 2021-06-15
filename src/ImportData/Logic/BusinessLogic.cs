@@ -50,7 +50,7 @@ namespace ImportData
 
         #region Работа с сервисом интеграции.
         /// <summary>
-        /// Получение сущностей по фильтру.
+        /// Получение сущности по фильтру.
         /// </summary>
         /// <typeparam name="T">Тип сущности.</typeparam>
         /// <param name="expression">Условие фильтрации.</param>
