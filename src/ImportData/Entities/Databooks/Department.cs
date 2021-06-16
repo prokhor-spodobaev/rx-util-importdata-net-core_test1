@@ -39,8 +39,6 @@ namespace ImportData
                 return exceptionList;
             }
 
-            //var department = BusinessLogic.GetEntityWithFilter<IDepartments>(x => x.Name == nameDepartment, exceptionList, logger);
-
             var shortName = this.Parameters[shift + 1].Trim();
 
             variableForParameters = this.Parameters[shift + 2].Trim();
@@ -61,7 +59,7 @@ namespace ImportData
                 logger.Warn(message);
             }
 
-            var code = this.Parameters[shift + 4].Trim();
+            var code = this.Parameters[shift + 2].Trim();
 
             variableForParameters = this.Parameters[shift + 5].Trim();
             var manager = BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == variableForParameters, exceptionList, logger);
@@ -83,9 +81,29 @@ namespace ImportData
 
                 if (!string.IsNullOrEmpty(resultCodeDepartment))
                 {
-                    var message = string.Format("Компания не может быть импортирована. Некорректный код подразделения. Наименование: \"{0}\", ИНН: {1}. {2}", nameDepartment, code, resultCodeDepartment);
+                    var message = string.Format("Подразделение не может быть импортировано. Некорректный код подразделения. Наименование: \"{0}\", Код подразделения: {1}. {2}", nameDepartment, code, resultCodeDepartment);
                     exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
                     logger.Error(message);
+
+                    return exceptionList;
+                }
+
+                var departments = BusinessLogic.GetEntityWithFilter<IDepartments>(x => x.Name == nameDepartment, exceptionList, logger);
+
+                // Обновление сущности при условии, что найдено одно совпадение.
+                if (departments != null)
+                {
+                    departments.Name = nameDepartment;
+                    departments.ShortName = shortName;
+                    departments.BusinessUnit = businessUnit;
+                    departments.HeadOffice = headOffice;
+                    departments.Manager = manager;
+                    departments.Code = code;
+                    departments.Phone = phone;
+                    departments.Note = note;
+                    departments.Status = "Active";
+
+                    var updatedEntity = BusinessLogic.UpdateEntity<IDepartments>(departments, exceptionList, logger);
 
                     return exceptionList;
                 }

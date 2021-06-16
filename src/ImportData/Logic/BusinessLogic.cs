@@ -8,6 +8,7 @@ using ImportData.IntegrationServicesClient.Models;
 using Simple.OData.Client;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using ImportData.IntegrationServicesClient.Exceptions;
 
 namespace ImportData
 {
@@ -15,6 +16,11 @@ namespace ImportData
     {
         public static IEnumerable<string> ErrorList;
 
+        /// <summary>
+        /// Чтение атрибута EntityName.
+        /// </summary>
+        /// <param name="t">Тип класса.</param>
+        /// <returns>Значение атрибута EntityName.</returns>
         private static string PrintInfo(Type t)
         {
             Attribute[] attrs = Attribute.GetCustomAttributes(t);
@@ -32,9 +38,19 @@ namespace ImportData
             return string.Empty;
         }
 
+        /// <summary>
+        /// Получение экземпляра клиента OData.
+        /// </summary>
+        /// <returns>ODataClient.</returns>
+        /// <remarks></remarks>
+        public static ODataClient InstanceOData()
+        {
+            return Client.Instance();
+        }
+
         #region Работа с сервисом интеграции.
         /// <summary>
-        /// Получение сущностей по фильтру.
+        /// Получение сущности по фильтру.
         /// </summary>
         /// <typeparam name="T">Тип сущности.</typeparam>
         /// <param name="expression">Условие фильтрации.</param>
@@ -52,11 +68,11 @@ namespace ImportData
 
             if (entities.Count() > 1)
             {
-                var message = string.Format("Найдено несколько записей с именем \"{0}\". Проверьте, что выбрана верная запись.", entities.FirstOrDefault().ToString());
+                var message = string.Format("Найдено несколько записей типа сущности \"{0}\" с именем \"{1}\". Проверьте, что выбрана верная запись.", PrintInfo(typeof(T)), entities.FirstOrDefault().ToString());
                 exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
-                logger.Warn(message);
+                logger.Error(message);
 
-                return null;
+                throw new FoundMatchesException(message);
             }
 
             return entities.FirstOrDefault();
@@ -98,6 +114,8 @@ namespace ImportData
         public static T UpdateEntity<T>(T entity, List<Structures.ExceptionsStruct> exceptionList, Logger logger) where T : class
         {
             var entities = Client.UpdateEntity<T>(entity);
+
+            logger.Info(string.Format("Тип сущности {0} обновлен.", PrintInfo(typeof(T))));
 
             return entities;
         }

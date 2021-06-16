@@ -16,7 +16,7 @@ namespace ImportData.IntegrationServicesClient.Models
         //public string ScheduledReturnDateFromCounterparty { get; set; }
         public string Subject { get; set; }
         public string Note { get; set; }
-        public string DocumentDate { get; set; }
+        public DateTimeOffset DocumentDate { get; set; }
         //public string LocationState { get; set; }
         public string LifeCycleState { get; set; }
         public string RegistrationState { get; set; }

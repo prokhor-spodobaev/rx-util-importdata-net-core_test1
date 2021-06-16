@@ -151,6 +151,35 @@ namespace ImportData
 
             try
             {
+                if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+                {
+                    var orders = BusinessLogic.GetEntityWithFilter<IOrders>(x => x.RegistrationNumber == regNumber && x.RegistrationDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"), exceptionList, logger);
+
+                    // Обновление сущности при условии, что найдено одно совпадение.
+                    if (orders != null)
+                    {
+                        orders.Name = fileNameWithoutExtension;
+                        orders.DocumentRegister = documentRegisters;
+                        orders.Created = DateTimeOffset.UtcNow;
+                        orders.Name = fileNameWithoutExtension;
+                        orders.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate : Constants.defaultDateTime;
+                        orders.RegistrationNumber = regNumber;
+                        orders.DocumentKind = documentKind;
+                        orders.Subject = subject;
+                        orders.BusinessUnit = businessUnit;
+                        orders.Department = department;
+                        orders.Assignee = assignee;
+                        orders.PreparedBy = preparedBy;
+                        orders.OurSignatory = ourSignatory;
+                        orders.LifeCycleState = lifeCycleState;
+                        orders.Note = note;
+
+                        var updatedEntity = BusinessLogic.UpdateEntity<IOrders>(orders, exceptionList, logger);
+
+                        return exceptionList;
+                    }
+                }
+
                 var order = new IOrders();
 
                 order.Name = fileNameWithoutExtension;

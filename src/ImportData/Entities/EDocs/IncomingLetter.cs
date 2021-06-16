@@ -146,6 +146,38 @@ namespace ImportData
 
             try
             {
+                if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+                {
+                    var incomingLetters = BusinessLogic.GetEntityWithFilter<IIncomingLetters>(x => x.RegistrationNumber == regNumber && x.RegistrationDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"), exceptionList, logger);
+
+                    // Обновление сущности при условии, что найдено одно совпадение.
+                    if (incomingLetters != null)
+                    {
+                        incomingLetters.Name = fileNameWithoutExtension;
+                        incomingLetters.DocumentRegister = documentRegisters;
+                        incomingLetters.Created = DateTimeOffset.UtcNow;
+                        incomingLetters.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate : Constants.defaultDateTime;
+                        incomingLetters.RegistrationNumber = regNumber;
+                        incomingLetters.Correspondent = counterparty;
+                        incomingLetters.DocumentKind = documentKind;
+                        incomingLetters.Subject = subject;
+                        incomingLetters.Department = department;
+
+                        if (department != null)
+                            incomingLetters.BusinessUnit = department.BusinessUnit;
+
+                        incomingLetters.Dated = dated != DateTimeOffset.MinValue ? dated : Constants.defaultDateTime;
+                        incomingLetters.InNumber = inNumber;
+                        incomingLetters.Addressee = addressee;
+                        incomingLetters.DeliveryMethod = deliveryMethod;
+                        incomingLetters.Note = note;
+
+                        var updatedEntity = BusinessLogic.UpdateEntity<IIncomingLetters>(incomingLetters, exceptionList, logger);
+
+                        return exceptionList;
+                    }
+                }
+
                 var incomingLetter = new IIncomingLetters();
 
                 incomingLetter.Name = fileNameWithoutExtension;

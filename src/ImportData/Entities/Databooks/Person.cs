@@ -56,7 +56,6 @@ namespace ImportData
 
             var sex = BusinessLogic.GetPropertySex(this.Parameters[shift + 3].Trim());
             var dateOfBirth = DateTimeOffset.MinValue;
-            var style = NumberStyles.Number | NumberStyles.AllowCurrencySymbol;
             var culture = CultureInfo.CreateSpecificCulture("en-GB");
             var dateOfBirthDateTimeOffset = DateTimeOffset.MinValue;
 
@@ -115,6 +114,39 @@ namespace ImportData
 
             try
             {
+                if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+                {
+                    var persons = BusinessLogic.GetEntityWithFilter<IPersons>(x => x.LastName == lastName && x.FirstName == firstName, exceptionList, logger);
+
+                    // Обновление сущности при условии, что найдено одно совпадение.
+                    if (persons != null)
+                    {
+                        persons.Name = string.Format("{0} {1} {2}", lastName, firstName, middleName);
+                        persons.LastName = lastName;
+                        persons.FirstName = firstName;
+                        persons.MiddleName = middleName;
+                        persons.Sex = sex;
+                        persons.DateOfBirth = dateOfBirth != DateTimeOffset.MinValue ? dateOfBirth : Constants.defaultDateTime;
+                        persons.TIN = tin;
+                        persons.INILA = inila;
+                        persons.City = city;
+                        persons.Region = region;
+                        persons.LegalAddress = legalAdress;
+                        persons.PostalAddress = postalAdress;
+                        persons.Phones = phones;
+                        persons.Email = email;
+                        persons.Homepage = homepage;
+                        persons.Bank = bank;
+                        persons.Account = account;
+                        persons.Note = note;
+                        persons.Status = "Active";
+
+                        var updatedEntity = BusinessLogic.UpdateEntity<IPersons>(persons, exceptionList, logger);
+
+                        return exceptionList;
+                    }
+                }
+
                 var person = new IPersons();
 
                 person.Name = string.Format("{0} {1} {2}", lastName, firstName, middleName);
