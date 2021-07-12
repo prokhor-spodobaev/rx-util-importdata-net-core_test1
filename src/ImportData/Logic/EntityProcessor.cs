@@ -10,7 +10,7 @@ namespace ImportData
 {
   public class EntityProcessor
   {
-    public static void Procces(Type type, string xlsxPath, string sheetName, Dictionary<string, string> extraParameters, string searchDoubles, Logger logger)
+    public static void Process(Type type, string xlsxPath, string sheetName, Dictionary<string, string> extraParameters, string searchDoubles, Logger logger)
     {
       if (type.Equals(typeof(Entity)))
       {
