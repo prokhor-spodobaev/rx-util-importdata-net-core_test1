@@ -25,7 +25,6 @@ namespace ImportData
         /// <returns>Число запрашиваемых параметров.</returns>
         public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0)
         {
-
             var exceptionList = new List<Structures.ExceptionsStruct>();
 
             var name = this.Parameters[shift + 0].Trim();
@@ -52,7 +51,7 @@ namespace ImportData
 
             var headCompany = counterparty as ICompanies;
 
-            var nonresident = this.Parameters[shift + 3] == "Да" ? true : false;
+            var nonresident = this.Parameters[shift + 3].ToLower() == "да" ? true : false;
             //var code = this.Parameters[shift + 4].Trim(); 
             var tin = this.Parameters[shift + 4].Trim(); // ИНН
             var trrc = this.Parameters[shift + 5].Trim(); // КПП
