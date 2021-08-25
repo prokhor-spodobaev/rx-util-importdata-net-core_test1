@@ -50,6 +50,7 @@ namespace ImportData
       public const string ImportAddendums = "importaddendums";
       public const string ImportDepartments = "importdepartments";
       public const string ImportEmployees = "importemployees";
+      public const string ImportCounterparties = "importcounterparties";
 
       public static Dictionary<string, string> dictActions = new Dictionary<string, string>
       {
@@ -63,7 +64,8 @@ namespace ImportData
         {ImportOrders, ImportOrders},
         {ImportAddendums, ImportAddendums},
         {ImportDepartments, ImportDepartments},
-        {ImportEmployees, ImportEmployees}
+        {ImportEmployees, ImportEmployees},
+        {ImportCounterparties, ImportCounterparties}
       };
     }
 

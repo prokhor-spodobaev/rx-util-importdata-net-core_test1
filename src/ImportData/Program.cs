@@ -65,6 +65,8 @@ namespace ImportData
                 case "importemployees":
                     EntityProcessor.Process(typeof(Employee), xlsxPath, Constants.SheetNames.Employees, extraParameters, ignoreDuplicates, logger);
                     break;
+                case "importcounterparties":
+                    EntityProcessor.Process(typeof(Counterparty), xlsxPath, Constants.SheetNames.Employees, extraParameters, ignoreDuplicates, logger);
                 default:
                     break;
             }
