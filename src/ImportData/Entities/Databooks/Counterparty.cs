@@ -43,17 +43,17 @@ namespace ImportData.Entities.Databooks
                 return exceptionList;
             }
 
-            var legalName = this.Parameters[shift + 1].Trim();
+            //var legalName = this.Parameters[shift + 1].Trim();
 
-            variableForParameters = this.Parameters[shift + 2].Trim();
-            var counterparty = BusinessLogic.GetEntityWithFilter<ICounterparties>(c => c.Name == variableForParameters, exceptionList, logger);
+            //variableForParameters = this.Parameters[shift + 2].Trim();
+            //var counterparty = BusinessLogic.GetEntityWithFilter<ICounterparties>(c => c.Name == variableForParameters, exceptionList, logger);
 
-            if (!string.IsNullOrEmpty(this.Parameters[shift + 2].Trim()) && counterparty == null)
-            {
-                counterparty = BusinessLogic.CreateEntity<ICompanies>(new ICompanies() { Name = this.Parameters[shift + 2].Trim(), Status = "Active" }, exceptionList, logger);
-            }
+            //if (!string.IsNullOrEmpty(this.Parameters[shift + 2].Trim()) && counterparty == null)
+            //{
+            //    counterparty = BusinessLogic.CreateEntity<ICompanies>(new ICompanies() { Name = this.Parameters[shift + 2].Trim(), Status = "Active" }, exceptionList, logger);
+            //}
 
-            var headCompany = counterparty as ICompanies;
+            //var headCompany = counterparty as ICompanies;
 
             var nonresident = this.Parameters[shift + 3] == "Да" ? true : false;
             //var code = this.Parameters[shift + 4].Trim(); 

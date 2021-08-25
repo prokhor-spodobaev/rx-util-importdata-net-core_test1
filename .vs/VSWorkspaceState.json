@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\ImportData",
+    "\\src\\ImportData\\Entities",
+    "\\src\\ImportData\\Entities\\Databooks"
+  ],
+  "SelectedNode": "\\src\\ImportData\\Entities\\Databooks\\Employee.cs",
+  "PreviewInSolutionExplorer": false
+}
