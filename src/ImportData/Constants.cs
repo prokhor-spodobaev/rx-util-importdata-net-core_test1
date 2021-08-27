@@ -35,6 +35,7 @@ namespace ImportData
       public const string OutgoingLetters = "ИсходящиеПисьма";
       public const string Orders = "Приказы и Распоряжения";
       public const string Addendums = "Приложения";
+      public const string Contact = "Контактные лица";
     }
 
     public class Actions
@@ -50,7 +51,7 @@ namespace ImportData
       public const string ImportAddendums = "importaddendums";
       public const string ImportDepartments = "importdepartments";
       public const string ImportEmployees = "importemployees";
-      public const string ImportCounterparties = "importcounterparties";
+      public const string ImportContacts = "importcontacts";
 
       public static Dictionary<string, string> dictActions = new Dictionary<string, string>
       {
@@ -65,7 +66,7 @@ namespace ImportData
         {ImportAddendums, ImportAddendums},
         {ImportDepartments, ImportDepartments},
         {ImportEmployees, ImportEmployees},
-        {ImportCounterparties, ImportCounterparties}
+        {ImportContacts, ImportContacts}
       };
     }
 

@@ -4,8 +4,9 @@
     "\\src",
     "\\src\\ImportData",
     "\\src\\ImportData\\Entities",
-    "\\src\\ImportData\\Entities\\Databooks"
+    "\\src\\ImportData\\Entities\\Databooks",
+    "\\src\\ImportData\\Logic"
   ],
-  "SelectedNode": "\\src\\ImportData\\Program.cs",
+  "SelectedNode": "\\src\\ImportData.sln",
   "PreviewInSolutionExplorer": false
 }
