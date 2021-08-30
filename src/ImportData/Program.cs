@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using NDesk.Options;
 using NLog;
+using ImportData.Entities.Databooks;
 
 namespace ImportData
 {
@@ -64,6 +65,9 @@ namespace ImportData
                     break;
                 case "importemployees":
                     EntityProcessor.Process(typeof(Employee), xlsxPath, Constants.SheetNames.Employees, extraParameters, ignoreDuplicates, logger);
+                    break;
+                case "importcontacts":
+                    EntityProcessor.Process(typeof(Contact), xlsxPath, Constants.SheetNames.Contact, extraParameters, ignoreDuplicates, logger);
                     break;
                 default:
                     break;
