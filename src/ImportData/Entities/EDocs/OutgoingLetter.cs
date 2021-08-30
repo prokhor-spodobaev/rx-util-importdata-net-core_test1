@@ -33,20 +33,18 @@ namespace ImportData
             DateTimeOffset regDate = DateTimeOffset.MinValue;
             var style = NumberStyles.Number | NumberStyles.AllowCurrencySymbol;
             var culture = CultureInfo.CreateSpecificCulture("en-GB");
-            var regDateDouble = 0.0;
 
-            if (!string.IsNullOrWhiteSpace(this.Parameters[shift + 1]) && !double.TryParse(this.Parameters[shift + 1].Trim(), style, culture, out regDateDouble))
+            try
+            {
+                regDate = ParseDate(this.Parameters[shift + 1], style, culture);
+            }
+            catch (Exception)
             {
                 var message = string.Format("Не удалось обработать дату регистрации \"{0}\".", this.Parameters[shift + 1]);
                 exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
                 logger.Error(message);
 
                 return exceptionList;
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(this.Parameters[shift + 1].ToString()))
-                    regDate = DateTime.FromOADate(regDateDouble);
             }
 
             variableForParameters = this.Parameters[shift + 2].Trim();
