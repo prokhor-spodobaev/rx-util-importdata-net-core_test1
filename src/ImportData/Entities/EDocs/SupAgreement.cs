@@ -49,7 +49,7 @@ namespace ImportData
 
             var regNumberLeadingDocument = this.Parameters[shift + 2];
 
-            var regDateLeadingDocument = DateTime.MinValue;
+            var regDateLeadingDocument = DateTimeOffset.MinValue;
             try
             {
                 regDateLeadingDocument = ParseDate(this.Parameters[shift + 3], style, culture);
@@ -225,18 +225,6 @@ namespace ImportData
 
             try
             {
-                var contracts = BusinessLogic.GetEntityWithFilter<IContracts>(x => x.RegistrationDate == regDateLeadingDocument && x.RegistrationNumber == regNumberLeadingDocument && x.Counterparty == counterparty, exceptionList, logger);
-
-                // Провера на существование Ведущего документа.
-                if (contracts == null)
-                {
-                    var message = string.Format("Доп.соглашение не может быть импортировано. Не найден ведущий документ с реквизитами \"Дата документа\" {0}, \"Рег. №\" {1} и \"Контрагент\" {2}.", regDateLeadingDocument.ToString("d"), regNumberLeadingDocument, counterparty.Name);
-                    exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-                    logger.Error(message);
-
-                    return exceptionList;
-                }
-
                 if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
                 {
                     var supAgreements = BusinessLogic.GetEntityWithFilter<ISupAgreements>(x => x.RegistrationNumber == regNumber, exceptionList, logger);
