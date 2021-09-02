@@ -1,7 +1,7 @@
 ﻿namespace ImportData.IntegrationServicesClient.Models
 {
     [EntityName("Организация")]
-    class ICompanies : ICounterparties
+    public class ICompanies : ICounterparties
     {
         public string TRRC { get; set; }
         public bool IsCardReadOnly { get; set; }

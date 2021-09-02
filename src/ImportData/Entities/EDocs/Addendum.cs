@@ -4,6 +4,7 @@ using NLog;
 using ImportData.IntegrationServicesClient.Models;
 using System.IO;
 using System.Linq;
+using System.Globalization;
 
 namespace ImportData
 {
@@ -42,11 +43,11 @@ namespace ImportData
             try
             {
                 regNumberLeadingDocument = this.Parameters[shift + 2];
-                double regDateLeadingDocumentDouble;
-
-                if (double.TryParse(this.Parameters[shift + 3], out regDateLeadingDocumentDouble))
-                    regDateLeadingDocument = DateTime.FromOADate(regDateLeadingDocumentDouble);
-                else
+                try
+                {
+                    regDateLeadingDocument = ParseDate(this.Parameters[shift + 3], NumberStyles.Number | NumberStyles.AllowCurrencySymbol, CultureInfo.CreateSpecificCulture("en-GB"));
+                }
+                catch (Exception)
                 {
                     var message = string.Format("Не удалось обработать дату ведущего документа \"{0}\".", this.Parameters[shift + 3]);
                     exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });

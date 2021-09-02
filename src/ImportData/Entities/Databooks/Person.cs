@@ -57,17 +57,16 @@ namespace ImportData
             var sex = BusinessLogic.GetPropertySex(this.Parameters[shift + 3].Trim());
             var dateOfBirth = DateTimeOffset.MinValue;
             var culture = CultureInfo.CreateSpecificCulture("en-GB");
-            var dateOfBirthDateTimeOffset = DateTimeOffset.MinValue;
-
-            if (!string.IsNullOrWhiteSpace(this.Parameters[shift + 4]))
+            try
             {
+                dateOfBirth = ParseDate(this.Parameters[shift + 4], NumberStyles.Number | NumberStyles.AllowCurrencySymbol, culture);
+            }
+            catch (Exception)
+            {
+                var message = string.Format("Не удалось обработать значение в поле \"Дата рождения\" \"{0}\".", this.Parameters[shift + 4]);
+                exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
+                logger.Warn(message);
 
-                if (!DateTimeOffset.TryParse(this.Parameters[shift + 4].Trim(), out dateOfBirth))
-                {
-                    var message = string.Format("Не удалось обработать значение в поле \"Дата рождения\" \"{0}\".", this.Parameters[shift + 4]);
-                    exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
-                    logger.Warn(message);
-                }
             }
 
             var tin = this.Parameters[shift + 5].Trim();
