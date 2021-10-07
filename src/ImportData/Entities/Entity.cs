@@ -58,5 +58,15 @@ namespace ImportData
             else
                 return DateTimeOffset.MinValue;
         }
+
+        /// <summary>
+        /// Получить начало дня.
+        /// </summary>
+        /// <param name="dateTimeOffset">Дата-время.</param>
+        /// <returns>Начало дня.</returns>
+        public DateTimeOffset BeginningOfDay(DateTimeOffset dateTimeOffset)
+        {
+            return new DateTimeOffset(dateTimeOffset.Year, dateTimeOffset.Month, dateTimeOffset.Day, 0, 0, 0, dateTimeOffset.Offset);
+        }
     }
 }

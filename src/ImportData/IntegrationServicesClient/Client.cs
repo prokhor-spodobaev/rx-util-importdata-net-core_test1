@@ -64,11 +64,14 @@ namespace ImportData.IntegrationServicesClient
         /// <typeparam name="T">Тип сущности.</typeparam>
         /// <param name="expression">Условие фильтрации.</param>
         /// <returns>Сущность.</returns>
-        public static IEnumerable<T> GetEntitiesByFilter<T>(ODataExpression expression) where T : class
+        public static IEnumerable<T> GetEntitiesByFilter<T>(ODataExpression expression, bool isExpand) where T : class
         {
-            var data = client.For<T>().Filter(expression).FindEntriesAsync().Result;
+            var query = client.For<T>().Filter(expression);
 
-            return data;
+            if (isExpand)
+                query = query.Expand(ODataExpandOptions.ByValue());
+
+            return query.FindEntriesAsync().Result;
         }
 
         /// <summary>
