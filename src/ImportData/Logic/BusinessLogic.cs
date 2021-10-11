@@ -68,8 +68,6 @@ namespace ImportData
       {
         var entities = Client.GetEntitiesByFilter<T>(filter, isExpand);
 
-
-
         if (entities.Count() > 1)
         {
           var message = string.Format("Найдено несколько записей типа сущности \"{0}\" с именем \"{1}\". Проверьте, что выбрана верная запись.", PrintInfo(typeof(T)), entities.FirstOrDefault().ToString());
