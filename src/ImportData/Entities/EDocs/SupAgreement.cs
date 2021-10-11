@@ -225,8 +225,7 @@ namespace ImportData
 
             try
             {
-                var regDateUtc = regDate.UtcDateTime;
-                var regDateBeginningOfDay = BeginningOfDay(regDateUtc);
+                var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
                 var supAgreement = BusinessLogic.GetEntityWithFilter<ISupAgreements>(x => x.RegistrationNumber == regNumber && 
                 x.RegistrationDate == regDateBeginningOfDay && x.Counterparty.Id == counterparty.Id, exceptionList, logger);
                 if (supAgreement == null)
@@ -237,7 +236,7 @@ namespace ImportData
                 supAgreement.DocumentRegister = documentRegisters;
                 supAgreement.LeadingDocument = leadingDocument;
                 supAgreement.Counterparty = counterparty;
-                supAgreement.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDateUtc : Constants.defaultDateTime;
+                supAgreement.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
                 supAgreement.RegistrationNumber = regNumber;
                 supAgreement.DocumentKind = documentKind;
                 supAgreement.Subject = subject;

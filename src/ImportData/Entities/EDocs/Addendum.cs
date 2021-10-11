@@ -98,8 +98,7 @@ namespace ImportData
 
                 note = this.Parameters[shift + 17].Trim();
 
-                var regDateUtc = regDateLeadingDocument.UtcDateTime;
-                var regDateBeginningOfDay = BeginningOfDay(regDateUtc);
+                var regDateBeginningOfDay = BeginningOfDay(regDateLeadingDocument);
                 var leadingDocuments = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(d => d.RegistrationNumber == regNumberLeadingDocument && d.RegistrationDate == regDateBeginningOfDay, exceptionList, logger);
 
                 if (leadingDocuments == null)
@@ -135,7 +134,7 @@ namespace ImportData
                     addendum.Name = fileNameWithoutExtension;
                     addendum.Department = department;
 
-                    addendum.RegistrationDate = regDateLeadingDocument != DateTimeOffset.MinValue ? regDateLeadingDocument : Constants.defaultDateTime;
+                    addendum.RegistrationDate = regDateLeadingDocument != DateTimeOffset.MinValue ? regDateLeadingDocument.UtcDateTime : Constants.defaultDateTime;
 
                     addendum.Created = DateTimeOffset.UtcNow;
                     addendum.LeadingDocument = leadingDocuments;

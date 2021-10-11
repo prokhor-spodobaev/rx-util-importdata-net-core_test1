@@ -140,8 +140,7 @@ namespace ImportData
 
             try
             {
-                var regDateUtc = regDate.UtcDateTime;
-                var regDateBeginningOfDay = BeginningOfDay(regDateUtc);
+                var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
                 var incomingLetter = BusinessLogic.GetEntityWithFilter<IIncomingLetters>(x => x.RegistrationNumber == regNumber &&
                 x.RegistrationDate == regDateBeginningOfDay, exceptionList, logger);
                 if (incomingLetter == null)
@@ -150,7 +149,7 @@ namespace ImportData
                 incomingLetter.Name = fileNameWithoutExtension;
                 incomingLetter.DocumentRegister = documentRegisters;
                 incomingLetter.Created = DateTimeOffset.UtcNow;
-                incomingLetter.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDateUtc : Constants.defaultDateTime;
+                incomingLetter.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
                 incomingLetter.RegistrationNumber = regNumber;
                 incomingLetter.Correspondent = counterparty;
                 incomingLetter.DocumentKind = documentKind;

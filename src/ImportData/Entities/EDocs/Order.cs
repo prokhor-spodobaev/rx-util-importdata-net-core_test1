@@ -149,8 +149,7 @@ namespace ImportData
 
             try
             {
-                var regDateUtc = regDate.UtcDateTime;
-                var regDateBeginningOfDay = BeginningOfDay(regDateUtc);
+                var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
                 var order = BusinessLogic.GetEntityWithFilter<IOrders>(x => x.RegistrationNumber == regNumber && x.RegistrationDate == regDateBeginningOfDay, exceptionList, logger);
                 if (order == null)
                     order = new IOrders();
@@ -159,7 +158,7 @@ namespace ImportData
                 order.DocumentRegister = documentRegisters;
                 order.Created = DateTimeOffset.UtcNow;
                 order.Name = fileNameWithoutExtension;
-                order.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDateUtc : Constants.defaultDateTime;
+                order.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
                 order.RegistrationNumber = regNumber;
                 order.DocumentKind = documentKind;
                 order.Subject = subject;
