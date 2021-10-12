@@ -45,13 +45,13 @@ namespace ImportData
         {
             if (!string.IsNullOrEmpty(value))
             {
-                DateTime date;
-                if (DateTime.TryParse(value.Trim(), culture.DateTimeFormat, DateTimeStyles.None, out date))
+                DateTimeOffset date;
+                if (DateTimeOffset.TryParse(value.Trim(), culture.DateTimeFormat, DateTimeStyles.AssumeUniversal, out date))
                     return date;
 
                 var dateDouble = 0.0;
                 if (double.TryParse(value.Trim(), style, culture, out dateDouble))
-                    return DateTime.FromOADate(dateDouble);
+                    return new DateTimeOffset(DateTime.FromOADate(dateDouble), TimeSpan.Zero);
 
                 throw new FormatException("Неверный формат строки.");
             }

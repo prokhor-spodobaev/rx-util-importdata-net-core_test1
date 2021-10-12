@@ -70,8 +70,25 @@ namespace ImportData
 
         subject = this.Parameters[shift + 6];
 
+        variableForParameters = this.Parameters[shift + 7].Trim();
+        var businessUnit = BusinessLogic.GetEntityWithFilter<IBusinessUnits>(c => c.Name == variableForParameters, exceptionList, logger);
+
+        if (businessUnit == null)
+        {
+          var message = string.Format("Не найдена НОР \"{0}\".", this.Parameters[shift + 7]);
+          exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+          logger.Error(message);
+
+          return exceptionList;
+        }
+
         variableForParameters = this.Parameters[shift + 8].Trim();
-        var department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters, exceptionList, logger);
+        IDepartments department = null;
+        if (businessUnit != null)
+          department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters &&
+          (d.BusinessUnit == null || d.BusinessUnit.Id == businessUnit.Id), exceptionList, logger, true);
+        else
+          department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters, exceptionList, logger);
 
         if (department == null)
         {

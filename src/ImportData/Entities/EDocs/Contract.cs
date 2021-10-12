@@ -102,7 +102,12 @@ namespace ImportData
       }
 
       variableForParameters = this.Parameters[shift + 7].Trim();
-      var department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters, exceptionList, logger);
+      IDepartments department = null;
+      if (businessUnit != null)
+        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters && 
+        (d.BusinessUnit == null || d.BusinessUnit.Id == businessUnit.Id), exceptionList, logger, true);
+      else
+        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters , exceptionList, logger);
 
       if (department == null)
       {
