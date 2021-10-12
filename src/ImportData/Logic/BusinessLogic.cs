@@ -390,32 +390,40 @@ namespace ImportData
     /// <param name="tin">Строка с ИНН.</param>
     /// <param name="forCompany">Признак того, что проверяется ИНН для компании.</param>
     /// <returns>Текст ошибки. Пустая строка для верного ИНН.</returns>
-    public static string CheckTin(string tin, bool forCompany)
+    public static string CheckTin(string tin, bool forCompany, bool nonresident = false)
     {
       if (string.IsNullOrWhiteSpace(tin))
         return string.Empty;
 
       tin = tin.Trim();
 
-      // Проверить содержание ИНН. Должен состоять только из цифр. (Bug 87755)
-      if (!Regex.IsMatch(tin, @"^\d*$"))
-        return Constants.Resources.NotOnlyDigitsTin;
+      if (!nonresident)
+      {
+        // Проверить содержание ИНН. Должен состоять только из цифр. (Bug 87755)
+        if (!Regex.IsMatch(tin, @"^\d*$"))
+          return Constants.Resources.NotOnlyDigitsTin;
 
-      // Проверить длину ИНН. Для компаний допустимы ИНН длиной 10 или 12 символов, для персон - только 12.
-      if (forCompany && tin.Length != 10 && tin.Length != 12)
-        return Constants.Resources.CompanyIncorrectTinLength;
+        // Проверить длину ИНН. Для компаний допустимы ИНН длиной 10 или 12 символов, для персон - только 12.
+        if (forCompany && tin.Length != 10 && tin.Length != 12)
+          return Constants.Resources.CompanyIncorrectTinLength;
 
-      if (!forCompany && tin.Length != 12)
-        return Constants.Resources.PeopleIncorrectTinLength;
+        if (!forCompany && tin.Length != 12)
+          return Constants.Resources.PeopleIncorrectTinLength;
+
+        // Проверить контрольную сумму.
+        if (!CheckTinSum(tin))
+          return Constants.Resources.NotValidTin;
+      }
+      else
+      {
+        if (tin.Length > 12)
+          return Constants.Resources.NonresidentIncorectTinLength;
+      }
 
       // Проверить значения первых 2х цифр на нули.
       // 1 и 2 цифры - код субъекта РФ (99 для межрегиональной ФНС для физлиц и ИП или код иностранной организации).
       if (tin.StartsWith("00"))
         return Constants.Resources.NotValidTinRegionCode;
-
-      // Проверить контрольную сумму.
-      if (!CheckTinSum(tin))
-        return Constants.Resources.NotValidTin;
 
       return string.Empty;
     }
