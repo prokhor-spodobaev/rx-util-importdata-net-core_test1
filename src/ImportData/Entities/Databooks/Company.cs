@@ -135,6 +135,16 @@ namespace ImportData
                     return exceptionList;
                 }
 
+                var resultNCEO = BusinessLogic.CheckNceoLength(nceo);
+                if (!string.IsNullOrEmpty(resultNCEO))
+                {
+                  var message = string.Format("Компания не может быть импортирована. Некорректный ОКПО. Наименование: \"{0}\", ОКПО: {1}. {2}", name, nceo, resultNCEO);
+                  exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+                  logger.Error(message);
+
+                  return exceptionList;
+                }
+
                 if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
                 {
                     var companies = BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name || (x.TIN == tin && x.TRRC == trrc) || x.PSRN == psrn, exceptionList, logger);

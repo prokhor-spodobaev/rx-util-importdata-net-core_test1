@@ -456,6 +456,22 @@ namespace ImportData
       var coefficient12 = new int[] { 3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8 };
       return tin.Length == 10 ? CheckTinSum(tin, coefficient10) : (CheckTinSum(tin, coefficient11) && CheckTinSum(tin, coefficient12));
     }
+
+    /// <summary>
+    /// Проверка введенного ОКПО по количеству символов.
+    /// </summary>
+    /// <param name="psrn">ОКПО.</param>
+    /// <returns>Пустая строка, если длина ОКПО в порядке.
+    /// Иначе текст ошибки.</returns>
+    public static string CheckNceoLength(string nceo)
+    {
+      if (string.IsNullOrWhiteSpace(nceo))
+        return string.Empty;
+
+      nceo = nceo.Trim();
+
+      return System.Text.RegularExpressions.Regex.IsMatch(nceo, @"(^\d{8}$)|(^\d{10}$)") ? string.Empty : Constants.Resources.IncorrecNceoLength;
+    }
     #endregion
   }
 }

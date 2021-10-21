@@ -81,6 +81,7 @@ namespace ImportData
       public const string NonresidentIncorectTinLength = "Введите правильное число цифр в ИНН, для нерезидента - до 12.";
       public const string NotValidTinRegionCode = "Введите ИНН с корректным кодом региона";
       public const string NotValidTin = "Введите ИНН с корректной контрольной цифрой.";
+      public const string IncorrecNceoLength = "ОКПО должен содержать 8 или 10 цифр";
     }
 
     public class ConfigServices
