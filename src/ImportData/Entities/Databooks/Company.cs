@@ -100,7 +100,7 @@ namespace ImportData
             try
             {
                 // Проверка ИНН.
-                var resultTIN = BusinessLogic.CheckTin(tin, true);
+                var resultTIN = BusinessLogic.CheckTin(tin, nonresident);
 
                 if (!string.IsNullOrEmpty(resultTIN))
                 {
@@ -112,7 +112,7 @@ namespace ImportData
                 }
 
                 // Проверка КПП.
-                var resultTRRC = BusinessLogic.CheckTrrcLength(trrc);
+                var resultTRRC = BusinessLogic.CheckTrrcLength(trrc, nonresident);
 
                 if (!string.IsNullOrEmpty(resultTRRC))
                 {
@@ -124,7 +124,7 @@ namespace ImportData
                 }
 
                 // Проверка ОГРН.
-                var resultPSRN = BusinessLogic.CheckPsrnLength(psrn);
+                var resultPSRN = BusinessLogic.CheckPsrnLength(psrn, nonresident);
 
                 if (!string.IsNullOrEmpty(resultPSRN))
                 {
