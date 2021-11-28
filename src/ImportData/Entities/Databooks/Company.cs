@@ -100,7 +100,7 @@ namespace ImportData
             try
             {
                 // Проверка ИНН.
-                var resultTIN = BusinessLogic.CheckTin(tin, true);
+                var resultTIN = BusinessLogic.CheckTin(tin, nonresident);
 
                 if (!string.IsNullOrEmpty(resultTIN))
                 {
@@ -112,7 +112,7 @@ namespace ImportData
                 }
 
                 // Проверка КПП.
-                var resultTRRC = BusinessLogic.CheckTrrcLength(trrc);
+                var resultTRRC = BusinessLogic.CheckTrrcLength(trrc, nonresident);
 
                 if (!string.IsNullOrEmpty(resultTRRC))
                 {
@@ -124,7 +124,7 @@ namespace ImportData
                 }
 
                 // Проверка ОГРН.
-                var resultPSRN = BusinessLogic.CheckPsrnLength(psrn);
+                var resultPSRN = BusinessLogic.CheckPsrnLength(psrn, nonresident);
 
                 if (!string.IsNullOrEmpty(resultPSRN))
                 {
@@ -133,6 +133,16 @@ namespace ImportData
                     logger.Error(message);
 
                     return exceptionList;
+                }
+
+                var resultNCEO = BusinessLogic.CheckNceoLength(nceo);
+                if (!string.IsNullOrEmpty(resultNCEO))
+                {
+                  var message = string.Format("Компания не может быть импортирована. Некорректный ОКПО. Наименование: \"{0}\", ОКПО: {1}. {2}", name, nceo, resultNCEO);
+                  exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+                  logger.Error(message);
+
+                  return exceptionList;
                 }
 
                 if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
