@@ -147,7 +147,9 @@ namespace ImportData
 
                 if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
                 {
-                    var companies = BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name || (x.TIN == tin && x.TRRC == trrc) || x.PSRN == psrn, exceptionList, logger);
+                    var companies = BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name || 
+                    (!string.IsNullOrEmpty(tin) && x.TIN == tin && !string.IsNullOrEmpty(trrc) && x.TRRC == trrc) || 
+                    (!string.IsNullOrEmpty(psrn) && x.PSRN == psrn), exceptionList, logger);
 
                     // Обновление сущности при условии, что найдено одно совпадение.
                     if (companies != null)
