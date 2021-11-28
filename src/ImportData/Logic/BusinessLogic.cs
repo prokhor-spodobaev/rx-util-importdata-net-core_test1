@@ -57,7 +57,7 @@ namespace ImportData
     /// <param name="exceptionList">Список ошибок.</param>
     /// <param name="logger">Логгер</param>
     /// <returns>Сущность.</returns>
-    public static T GetEntityWithFilter<T>(Expression<Func<T, bool>> expression, List<Structures.ExceptionsStruct> exceptionList, Logger logger) where T : class
+    public static T GetEntityWithFilter<T>(Expression<Func<T, bool>> expression, List<Structures.ExceptionsStruct> exceptionList, Logger logger, bool isExpand = false) where T : class
     {
       Expression<Func<T, bool>> condition = expression;
       var filter = new ODataExpression(condition);
@@ -66,9 +66,7 @@ namespace ImportData
 
       try
       {
-        var entities = Client.GetEntitiesByFilter<T>(filter);
-
-
+        var entities = Client.GetEntitiesByFilter<T>(filter, isExpand);
 
         if (entities.Count() > 1)
         {

@@ -70,8 +70,25 @@ namespace ImportData
 
         subject = this.Parameters[shift + 6];
 
+        variableForParameters = this.Parameters[shift + 7].Trim();
+        var businessUnit = BusinessLogic.GetEntityWithFilter<IBusinessUnits>(c => c.Name == variableForParameters, exceptionList, logger);
+
+        if (businessUnit == null)
+        {
+          var message = string.Format("Не найдена НОР \"{0}\".", this.Parameters[shift + 7]);
+          exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+          logger.Error(message);
+
+          return exceptionList;
+        }
+
         variableForParameters = this.Parameters[shift + 8].Trim();
-        var department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters, exceptionList, logger);
+        IDepartments department = null;
+        if (businessUnit != null)
+          department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters &&
+          (d.BusinessUnit == null || d.BusinessUnit.Id == businessUnit.Id), exceptionList, logger, true);
+        else
+          department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters, exceptionList, logger);
 
         if (department == null)
         {
@@ -98,8 +115,8 @@ namespace ImportData
 
         note = this.Parameters[shift + 17].Trim();
 
-
-        var leadingDocuments = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(d => d.RegistrationNumber == regNumberLeadingDocument && d.RegistrationDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDateLeadingDocument.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"), exceptionList, logger);
+        var regDateBeginningOfDay = BeginningOfDay(regDateLeadingDocument);
+        var leadingDocuments = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(d => d.RegistrationNumber == regNumberLeadingDocument && d.RegistrationDate == regDateBeginningOfDay, exceptionList, logger);
 
         if (leadingDocuments == null)
         {
@@ -134,7 +151,7 @@ namespace ImportData
           addendum.Name = fileNameWithoutExtension;
           addendum.Department = department;
 
-          addendum.RegistrationDate = regDateLeadingDocument != DateTimeOffset.MinValue ? regDateLeadingDocument : Constants.defaultDateTime;
+          addendum.RegistrationDate = regDateLeadingDocument != DateTimeOffset.MinValue ? regDateLeadingDocument.UtcDateTime : Constants.defaultDateTime;
 
           addendum.Created = DateTimeOffset.UtcNow;
           addendum.LeadingDocument = leadingDocuments;
