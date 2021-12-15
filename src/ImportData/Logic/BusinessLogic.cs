@@ -72,9 +72,7 @@ namespace ImportData
         {
           var message = string.Format("Найдено несколько записей типа сущности \"{0}\" с именем \"{1}\". Проверьте, что выбрана верная запись.", PrintInfo(typeof(T)), entities.FirstOrDefault().ToString());
           exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
-          logger.Error(message);
-
-          throw new FoundMatchesException(message);
+          logger.Warn(message);
         }
 
         return entities.FirstOrDefault();
@@ -406,8 +404,7 @@ namespace ImportData
 
       if (nonresident)
       {
-        if (tin.Length > 12)
-            return Constants.Resources.NonresidentIncorectTinLength;
+        return string.Empty;
       }
 
       // Проверить содержание ИНН. Должен состоять только из цифр. (Bug 87755)
