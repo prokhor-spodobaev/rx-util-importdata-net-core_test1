@@ -125,8 +125,8 @@ namespace ImportData
 
       try
       {
-
-        var outgoingLetter = BusinessLogic.GetEntityWithFilter<IOutgoingLetters>(x => x.RegistrationNumber == regNumber && x.RegistrationDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"), exceptionList, logger);
+        var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
+        var outgoingLetter = BusinessLogic.GetEntityWithFilter<IOutgoingLetters>(x => x.RegistrationNumber == regNumber && x.RegistrationDate == regDateBeginningOfDay, exceptionList, logger);
         if (outgoingLetter == null)
           outgoingLetter = new IOutgoingLetters();
 
@@ -135,7 +135,7 @@ namespace ImportData
         outgoingLetter.Correspondent = counterparty;
 
         outgoingLetter.Created = DateTimeOffset.UtcNow;
-        outgoingLetter.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate : Constants.defaultDateTime;
+        outgoingLetter.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
 
         outgoingLetter.RegistrationNumber = regNumber;
         outgoingLetter.DocumentKind = documentKind;

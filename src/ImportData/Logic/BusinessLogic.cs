@@ -57,7 +57,7 @@ namespace ImportData
     /// <param name="exceptionList">Список ошибок.</param>
     /// <param name="logger">Логгер</param>
     /// <returns>Сущность.</returns>
-    public static T GetEntityWithFilter<T>(Expression<Func<T, bool>> expression, List<Structures.ExceptionsStruct> exceptionList, Logger logger) where T : class
+    public static T GetEntityWithFilter<T>(Expression<Func<T, bool>> expression, List<Structures.ExceptionsStruct> exceptionList, Logger logger, bool isExpand = false) where T : class
     {
       Expression<Func<T, bool>> condition = expression;
       var filter = new ODataExpression(condition);
@@ -66,17 +66,13 @@ namespace ImportData
 
       try
       {
-        var entities = Client.GetEntitiesByFilter<T>(filter);
-
-
+        var entities = Client.GetEntitiesByFilter<T>(filter, isExpand);
 
         if (entities.Count() > 1)
         {
           var message = string.Format("Найдено несколько записей типа сущности \"{0}\" с именем \"{1}\". Проверьте, что выбрана верная запись.", PrintInfo(typeof(T)), entities.FirstOrDefault().ToString());
           exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
-          logger.Error(message);
-
-          throw new FoundMatchesException(message);
+          logger.Warn(message);
         }
 
         return entities.FirstOrDefault();
@@ -340,11 +336,15 @@ namespace ImportData
     /// Проверка введенного ОГРН по количеству символов.
     /// </summary>
     /// <param name="psrn">ОГРН.</param>
+    /// <param name="nonresident">Нерезидент.</param>
     /// <returns>Пустая строка, если длина ОГРН в порядке.
     /// Иначе текст ошибки.</returns>
-    public static string CheckPsrnLength(string psrn)
+    public static string CheckPsrnLength(string psrn, bool nonresident = false)
     {
       if (string.IsNullOrWhiteSpace(psrn))
+        return string.Empty;
+
+      if (nonresident)
         return string.Empty;
 
       psrn = psrn.Trim();
@@ -356,16 +356,21 @@ namespace ImportData
     /// Проверка введенного КПП по количеству символов.
     /// </summary>
     /// <param name="trrc">КПП.</param>
+    /// <param name="nonresident">Нерезидент.</param>
     /// <returns>Пустая строка, если длина КПП в порядке.
     /// Иначе текст ошибки.</returns>
-    public static string CheckTrrcLength(string trrc)
+    public static string CheckTrrcLength(string trrc, bool nonresident = false)
     {
       if (string.IsNullOrWhiteSpace(trrc))
         return string.Empty;
 
-      trrc = trrc.Trim();
+      if (nonresident)
+        return string.Empty;
 
+      trrc = trrc.Trim();
+     
       return System.Text.RegularExpressions.Regex.IsMatch(trrc, @"(^\d{9}$)") ? string.Empty : Constants.Resources.IncorrecTrrcLength;
+
     }
 
     /// <summary>
@@ -390,16 +395,21 @@ namespace ImportData
     /// <param name="tin">Строка с ИНН.</param>
     /// <param name="forCompany">Признак того, что проверяется ИНН для компании.</param>
     /// <returns>Текст ошибки. Пустая строка для верного ИНН.</returns>
-    public static string CheckTin(string tin, bool forCompany)
+    public static string CheckTin(string tin, bool forCompany, bool nonresident = false)
     {
       if (string.IsNullOrWhiteSpace(tin))
         return string.Empty;
 
       tin = tin.Trim();
 
+      if (nonresident)
+      {
+        return string.Empty;
+      }
+
       // Проверить содержание ИНН. Должен состоять только из цифр. (Bug 87755)
       if (!Regex.IsMatch(tin, @"^\d*$"))
-        return Constants.Resources.NotOnlyDigitsTin;
+          return Constants.Resources.NotOnlyDigitsTin;
 
       // Проверить длину ИНН. Для компаний допустимы ИНН длиной 10 или 12 символов, для персон - только 12.
       if (forCompany && tin.Length != 10 && tin.Length != 12)
@@ -408,14 +418,15 @@ namespace ImportData
       if (!forCompany && tin.Length != 12)
         return Constants.Resources.PeopleIncorrectTinLength;
 
+      // Проверить контрольную сумму.
+      if (!CheckTinSum(tin))
+        return Constants.Resources.NotValidTin;
+
+
       // Проверить значения первых 2х цифр на нули.
       // 1 и 2 цифры - код субъекта РФ (99 для межрегиональной ФНС для физлиц и ИП или код иностранной организации).
       if (tin.StartsWith("00"))
         return Constants.Resources.NotValidTinRegionCode;
-
-      // Проверить контрольную сумму.
-      if (!CheckTinSum(tin))
-        return Constants.Resources.NotValidTin;
 
       return string.Empty;
     }
@@ -447,6 +458,22 @@ namespace ImportData
       var coefficient11 = new int[] { 7, 2, 4, 10, 3, 5, 9, 4, 6, 8 };
       var coefficient12 = new int[] { 3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8 };
       return tin.Length == 10 ? CheckTinSum(tin, coefficient10) : (CheckTinSum(tin, coefficient11) && CheckTinSum(tin, coefficient12));
+    }
+
+    /// <summary>
+    /// Проверка введенного ОКПО по количеству символов.
+    /// </summary>
+    /// <param name="psrn">ОКПО.</param>
+    /// <returns>Пустая строка, если длина ОКПО в порядке.
+    /// Иначе текст ошибки.</returns>
+    public static string CheckNceoLength(string nceo)
+    {
+      if (string.IsNullOrWhiteSpace(nceo))
+        return string.Empty;
+
+      nceo = nceo.Trim();
+
+      return System.Text.RegularExpressions.Regex.IsMatch(nceo, @"(^\d{8}$)|(^\d{10}$)") ? string.Empty : Constants.Resources.IncorrecNceoLength;
     }
     #endregion
   }

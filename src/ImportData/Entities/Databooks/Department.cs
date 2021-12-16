@@ -41,13 +41,7 @@ namespace ImportData
 
             var shortName = this.Parameters[shift + 1].Trim();
 
-            variableForParameters = this.Parameters[shift + 2].Trim();
-            var headOffice = BusinessLogic.GetEntityWithFilter<IDepartments>(x => x.Name == variableForParameters, exceptionList, logger);
-
-            if (!string.IsNullOrEmpty(this.Parameters[shift + 2].Trim()) && headOffice == null)
-            {
-                headOffice = BusinessLogic.CreateEntity<IDepartments>(new IDepartments() { Name = variableForParameters, Status = "Active" }, exceptionList, logger);
-            }
+            var code = this.Parameters[shift + 2].Trim();
 
             variableForParameters = this.Parameters[shift + 3].Trim();
             var businessUnit = BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == variableForParameters, exceptionList, logger);
@@ -59,7 +53,14 @@ namespace ImportData
                 logger.Warn(message);
             }
 
-            var code = this.Parameters[shift + 2].Trim();
+
+            variableForParameters = this.Parameters[shift + 4].Trim();
+            var headOffice = BusinessLogic.GetEntityWithFilter<IDepartments>(x => x.Name == variableForParameters, exceptionList, logger);
+
+            if (!string.IsNullOrEmpty(this.Parameters[shift + 4].Trim()) && headOffice == null)
+            {
+                headOffice = BusinessLogic.CreateEntity<IDepartments>(new IDepartments() { Name = variableForParameters, Status = "Active" }, exceptionList, logger);
+            }
 
             variableForParameters = this.Parameters[shift + 5].Trim();
             var manager = BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == variableForParameters, exceptionList, logger);

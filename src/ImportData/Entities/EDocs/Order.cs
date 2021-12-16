@@ -75,7 +75,12 @@ namespace ImportData
       }
 
       variableForParameters = this.Parameters[shift + 5].Trim();
-      var department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters, exceptionList, logger);
+      IDepartments department = null;
+      if (businessUnit != null)
+        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters && 
+        (d.BusinessUnit == null || d.BusinessUnit.Id == businessUnit.Id), exceptionList, logger, true);
+      else
+        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters, exceptionList, logger);
 
       if (department == null)
       {
@@ -149,8 +154,8 @@ namespace ImportData
 
       try
       {
-
-        var order = BusinessLogic.GetEntityWithFilter<IOrders>(x => x.RegistrationNumber == regNumber && x.RegistrationDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"), exceptionList, logger);
+        var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
+        var order = BusinessLogic.GetEntityWithFilter<IOrders>(x => x.RegistrationNumber == regNumber && x.RegistrationDate == regDateBeginningOfDay, exceptionList, logger);
         if (order == null)
           order = new IOrders();
 
@@ -158,7 +163,7 @@ namespace ImportData
         order.DocumentRegister = documentRegisters;
         order.Created = DateTimeOffset.UtcNow;
         order.Name = fileNameWithoutExtension;
-        order.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate : Constants.defaultDateTime;
+        order.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
         order.RegistrationNumber = regNumber;
         order.DocumentKind = documentKind;
         order.Subject = subject;

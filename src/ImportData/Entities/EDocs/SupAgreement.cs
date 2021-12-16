@@ -102,7 +102,12 @@ namespace ImportData
       }
 
       variableForParameters = this.Parameters[shift + 8].Trim();
-      var department = BusinessLogic.GetEntityWithFilter<IDepartments>(c => c.Name == variableForParameters, exceptionList, logger);
+      IDepartments department = null;
+      if (businessUnit != null)
+        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters &&
+        (d.BusinessUnit == null || d.BusinessUnit.Id == businessUnit.Id), exceptionList, logger, true);
+      else
+        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters, exceptionList, logger);
 
       if (department == null)
       {
@@ -225,9 +230,9 @@ namespace ImportData
 
       try
       {
-
-
-        var supAgreement = BusinessLogic.GetEntityWithFilter<ISupAgreements>(x => x.RegistrationNumber == regNumber && x.RegistrationDate == regDate && x.Counterparty == counterparty, exceptionList, logger);
+        var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
+        var supAgreement = BusinessLogic.GetEntityWithFilter<ISupAgreements>(x => x.RegistrationNumber == regNumber &&
+        x.RegistrationDate == regDateBeginningOfDay && x.Counterparty.Id == counterparty.Id, exceptionList, logger);
         if (supAgreement == null)
           supAgreement = new ISupAgreements();
 
@@ -236,7 +241,7 @@ namespace ImportData
         supAgreement.DocumentRegister = documentRegisters;
         supAgreement.LeadingDocument = leadingDocument;
         supAgreement.Counterparty = counterparty;
-        supAgreement.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate : Constants.defaultDateTime;
+        supAgreement.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
         supAgreement.RegistrationNumber = regNumber;
         supAgreement.DocumentKind = documentKind;
         supAgreement.Subject = subject;

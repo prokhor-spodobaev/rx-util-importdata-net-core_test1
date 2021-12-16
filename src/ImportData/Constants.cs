@@ -81,8 +81,10 @@ namespace ImportData
       public const string NotOnlyDigitsTin = "Введите ИНН, состоящий только из цифр.";
       public const string CompanyIncorrectTinLength = "Введите правильное число цифр в ИНН, для организаций - 10, для ИП - 12.";
       public const string PeopleIncorrectTinLength = "Введите правильное число цифр в ИНН, для физических лиц - 12.";
+      public const string NonresidentIncorectTinLength = "Введите правильное число цифр в ИНН, для нерезидента - до 12.";
       public const string NotValidTinRegionCode = "Введите ИНН с корректным кодом региона";
       public const string NotValidTin = "Введите ИНН с корректной контрольной цифрой.";
+      public const string IncorrecNceoLength = "ОКПО должен содержать 8 или 10 цифр";
     }
 
     public class ConfigServices

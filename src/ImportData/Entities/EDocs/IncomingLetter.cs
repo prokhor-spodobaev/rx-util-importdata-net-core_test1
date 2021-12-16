@@ -140,14 +140,16 @@ namespace ImportData
 
       try
       {
-        var incomingLetter = BusinessLogic.GetEntityWithFilter<IIncomingLetters>(x => x.RegistrationNumber == regNumber && x.RegistrationDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"), exceptionList, logger);
+        var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
+        var incomingLetter = BusinessLogic.GetEntityWithFilter<IIncomingLetters>(x => x.RegistrationNumber == regNumber &&
+        x.RegistrationDate == regDateBeginningOfDay, exceptionList, logger);
         if (incomingLetter == null)
           incomingLetter = new IIncomingLetters();
 
         incomingLetter.Name = fileNameWithoutExtension;
         incomingLetter.DocumentRegister = documentRegisters;
         incomingLetter.Created = DateTimeOffset.UtcNow;
-        incomingLetter.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate : Constants.defaultDateTime;
+        incomingLetter.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
         incomingLetter.RegistrationNumber = regNumber;
         incomingLetter.Correspondent = counterparty;
         incomingLetter.DocumentKind = documentKind;

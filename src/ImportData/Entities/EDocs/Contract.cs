@@ -102,7 +102,12 @@ namespace ImportData
       }
 
       variableForParameters = this.Parameters[shift + 7].Trim();
-      var department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters, exceptionList, logger);
+      IDepartments department = null;
+      if (businessUnit != null)
+        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters && 
+        (d.BusinessUnit == null || d.BusinessUnit.Id == businessUnit.Id), exceptionList, logger, true);
+      else
+        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters , exceptionList, logger);
 
       if (department == null)
       {
@@ -214,10 +219,10 @@ namespace ImportData
 
       try
       {
-
+        var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
         var contract = BusinessLogic.GetEntityWithFilter<IContracts>(x => x.RegistrationNumber != null && x.RegistrationNumber == regNumber &&
-            x.RegistrationDate != null && x.RegistrationDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") &&
-            x.Counterparty != null && x.Counterparty == counterparty, exceptionList, logger);
+            x.RegistrationDate == regDateBeginningOfDay &&
+            x.Counterparty.Id == counterparty.Id, exceptionList, logger, true);
         if (contract == null)
           contract = new IContracts();
 
@@ -239,7 +244,7 @@ namespace ImportData
         contract.ResponsibleEmployee = responsibleEmployee;
         contract.OurSignatory = ourSignatory;
         contract.Note = note;
-        contract.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate : Constants.defaultDateTime;
+        contract.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
         contract.RegistrationNumber = regNumber;
 
         var createdContract = BusinessLogic.CreateEntity<IContracts>(contract, exceptionList, logger);

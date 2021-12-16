@@ -100,7 +100,7 @@ namespace ImportData
             try
             {
                 // Проверка ИНН.
-                var resultTIN = BusinessLogic.CheckTin(tin, true);
+                var resultTIN = BusinessLogic.CheckTin(tin, nonresident);
 
                 if (!string.IsNullOrEmpty(resultTIN))
                 {
@@ -112,7 +112,7 @@ namespace ImportData
                 }
 
                 // Проверка КПП.
-                var resultTRRC = BusinessLogic.CheckTrrcLength(trrc);
+                var resultTRRC = BusinessLogic.CheckTrrcLength(trrc, nonresident);
 
                 if (!string.IsNullOrEmpty(resultTRRC))
                 {
@@ -124,7 +124,7 @@ namespace ImportData
                 }
 
                 // Проверка ОГРН.
-                var resultPSRN = BusinessLogic.CheckPsrnLength(psrn);
+                var resultPSRN = BusinessLogic.CheckPsrnLength(psrn, nonresident);
 
                 if (!string.IsNullOrEmpty(resultPSRN))
                 {
@@ -135,9 +135,21 @@ namespace ImportData
                     return exceptionList;
                 }
 
+                var resultNCEO = BusinessLogic.CheckNceoLength(nceo);
+                if (!string.IsNullOrEmpty(resultNCEO))
+                {
+                  var message = string.Format("Компания не может быть импортирована. Некорректный ОКПО. Наименование: \"{0}\", ОКПО: {1}. {2}", name, nceo, resultNCEO);
+                  exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+                  logger.Error(message);
+
+                  return exceptionList;
+                }
+
                 if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
                 {
-                    var companies = BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name || (x.TIN == tin && x.TRRC == trrc) || x.PSRN == psrn, exceptionList, logger);
+                    var companies = BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name || 
+                    (!string.IsNullOrEmpty(tin) && x.TIN == tin && !string.IsNullOrEmpty(trrc) && x.TRRC == trrc) || 
+                    (!string.IsNullOrEmpty(psrn) && x.PSRN == psrn), exceptionList, logger);
 
                     // Обновление сущности при условии, что найдено одно совпадение.
                     if (companies != null)
