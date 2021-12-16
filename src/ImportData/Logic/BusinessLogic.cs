@@ -134,6 +134,7 @@ namespace ImportData
 
         if (ex.Message.Contains("(Unauthorized)"))
           throw new FoundMatchesException("Проверьте коррекность указанной учетной записи.");
+
       }
       return null;
     }
@@ -339,7 +340,7 @@ namespace ImportData
     /// <param name="nonresident">Нерезидент.</param>
     /// <returns>Пустая строка, если длина ОГРН в порядке.
     /// Иначе текст ошибки.</returns>
-    public static string CheckPsrnLength(string psrn, bool nonresident = false)
+    public static string CheckPsrnLength(string psrn, bool nonresident)
     {
       if (string.IsNullOrWhiteSpace(psrn))
         return string.Empty;
@@ -359,7 +360,7 @@ namespace ImportData
     /// <param name="nonresident">Нерезидент.</param>
     /// <returns>Пустая строка, если длина КПП в порядке.
     /// Иначе текст ошибки.</returns>
-    public static string CheckTrrcLength(string trrc, bool nonresident = false)
+    public static string CheckTrrcLength(string trrc, bool nonresident)
     {
       if (string.IsNullOrWhiteSpace(trrc))
         return string.Empty;
@@ -395,7 +396,7 @@ namespace ImportData
     /// <param name="tin">Строка с ИНН.</param>
     /// <param name="forCompany">Признак того, что проверяется ИНН для компании.</param>
     /// <returns>Текст ошибки. Пустая строка для верного ИНН.</returns>
-    public static string CheckTin(string tin, bool forCompany, bool nonresident = false)
+    public static string CheckTin(string tin, bool forCompany, bool nonresident)
     {
       if (string.IsNullOrWhiteSpace(tin))
         return string.Empty;
@@ -403,9 +404,8 @@ namespace ImportData
       tin = tin.Trim();
 
       if (nonresident)
-      {
         return string.Empty;
-      }
+      
 
       // Проверить содержание ИНН. Должен состоять только из цифр. (Bug 87755)
       if (!Regex.IsMatch(tin, @"^\d*$"))
@@ -460,15 +460,18 @@ namespace ImportData
       return tin.Length == 10 ? CheckTinSum(tin, coefficient10) : (CheckTinSum(tin, coefficient11) && CheckTinSum(tin, coefficient12));
     }
 
-    /// <summary>
-    /// Проверка введенного ОКПО по количеству символов.
-    /// </summary>
-    /// <param name="psrn">ОКПО.</param>
-    /// <returns>Пустая строка, если длина ОКПО в порядке.
-    /// Иначе текст ошибки.</returns>
-    public static string CheckNceoLength(string nceo)
+        /// <summary>
+        /// Проверка введенного ОКПО по количеству символов.
+        /// </summary>
+        /// <param name="psrn">ОКПО.</param>
+        /// <returns>Пустая строка, если длина ОКПО в порядке.
+        /// Иначе текст ошибки.</returns>
+    public static string CheckNceoLength(string nceo, bool nonresident)
     {
       if (string.IsNullOrWhiteSpace(nceo))
+        return string.Empty;
+
+      if (nonresident)
         return string.Empty;
 
       nceo = nceo.Trim();

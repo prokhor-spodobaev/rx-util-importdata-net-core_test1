@@ -12,6 +12,7 @@
         public string Note { get; set; }
         public string Email { get; set; }
         public string Homepage { get; set; }
+        public bool Nonresident { get; set; }
         public string PSRN { get; set; }
         public string NCEO { get; set; }
         public string NCEA { get; set; }
