@@ -52,7 +52,6 @@ namespace ImportData
             var headCompany = counterparty as ICompanies;
 
             var nonresident = this.Parameters[shift + 3].ToLower() == "да" ? true : false;
-            //var code = this.Parameters[shift + 4].Trim(); 
             var tin = this.Parameters[shift + 4].Trim(); // ИНН
             var trrc = this.Parameters[shift + 5].Trim(); // КПП
             var psrn = this.Parameters[shift + 6].Trim(); // ОГРН
@@ -96,55 +95,55 @@ namespace ImportData
                 exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
                 logger.Warn(message);
             }
+            // Проверка ИНН.
+            var resultTIN = BusinessLogic.CheckTin(tin, true, nonresident);
+
+            if (!string.IsNullOrEmpty(resultTIN))
+            {
+                var message = string.Format("Компания не может быть импортирована. Некорректный ИНН. Наименование: \"{0}\", ИНН: {1}. {2}", name, tin, resultTIN);
+                exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+                logger.Error(message);
+
+                return exceptionList;
+            }
+
+            // Проверка КПП.
+            var resultTRRC = BusinessLogic.CheckTrrcLength(trrc, nonresident);
+
+            if (!string.IsNullOrEmpty(resultTRRC))
+            {
+                var message = string.Format("Компания не может быть импортирована. Некорректный КПП. Наименование: \"{0}\", КПП: {1}. {2}", name, trrc, resultTRRC);
+                exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+                logger.Error(message);
+
+                return exceptionList;
+            }
+
+            // Проверка ОГРН.
+            var resultPSRN = BusinessLogic.CheckPsrnLength(psrn, nonresident);
+
+            if (!string.IsNullOrEmpty(resultPSRN))
+            {
+                var message = string.Format("Компания не может быть импортирована. Некорректный ОГРН. Наименование: \"{0}\", ОГРН: {1}. {2}", name, psrn, resultPSRN);
+                exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+                logger.Error(message);
+
+                return exceptionList;
+            }
+
+            // Проверка ОКПО.
+            var resultNCEO = BusinessLogic.CheckNceoLength(nceo, nonresident);
+            if (!string.IsNullOrEmpty(resultNCEO))
+            {
+                var message = string.Format("Компания не может быть импортирована. Некорректный ОКПО. Наименование: \"{0}\", ОКПО: {1}. {2}", name, nceo, resultNCEO);
+                exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+                logger.Error(message);
+
+                return exceptionList;
+            }
 
             try
             {
-                // Проверка ИНН.
-                var resultTIN = BusinessLogic.CheckTin(tin, nonresident);
-
-                if (!string.IsNullOrEmpty(resultTIN))
-                {
-                    var message = string.Format("Компания не может быть импортирована. Некорректный ИНН. Наименование: \"{0}\", ИНН: {1}. {2}", name, tin, resultTIN);
-                    exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-                    logger.Error(message);
-
-                    return exceptionList;
-                }
-
-                // Проверка КПП.
-                var resultTRRC = BusinessLogic.CheckTrrcLength(trrc, nonresident);
-
-                if (!string.IsNullOrEmpty(resultTRRC))
-                {
-                    var message = string.Format("Компания не может быть импортирована. Некорректный КПП. Наименование: \"{0}\", КПП: {1}. {2}", name, trrc, resultTRRC);
-                    exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-                    logger.Error(message);
-
-                    return exceptionList;
-                }
-
-                // Проверка ОГРН.
-                var resultPSRN = BusinessLogic.CheckPsrnLength(psrn, nonresident);
-
-                if (!string.IsNullOrEmpty(resultPSRN))
-                {
-                    var message = string.Format("Компания не может быть импортирована. Некорректный ОГРН. Наименование: \"{0}\", ОГРН: {1}. {2}", name, psrn, resultPSRN);
-                    exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-                    logger.Error(message);
-
-                    return exceptionList;
-                }
-
-                var resultNCEO = BusinessLogic.CheckNceoLength(nceo);
-                if (!string.IsNullOrEmpty(resultNCEO))
-                {
-                  var message = string.Format("Компания не может быть импортирована. Некорректный ОКПО. Наименование: \"{0}\", ОКПО: {1}. {2}", name, nceo, resultNCEO);
-                  exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-                  logger.Error(message);
-
-                  return exceptionList;
-                }
-
                 if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
                 {
                     var companies = BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name || 
