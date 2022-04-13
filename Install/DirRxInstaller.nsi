@@ -1,5 +1,3 @@
-!include "XML.nsh"
-!include "Locate.nsh"
 ;!include MUI2.nsh
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\Russian.nlf"
 ; Переменные.
@@ -10,8 +8,6 @@ Name "утилита импорта данных"
 InstallDir "$PROGRAMFILES64\Directum Company\DirectumRX\ImportData"
 ; Наименование инсталятора.
 OutFile "Setup.exe"
-
-ReserveFile "${NSISDIR}\Plugins\InstallOptions.dll"
 
 VIProductVersion 4.0.4036.0
 VIAddVersionKey FileVersion 4.0.4036.0
