@@ -68,7 +68,7 @@ namespace ImportData
             var ncea = this.Parameters[shift + 9].Trim();
 
             // Проверка ИНН.
-            var resultTIN = BusinessLogic.CheckTin(tin, false, nonresident);
+            var resultTIN = BusinessLogic.CheckTin(tin, true, nonresident);
 
             if (!string.IsNullOrEmpty(resultTIN))
             {
