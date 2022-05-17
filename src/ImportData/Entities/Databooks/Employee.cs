@@ -103,7 +103,7 @@ namespace ImportData
                         employees.Phone = phone;
                         employees.Note = note;
                         employees.NeedNotifyExpiredAssignments = false;
-                        employees.NeedNotifyNewAssignments = false;
+                        employees.NeedNotifyNewAssignments = !string.IsNullOrEmpty(email);
                         employees.Status = "Active";
 
                         var updatedEntity = BusinessLogic.UpdateEntity<IEmployees>(employees, exceptionList, logger);
@@ -122,7 +122,7 @@ namespace ImportData
                 employee.Phone = phone;
                 employee.Note = note;
                 employee.NeedNotifyExpiredAssignments = false;
-                employee.NeedNotifyNewAssignments = false;
+                employee.NeedNotifyNewAssignments = !string.IsNullOrEmpty(email);
                 employee.Status = "Active";
 
                 BusinessLogic.CreateEntity<IEmployees>(employee, exceptionList, logger);
