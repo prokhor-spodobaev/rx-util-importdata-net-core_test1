@@ -142,7 +142,10 @@ namespace ImportData
 
         try
         {
-          var addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(c => c.LeadingDocument.Id == leadingDocuments.Id && c.DocumentKind.Id == documentKind.Id && c.Subject == subject, exceptionList, logger);
+          var addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(c => c.LeadingDocument.Id == leadingDocuments.Id && 
+              c.DocumentKind.Id == documentKind.Id && 
+              c.Subject == subject &&
+              c.DocumentRegister == documentRegisters, exceptionList, logger);
           if (addendum == null)
             addendum = new IAddendums();
 

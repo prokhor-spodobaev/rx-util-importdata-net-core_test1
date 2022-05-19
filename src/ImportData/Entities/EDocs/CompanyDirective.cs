@@ -147,7 +147,9 @@ namespace ImportData
       try
       {
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
-        var companyDirective = BusinessLogic.GetEntityWithFilter<ICompanyDirective>(x => x.RegistrationNumber == regNumber && x.RegistrationDate == regDateBeginningOfDay, exceptionList, logger);
+        var companyDirective = BusinessLogic.GetEntityWithFilter<ICompanyDirective>(x => x.RegistrationNumber == regNumber && 
+            x.RegistrationDate == regDateBeginningOfDay &&
+            x.DocumentRegister == documentRegisters, exceptionList, logger);
         if (companyDirective == null)
           companyDirective = new ICompanyDirective();
 

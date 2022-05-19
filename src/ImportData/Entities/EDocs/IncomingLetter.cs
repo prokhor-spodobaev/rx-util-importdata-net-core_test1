@@ -142,7 +142,8 @@ namespace ImportData
       {
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
         var incomingLetter = BusinessLogic.GetEntityWithFilter<IIncomingLetters>(x => x.RegistrationNumber == regNumber &&
-        x.RegistrationDate == regDateBeginningOfDay, exceptionList, logger);
+            x.RegistrationDate == regDateBeginningOfDay &&
+            x.DocumentRegister == documentRegisters, exceptionList, logger);
         if (incomingLetter == null)
           incomingLetter = new IIncomingLetters();
 
