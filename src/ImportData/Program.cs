@@ -138,6 +138,11 @@ namespace ImportData
                     Client.Setup(login, password, logger);
                     #endregion
 
+                    #region Проверка подключения к сервису.
+                    var exceptionList = new List<Structures.ExceptionsStruct>();
+                    var userLogin = BusinessLogic.GetEntityWithFilter<IntegrationServicesClient.Models.ILogins>(e => e.Name == login, exceptionList, logger);
+                    #endregion
+
                     #region Выполнение импорта сущностей.
                     ProcessByAction(action.ToLower(), xlsxPath, extraParameters, ignoreDuplicates, logger);
                     #endregion
