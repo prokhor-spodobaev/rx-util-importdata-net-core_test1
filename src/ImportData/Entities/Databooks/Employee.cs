@@ -88,22 +88,22 @@ namespace ImportData
 
             try
             {
-                if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
-                {
-                    var employees = BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == person.Name, exceptionList, logger);
+        if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+        {
+          var employees = BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == person.Name, exceptionList, logger);
 
-                    // Обновление сущности при условии, что найдено одно совпадение.
-                    if (employees != null)
-                    {
-                        employees.Name = person.Name;
-                        employees.Person = person;
-                        employees.Department = department;
-                        employees.JobTitle = jobTitle;
-                        employees.Email = email;
-                        employees.Phone = phone;
-                        employees.Note = note;
-                        employees.NeedNotifyExpiredAssignments = false;
-                        employees.NeedNotifyNewAssignments = !string.IsNullOrEmpty(email);
+          // Обновление сущности при условии, что найдено одно совпадение.
+          if (employees != null)
+          {
+            employees.Name = person.Name;
+            employees.Person = person;
+            employees.Department = department;
+            employees.JobTitle = jobTitle;
+            employees.Email = email;
+            employees.Phone = phone;
+            employees.Note = note;
+            employees.NeedNotifyExpiredAssignments = false;
+            employees.NeedNotifyNewAssignments = !(string.IsNullOrEmpty(email) || string.IsNullOrWhiteSpace(email));
                         employees.Status = "Active";
 
                         var updatedEntity = BusinessLogic.UpdateEntity<IEmployees>(employees, exceptionList, logger);
@@ -122,8 +122,8 @@ namespace ImportData
                 employee.Phone = phone;
                 employee.Note = note;
                 employee.NeedNotifyExpiredAssignments = false;
-                employee.NeedNotifyNewAssignments = !string.IsNullOrEmpty(email);
-                employee.Status = "Active";
+                employee.NeedNotifyNewAssignments = !(string.IsNullOrEmpty(email) || string.IsNullOrWhiteSpace(email));
+        employee.Status = "Active";
 
                 BusinessLogic.CreateEntity<IEmployees>(employee, exceptionList, logger);
             }
