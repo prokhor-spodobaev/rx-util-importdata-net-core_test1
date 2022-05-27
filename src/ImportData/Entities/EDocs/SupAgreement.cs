@@ -232,7 +232,9 @@ namespace ImportData
       {
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
         var supAgreement = BusinessLogic.GetEntityWithFilter<ISupAgreements>(x => x.RegistrationNumber == regNumber &&
-        x.RegistrationDate == regDateBeginningOfDay && x.Counterparty.Id == counterparty.Id, exceptionList, logger);
+            x.RegistrationDate == regDateBeginningOfDay &&
+            x.Counterparty.Id == counterparty.Id &&
+            x.DocumentRegister == documentRegisters, exceptionList, logger);
         if (supAgreement == null)
           supAgreement = new ISupAgreements();
 

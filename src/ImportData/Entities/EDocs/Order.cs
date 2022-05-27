@@ -155,7 +155,9 @@ namespace ImportData
       try
       {
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
-        var order = BusinessLogic.GetEntityWithFilter<IOrders>(x => x.RegistrationNumber == regNumber && x.RegistrationDate == regDateBeginningOfDay, exceptionList, logger);
+        var order = BusinessLogic.GetEntityWithFilter<IOrders>(x => x.RegistrationNumber == regNumber && 
+            x.RegistrationDate == regDateBeginningOfDay &&
+            x.DocumentRegister == documentRegisters, exceptionList, logger);
         if (order == null)
           order = new IOrders();
 
