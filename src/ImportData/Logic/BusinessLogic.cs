@@ -279,7 +279,7 @@ namespace ImportData
     /// </summary>
     /// <param name="registrationState">Наименование состояния регистрации.</param>
     /// <returns>Состояние регистрации.</returns>
-    public static string GetRegistrationsState(string registrationState)
+    public static string GetRegistrationsState(string key)
     {
       Dictionary<string, string> RegistrationState = new Dictionary<string, string>
         {
@@ -289,7 +289,14 @@ namespace ImportData
             {"", null}
         };
 
-      return RegistrationState[registrationState];
+        try
+        {
+            return RegistrationState[key];
+        }
+        catch (KeyNotFoundException ex)
+        {
+            throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
+        }
     }
 
     /// <summary>
@@ -297,7 +304,7 @@ namespace ImportData
     /// </summary>
     /// <param name="lifeCycleStateName">Наименование ЖЦ документа.</param>
     /// <returns>ЖЦ.</returns>
-    public static string GetPropertyLifeCycleState(string lifeCycleStateName)
+    public static string GetPropertyLifeCycleState(string key)
     {
       Dictionary<string, string> LifeCycleStates = new Dictionary<string, string>
         {
@@ -309,7 +316,14 @@ namespace ImportData
             {"", null}
         };
 
-      return LifeCycleStates[lifeCycleStateName];
+        try
+        {
+            return LifeCycleStates[key];
+        }
+        catch (KeyNotFoundException ex)
+        {
+            throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
+        }
     }
 
     /// <summary>
@@ -317,18 +331,25 @@ namespace ImportData
     /// </summary>
     /// <param name="sexPropertyName">Наименование пола.</param>
     /// <returns>Экземпляр записи "Пол".</returns>
-    public static string GetPropertySex(string sexPropertyName)
+    public static string GetPropertySex(string key)
     {
       Dictionary<string, string> sexProperty = new Dictionary<string, string>
-            {
-                {"Мужской", "Male"},
-                {"Женский", "Female"},
-                {"Male", "Male"},
-                {"Female", "Female"},
-                {"", null}
-            };
+        {
+            {"Мужской", "Male"},
+            {"Женский", "Female"},
+            {"Male", "Male"},
+            {"Female", "Female"},
+            {"", null}
+        };
 
-      return sexProperty[sexPropertyName];
+        try
+        {
+            return sexProperty[key];
+        }
+        catch (KeyNotFoundException ex)
+        {
+            throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
+        }
     }
     #endregion
 
