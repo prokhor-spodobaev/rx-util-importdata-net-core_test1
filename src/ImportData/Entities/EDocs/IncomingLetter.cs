@@ -34,6 +34,7 @@ namespace ImportData
       DateTimeOffset regDate = DateTimeOffset.MinValue;
       var style = NumberStyles.Number | NumberStyles.AllowCurrencySymbol;
       var culture = CultureInfo.CreateSpecificCulture("en-GB");
+      
       try
       {
         regDate = ParseDate(this.Parameters[shift + 1], style, culture);
@@ -137,6 +138,10 @@ namespace ImportData
       }
 
       var note = this.Parameters[shift + 10];
+      //variableForParameters = this.Parameters[shift + 13].Trim();
+      //string lifeCyclState = BusinessLogic.GetPropertyLifeCycleState(variableForParameters);
+      variableForParameters = this.Parameters[shift + 13].Trim();
+      string registerState = BusinessLogic.GetRegistrationsState(variableForParameters);
 
       try
       {
@@ -152,6 +157,8 @@ namespace ImportData
         incomingLetter.Created = DateTimeOffset.UtcNow;
         incomingLetter.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
         incomingLetter.RegistrationNumber = regNumber;
+        incomingLetter.RegistrationState = registerState;
+        //incomingLetter.LifeCycleState = lifeCyclState;
         incomingLetter.Correspondent = counterparty;
         incomingLetter.DocumentKind = documentKind;
         incomingLetter.Subject = subject;
