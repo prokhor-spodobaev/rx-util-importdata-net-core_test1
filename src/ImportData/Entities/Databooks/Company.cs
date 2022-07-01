@@ -95,6 +95,17 @@ namespace ImportData
                 exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
                 logger.Warn(message);
             }
+
+            variableForParameters = this.Parameters[shift + 19].Trim();
+            var responsible = BusinessLogic.GetEntityWithFilter<IEmployees>(e => e.Name == variableForParameters, exceptionList, logger);
+
+            if (!string.IsNullOrEmpty(this.Parameters[shift + 19]) && responsible == null)
+            {
+                var message = string.Format("Не найден Ответственный \"{1}\". Наименование организации: \"{0}\". ", name, this.Parameters[shift + 19].Trim());
+                exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
+                logger.Warn(message);
+            }
+
             // Проверка ИНН.
             var resultTIN = BusinessLogic.CheckTin(tin, true, nonresident);
 
@@ -173,6 +184,7 @@ namespace ImportData
                         companies.Account = account;
                         companies.Bank = bank;
                         companies.Status = "Active";
+                        companies.Responsible = responsible;
 
                         var updatedEntity = BusinessLogic.UpdateEntity<ICompanies>(companies, exceptionList, logger);
 
@@ -203,6 +215,7 @@ namespace ImportData
                 company.Account = account;
                 company.Bank = bank;
                 company.Status = "Active";
+                company.Responsible = responsible;
 
                 BusinessLogic.CreateEntity<ICompanies>(company, exceptionList, logger);
             }

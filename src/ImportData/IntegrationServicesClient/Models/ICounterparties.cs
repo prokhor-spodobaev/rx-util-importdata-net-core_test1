@@ -23,6 +23,7 @@
         public ICities City { get; set; }
         public IRegions Region { get; set; }
         public IBanks Bank { get; set; }
+        public IEmployees Responsible { get; set; }
 
         public override string ToString()
         {

@@ -5,6 +5,7 @@ using System.IO;
 using NDesk.Options;
 using NLog;
 using ImportData.Entities.Databooks;
+using ImportData.IntegrationServicesClient.Exceptions;
 
 namespace ImportData
 {
@@ -143,9 +144,13 @@ namespace ImportData
           ProcessByAction(action.ToLower(), xlsxPath, extraParameters, ignoreDuplicates, logger);
           #endregion
         }
+        catch (WellKnownKeyNotFoundException ex)
+        {
+            string message = string.Format("Не найден параметр {0}. Проверьте соответствующую колонку.", ex.Key);
+            logger.Error(message);
+        }
         catch (Exception ex)
         {
-          Console.WriteLine(ex.Message);
           logger.Error(ex.Message);
         }
 
