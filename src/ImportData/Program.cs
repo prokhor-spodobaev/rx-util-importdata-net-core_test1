@@ -70,6 +70,12 @@ namespace ImportData
         case "importcontacts":
           EntityProcessor.Process(typeof(Contact), xlsxPath, Constants.SheetNames.Contact, extraParameters, ignoreDuplicates, logger);
           break;
+        case "importlogins":
+          EntityProcessor.Process(typeof(Login), xlsxPath, Constants.SheetNames.Logins, extraParameters, ignoreDuplicates, logger);
+          break;
+        case "importsubstitutions":
+          EntityProcessor.Process(typeof(Substitution), xlsxPath, Constants.SheetNames.Substitutions, extraParameters, ignoreDuplicates, logger);
+          break;
         case "importcompanydirectives":
           EntityProcessor.Process(typeof(CompanyDirective), xlsxPath, Constants.SheetNames.CompanyDirectives, extraParameters, ignoreDuplicates, logger);
           break;
