@@ -1,4 +1,6 @@
-﻿namespace ImportData.IntegrationServicesClient.Models
+﻿using System.Collections.Generic;
+
+namespace ImportData.IntegrationServicesClient.Models
 {
     [EntityName("Исходящее письмо")]
     class IOutgoingLetters : IOfficialDocuments
@@ -10,5 +12,6 @@
         public ICounterparties Correspondent { get; set; }
         public IEmployees ResponsibleForReturnEmployee { get; set; }
         public IMailDeliveryMethods DeliveryMethod { get; set; }
-    }
+        public IEnumerable<IOutgoingLetterAddressees> Addressees { get; set; }
+  }
 }
