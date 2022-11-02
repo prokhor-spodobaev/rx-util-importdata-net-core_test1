@@ -1,13 +1,12 @@
-﻿using System;
-
-namespace ImportData.IntegrationServicesClient.Models
+﻿namespace ImportData.IntegrationServicesClient.Models
 {
-  public class IOutgoingLetterAddressees
+  [EntityName("Адресаты исходящего письма")]
+  class IOutgoingLetterAddressees
   {
-    //public int Id { get; set; }
+    public int OutgoingLetterId { get; set; }
     public ICounterparties Correspondent { get; set; }
     public IContacts Addressee { get; set; }
-    public string DeliveryMethod { get; set; }
+    public IMailDeliveryMethods DeliveryMethod { get; set; }
     public int Number { get; set; }
   }
 }

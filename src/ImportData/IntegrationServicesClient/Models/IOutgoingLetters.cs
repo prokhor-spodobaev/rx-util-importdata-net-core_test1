@@ -5,6 +5,7 @@ namespace ImportData.IntegrationServicesClient.Models
     [EntityName("Исходящее письмо")]
     class IOutgoingLetters : IOfficialDocuments
     {
+        public int Id { get; set; }
         public bool IsManyAddressees { get; set; }
         public IEmployees Addressee { get; set; }
         public IEmployees Assignee { get; set; }
@@ -12,6 +13,6 @@ namespace ImportData.IntegrationServicesClient.Models
         public ICounterparties Correspondent { get; set; }
         public IEmployees ResponsibleForReturnEmployee { get; set; }
         public IMailDeliveryMethods DeliveryMethod { get; set; }
-        public IEnumerable<IOutgoingLetterAddressees> Addressees { get; set; }
+        public List<IOutgoingLetterAddressees> Addressees { get; set; }
   }
 }
