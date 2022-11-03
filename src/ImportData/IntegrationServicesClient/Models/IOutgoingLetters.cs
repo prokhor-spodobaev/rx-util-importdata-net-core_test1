@@ -1,36 +1,36 @@
-﻿using System.Linq;
+﻿using System;
 
 using NLog;
 
 namespace ImportData.IntegrationServicesClient.Models
 {
   [EntityName("Исходящее письмо")]
-  class IOutgoingLetters : IOutgoingDocumentBase
+  class IOutgoingLetters : IOutgoingDocumentBases
   {
-    public IOutgoingLetterAddressees CreateAddressee(IContacts contact, ICounterparties correspondent, IMailDeliveryMethods deliveryMethod, Logger logger)
+    public void CreateAddressee(IOutgoingLetterAddresseess addressee, Logger logger)
     {
-      logger.Debug("IsManyAddressees");
-      if (!this.IsManyAddressees)
+      try
       {
-        this.IsManyAddressees = true;
-        logger.Debug("IsManyAddressees = true;");
+        if (!IsManyAddressees)
+          IsManyAddressees = true;
+
+        var result = Client.Instance().For<IOutgoingLetters>()
+         .Key(this)
+         .NavigateTo(nameof(Addressees))
+         .Set(new IOutgoingLetterAddresseess()
+         {
+           Addressee = addressee.Addressee,
+           DeliveryMethod = addressee.DeliveryMethod,
+           Correspondent = addressee.Correspondent,
+           OutgoingDocumentBase = this,
+         })
+         .InsertEntryAsync().Result;
       }
-
-      var addressee = Client.Instance().For<IOutgoingLetters>()
-      .Key(this.Id)
-      .NavigateTo(x => x.Addressees)
-      .Set(new IOutgoingLetterAddressees
+      catch (Exception ex)
       {
-        Addressee = contact,
-        Correspondent = correspondent,
-        DeliveryMethod = deliveryMethod,
-        OutgoingDocumentBase = this
-      })
-      .InsertEntryAsync()
-      .Result
-      .LastOrDefault();
-
-      return addressee;
+        logger.Error(ex);
+        throw;
+      }
     }
   }
 }

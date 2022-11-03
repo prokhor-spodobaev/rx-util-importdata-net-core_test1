@@ -1,11 +1,11 @@
 ﻿namespace ImportData.IntegrationServicesClient.Models
 {
   [EntityName("Адресаты исходящего письма")]
-  class IOutgoingLetterAddressees
+  class IOutgoingLetterAddresseess
   {
     public ICounterparties Correspondent { get; set; }
     public IContacts Addressee { get; set; }
     public IMailDeliveryMethods DeliveryMethod { get; set; }
-    public IOutgoingDocumentBase OutgoingDocumentBase { get; set; }
+    public IOutgoingDocumentBases OutgoingDocumentBase { get; set; }
   }
 }

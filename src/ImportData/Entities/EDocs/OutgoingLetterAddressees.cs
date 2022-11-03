@@ -30,8 +30,6 @@ namespace ImportData
       var exceptionList = new List<Structures.ExceptionsStruct>();
       var variableForParameters = this.Parameters[shift + 0].Trim();
 
-      logger.Debug("Получаем Id исходящего документа.");
-
       var documentId = 0;
       try
       {
@@ -46,9 +44,6 @@ namespace ImportData
         return exceptionList;
       }
 
-      logger.Debug(string.Format("Id исходящего документа {0}.", documentId));
-      logger.Debug("Получаем исходящий документ.");
-
       var outgoingLetter = BusinessLogic.GetEntityWithFilter<IOutgoingLetters>(d => d.Id == documentId, exceptionList, logger);
       if (outgoingLetter == null)
       {
@@ -58,11 +53,8 @@ namespace ImportData
 
         return exceptionList;
       }
-      logger.Debug(string.Format("Исходящий документ {0}.", outgoingLetter.Name));
-      logger.Debug("Получаем контрагента.");
 
       variableForParameters = this.Parameters[shift + 1].Trim();
-
       var counterparty = BusinessLogic.GetEntityWithFilter<ICounterparties>(c => c.Name == variableForParameters, exceptionList, logger);
 
       if (counterparty == null)
@@ -74,8 +66,6 @@ namespace ImportData
         return exceptionList;
       }
 
-      logger.Debug(string.Format("Контрагент Id {0}.", counterparty.Id));
-
       variableForParameters = this.Parameters[shift + 2].Trim();
       var contact = !string.IsNullOrEmpty(variableForParameters)
         ? BusinessLogic.GetEntityWithFilter<IContacts>(d => d.Name == variableForParameters, exceptionList, logger)
@@ -83,7 +73,7 @@ namespace ImportData
 
       if (!string.IsNullOrEmpty(variableForParameters) && contact == null)
       {
-        var message = string.Format("Не найдено адресат \"{0}\".", variableForParameters);
+        var message = string.Format("Не найден адресат \"{0}\".", variableForParameters);
         exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
         logger.Warn(message);
       }
@@ -102,9 +92,15 @@ namespace ImportData
 
       try
       {
-        logger.Debug("Отправка в ОДата.");
-        var addressee = outgoingLetter.CreateAddressee(contact, counterparty, deliveryMethod, logger);
-        logger.Debug("новую строку адресата добавлена.");
+        var addressee = new IOutgoingLetterAddresseess
+        {
+          Addressee = contact,
+          OutgoingDocumentBase = outgoingLetter,
+          DeliveryMethod = deliveryMethod,
+          Correspondent = counterparty,
+        };
+
+        outgoingLetter.CreateAddressee(addressee, logger);
       }
       catch (Exception ex)
       {
