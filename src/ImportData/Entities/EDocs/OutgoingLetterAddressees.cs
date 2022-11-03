@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using NLog;
 using ImportData.IntegrationServicesClient.Models;
-using System.IO;
+using System.Linq;
 
 namespace ImportData
 {
   class OutgoingLetterAddressees : Entity
   {
-    public int PropertiesCount = 15;
+    public int PropertiesCount = 4;
     /// <summary>
     /// Получить наименование число запрашиваемых параметров.
     /// </summary>
@@ -29,7 +29,8 @@ namespace ImportData
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
       var variableForParameters = this.Parameters[shift + 0].Trim();
-      var culture = CultureInfo.CreateSpecificCulture("en-GB");
+
+      logger.Debug("Получаем Id исходящего документа.");
 
       var documentId = 0;
       try
@@ -45,6 +46,9 @@ namespace ImportData
         return exceptionList;
       }
 
+      logger.Debug(string.Format("Id исходящего документа {0}.", documentId));
+      logger.Debug("Получаем исходящий документ.");
+
       var outgoingLetter = BusinessLogic.GetEntityWithFilter<IOutgoingLetters>(d => d.Id == documentId, exceptionList, logger);
       if (outgoingLetter == null)
       {
@@ -54,8 +58,11 @@ namespace ImportData
 
         return exceptionList;
       }
+      logger.Debug(string.Format("Исходящий документ {0}.", outgoingLetter.Name));
+      logger.Debug("Получаем контрагента.");
 
       variableForParameters = this.Parameters[shift + 1].Trim();
+
       var counterparty = BusinessLogic.GetEntityWithFilter<ICounterparties>(c => c.Name == variableForParameters, exceptionList, logger);
 
       if (counterparty == null)
@@ -67,18 +74,24 @@ namespace ImportData
         return exceptionList;
       }
 
-      variableForParameters = this.Parameters[shift + 2].Trim();
-      var contact = BusinessLogic.GetEntityWithFilter<IContacts>(d => d.Name == variableForParameters, exceptionList, logger);
+      logger.Debug(string.Format("Контрагент Id {0}.", counterparty.Id));
 
-      if (contact == null)
+      variableForParameters = this.Parameters[shift + 2].Trim();
+      var contact = !string.IsNullOrEmpty(variableForParameters)
+        ? BusinessLogic.GetEntityWithFilter<IContacts>(d => d.Name == variableForParameters, exceptionList, logger)
+        : null;
+
+      if (!string.IsNullOrEmpty(variableForParameters) && contact == null)
       {
-        var message = string.Format("Не найдено подразделение \"{0}\".", variableForParameters);
+        var message = string.Format("Не найдено адресат \"{0}\".", variableForParameters);
         exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
         logger.Warn(message);
       }
 
       variableForParameters = this.Parameters[shift + 3].Trim();
-      var deliveryMethod = BusinessLogic.GetEntityWithFilter<IMailDeliveryMethods>(m => m.Name == variableForParameters, exceptionList, logger);
+      var deliveryMethod = !string.IsNullOrEmpty(variableForParameters)
+        ? BusinessLogic.GetEntityWithFilter<IMailDeliveryMethods>(m => m.Name == variableForParameters, exceptionList, logger)
+        : null;
 
       if (!string.IsNullOrEmpty(variableForParameters) && deliveryMethod == null)
       {
@@ -87,38 +100,16 @@ namespace ImportData
         logger.Warn(message);
       }
 
-      var number = 0;
-      variableForParameters = this.Parameters[shift + 4].Trim();
       try
       {
-        number = int.Parse(variableForParameters);
-      }
-      catch (Exception)
-      {
-        var message = string.Format("Не удалось обработать номер отправки \"{0}\".", this.Parameters[shift + 4]);
-        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-        logger.Error(message);
-
-        return exceptionList;
-      }
-
-      try
-      {
-        var addressee = new IOutgoingLetterAddressees
-        {
-          Addressee = contact,
-          Correspondent = counterparty,
-          DeliveryMethod = deliveryMethod,
-          Number = number
-        };
-
-        outgoingLetter.Addressees.Add(addressee);
-        BusinessLogic.UpdateEntity<IOutgoingLetters>(outgoingLetter, exceptionList, logger);
+        logger.Debug("Отправка в ОДата.");
+        var addressee = outgoingLetter.CreateAddressee(contact, counterparty, deliveryMethod, logger);
+        logger.Debug("новую строку адресата добавлена.");
       }
       catch (Exception ex)
       {
         exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = ex.Message });
-
+        logger.Error(ex, ex.Message);
         return exceptionList;
       }
 

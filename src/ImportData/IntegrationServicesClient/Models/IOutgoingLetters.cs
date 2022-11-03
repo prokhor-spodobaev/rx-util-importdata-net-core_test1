@@ -1,18 +1,36 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
+
+using NLog;
 
 namespace ImportData.IntegrationServicesClient.Models
 {
-    [EntityName("Исходящее письмо")]
-    class IOutgoingLetters : IOfficialDocuments
+  [EntityName("Исходящее письмо")]
+  class IOutgoingLetters : IOutgoingDocumentBase
+  {
+    public IOutgoingLetterAddressees CreateAddressee(IContacts contact, ICounterparties correspondent, IMailDeliveryMethods deliveryMethod, Logger logger)
     {
-        public int Id { get; set; }
-        public bool IsManyAddressees { get; set; }
-        public IEmployees Addressee { get; set; }
-        public IEmployees Assignee { get; set; }
-        public IBusinessUnits BusinessUnit { get; set; }
-        public ICounterparties Correspondent { get; set; }
-        public IEmployees ResponsibleForReturnEmployee { get; set; }
-        public IMailDeliveryMethods DeliveryMethod { get; set; }
-        public List<IOutgoingLetterAddressees> Addressees { get; set; }
+      logger.Debug("IsManyAddressees");
+      if (!this.IsManyAddressees)
+      {
+        this.IsManyAddressees = true;
+        logger.Debug("IsManyAddressees = true;");
+      }
+
+      var addressee = Client.Instance().For<IOutgoingLetters>()
+      .Key(this.Id)
+      .NavigateTo(x => x.Addressees)
+      .Set(new IOutgoingLetterAddressees
+      {
+        Addressee = contact,
+        Correspondent = correspondent,
+        DeliveryMethod = deliveryMethod,
+        OutgoingDocumentBase = this
+      })
+      .InsertEntryAsync()
+      .Result
+      .LastOrDefault();
+
+      return addressee;
+    }
   }
 }
