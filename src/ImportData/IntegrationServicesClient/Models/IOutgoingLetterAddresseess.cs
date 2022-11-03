@@ -6,6 +6,6 @@
     public ICounterparties Correspondent { get; set; }
     public IContacts Addressee { get; set; }
     public IMailDeliveryMethods DeliveryMethod { get; set; }
-    public IOutgoingDocumentBases OutgoingDocumentBase { get; set; }
+    public IOutgoingLetters OutgoingDocumentBase { get; set; }
   }
 }
