@@ -33,7 +33,7 @@ namespace ImportData
       public const string SupAgreements = "Доп.Соглашения";
       public const string IncomingLetters = "ВходящиеПисьма";
       public const string OutgoingLetters = "ИсходящиеПисьма";
-      public const string OutgoingLettersAddressees = "ИсходящиеПисьмаТабличнаяЧасть";
+      public const string OutgoingLettersAddressees = "ИсходящиеПисьмаСписокПолучателей";
       public const string Orders = "Приказы";
       public const string Addendums = "Приложения";
       public const string Contact = "Контактные лица";

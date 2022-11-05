@@ -1,6 +1,6 @@
 ﻿namespace ImportData.IntegrationServicesClient.Models
 {
-  [EntityName("Адресаты исходящего письма")]
+  [EntityName("Список рассылки исходящего письма")]
   class IOutgoingLetterAddresseess
   {
     public ICounterparties Correspondent { get; set; }

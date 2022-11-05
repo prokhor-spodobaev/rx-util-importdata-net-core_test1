@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using NLog;
 using ImportData.IntegrationServicesClient.Models;
-using System.Linq;
 
 namespace ImportData
 {
@@ -11,7 +9,7 @@ namespace ImportData
   {
     public int PropertiesCount = 4;
     /// <summary>
-    /// Получить наименование число запрашиваемых параметров.
+    /// Получить число запрашиваемых параметров.
     /// </summary>
     /// <returns>Число запрашиваемых параметров.</returns>
     public override int GetPropertiesCount()
@@ -24,7 +22,9 @@ namespace ImportData
     /// </summary>
     /// <param name="shift">Сдвиг по горизонтали в XLSX документе. Необходим для обработки документов, составленных из элементов разных сущностей.</param>
     /// <param name="logger">Логировщик.</param>
-    /// <returns>Число запрашиваемых параметров.</returns>
+    /// <param name="supplementEntity">Признак наличия дополнительной сущности.</param>
+    /// <param name="ignoreDuplicates">Признак необходимости игнорировать дубликаты.</param>
+    /// <returns>Список возникших при сохранении ошибок.</returns>
     public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
@@ -35,11 +35,11 @@ namespace ImportData
       {
         documentId = int.Parse(variableForParameters);
       }
-      catch (Exception)
+      catch (Exception ex)
       {
-        var message = string.Format("Не удалось обработать Id документа \"{0}\".", this.Parameters[shift + 0].Trim());
+        var message = string.Format("Не удалось обработать Id документа \"{0}\".", variableForParameters);
         exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-        logger.Error(message);
+        logger.Error(ex, message);
 
         return exceptionList;
       }
