@@ -34,5 +34,22 @@ namespace ImportData.IntegrationServicesClient.Models
         public IEmployees DeliveredTo { get; set; }
         public IEmployees OurSignatory { get; set; }
         public IEmployees PreparedBy { get; set; }
+
+        /// <summary>
+        /// Обновить свойство LifeCycleState.
+        /// </summary>
+        /// <param name="entity">Сущность, свойство которого необходимо обновить.</param>
+        /// <param name="lifeCycleState">Новое значение свойства LifeCycleState.</param>
+        /// <returns>Обновленная сущность.</returns>
+        public T UpdateLifeCycleState<T>(T entity, string lifeCycleState) where T : class
+        {
+            var data = Client.Instance()
+                             .For<T>()
+                             .Key(entity)
+                             .Set(new { LifeCycleState = lifeCycleState })
+                             .UpdateEntryAsync().Result;
+
+            return data;
+        }
     }
 }
