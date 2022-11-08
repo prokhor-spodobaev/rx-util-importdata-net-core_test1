@@ -155,44 +155,20 @@ namespace ImportData
 
             try
             {
+                ICompanies company = null;
+                var isNewCompany = false;
+
                 if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+                    company = BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name ||
+                        (tin != null && tin != string.Empty && x.TIN == tin &&
+                         trrc != null && trrc != string.Empty && x.TRRC == trrc) ||
+                        (psrn != null && psrn != string.Empty && x.PSRN == psrn), exceptionList, logger);
+
+                if (company is null)
                 {
-                    var companies = BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name || 
-                    (!string.IsNullOrEmpty(tin) && x.TIN == tin && !string.IsNullOrEmpty(trrc) && x.TRRC == trrc) || 
-                    (!string.IsNullOrEmpty(psrn) && x.PSRN == psrn), exceptionList, logger);
-
-                    // Обновление сущности при условии, что найдено одно совпадение.
-                    if (companies != null)
-                    {
-                        companies.Name = name;
-                        companies.LegalName = legalName;
-                        companies.HeadCompany = headCompany;
-                        companies.Nonresident = nonresident;
-                        companies.TIN = tin;
-                        companies.TRRC = trrc;
-                        companies.PSRN = psrn;
-                        companies.NCEO = nceo;
-                        companies.NCEA = ncea;
-                        companies.City = city;
-                        companies.Region = region;
-                        companies.LegalAddress = legalAdress;
-                        companies.PostalAddress = postalAdress;
-                        companies.Phones = phones;
-                        companies.Email = email;
-                        companies.Homepage = homepage;
-                        companies.Note = note;
-                        companies.Account = account;
-                        companies.Bank = bank;
-                        companies.Status = "Active";
-                        companies.Responsible = responsible;
-
-                        var updatedEntity = BusinessLogic.UpdateEntity<ICompanies>(companies, exceptionList, logger);
-
-                        return exceptionList;
-                    }
+                    isNewCompany = true;
+                    company = new ICompanies();
                 }
-
-                var company = new ICompanies();
 
                 company.Name = name;
                 company.LegalName = legalName;
@@ -217,13 +193,16 @@ namespace ImportData
                 company.Status = "Active";
                 company.Responsible = responsible;
 
-                BusinessLogic.CreateEntity<ICompanies>(company, exceptionList, logger);
+                if (isNewCompany)
+                    BusinessLogic.CreateEntity(company, exceptionList, logger);
+                else
+                    BusinessLogic.UpdateEntity(company, exceptionList, logger);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = ex.Message });
-
+                logger.Error(ex, ex.Message);
                 return exceptionList;
             }
 
