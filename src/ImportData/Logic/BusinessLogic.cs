@@ -123,7 +123,7 @@ namespace ImportData
       logger.Info(string.Format("Создание сущности {0}", PrintInfo(typeof(T))));
       try
       {
-        var entities = Client.CreateEntity<T>(entity);
+        var entities = Client.CreateEntity<T>(entity, logger);
 
         return entities;
       }
@@ -135,6 +135,7 @@ namespace ImportData
         if (ex.Message.Contains("(Unauthorized)"))
           throw new FoundMatchesException("Проверьте коррекность указанной учетной записи.");
 
+        throw;
       }
       return null;
     }

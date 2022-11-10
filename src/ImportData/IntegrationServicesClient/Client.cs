@@ -11,6 +11,8 @@ namespace ImportData.IntegrationServicesClient
   {
     private static Client instance;
     private static ODataClient client;
+    private static HttpResponseMessage response;
+    public static HttpResponseMessage Response { get => response; }
 
     private Client(string userName, string password, string servicesUrl)
     {
@@ -23,6 +25,7 @@ namespace ImportData.IntegrationServicesClient
         var authHeaderValue = Convert.ToBase64String(Encoding.UTF8.GetBytes(string.Format("{0}:{1}", userName, password)));
         message.Headers.Add("Authorization", "Basic " + authHeaderValue);
       };
+      settings.AfterResponse += httpResonse => { response = httpResonse; };
 
       client = new ODataClient(settings);
     }
@@ -80,11 +83,20 @@ namespace ImportData.IntegrationServicesClient
     /// <typeparam name="T">Тип сущности.</typeparam>
     /// <param name="entity">Экзмемпляр сущности.</param>
     /// <returns>Созданна сущность.</returns>
-    public static T CreateEntity<T>(T entity) where T : class
+    public static T CreateEntity<T>(T entity, Logger logger) where T : class
     {
-      var data = client.For<T>().Set(entity).InsertEntryAsync().Result;
+            try
+            {
+                var data = client.For<T>().Set(entity).InsertEntryAsync().Result;
 
-      return data;
+                return data;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex);
+            }
+
+            return null;
     }
 
     /// <summary>

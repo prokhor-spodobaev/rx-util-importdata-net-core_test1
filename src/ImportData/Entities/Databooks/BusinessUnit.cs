@@ -154,41 +154,17 @@ namespace ImportData
 
             try
             {
+                IBusinessUnits businessUnit = null;
+                var isNewBU = false;
+
                 if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+                    businessUnit = BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == name || x.TIN == tin || x.PSRN == psrn, exceptionList, logger);
+
+                if (businessUnit is null)
                 {
-                    var businessUnits = BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == name || x.TIN == tin || x.PSRN == psrn, exceptionList, logger);
-
-                    if (businessUnits != null)
-                    {
-                        businessUnits.Name = name;
-                        businessUnits.LegalName = legalName;
-                        businessUnits.HeadCompany = headCompany;
-                        businessUnits.Nonresident = nonresident;
-                        businessUnits.CEO = ceo;
-                        businessUnits.TIN = tin;
-                        businessUnits.TRRC = trrc;
-                        businessUnits.PSRN = psrn;
-                        businessUnits.NCEO = nceo;
-                        businessUnits.NCEA = ncea;
-                        businessUnits.City = city;
-                        businessUnits.Region = region;
-                        businessUnits.LegalAddress = legalAdress;
-                        businessUnits.PostalAddress = postalAdress;
-                        businessUnits.Phones = phones;
-                        businessUnits.Email = email;
-                        businessUnits.Homepage = homepage;
-                        businessUnits.Note = note;
-                        businessUnits.Account = account;
-                        businessUnits.Bank = bank;
-                        businessUnits.Status = "Active";
-
-                        var updatedEntity = BusinessLogic.UpdateEntity<IBusinessUnits>(businessUnits, exceptionList, logger);
-
-                        return exceptionList;
-                    }
+                    isNewBU = true;
+                    businessUnit = new IBusinessUnits();
                 }
-
-                var businessUnit = new IBusinessUnits();
 
                 businessUnit.Name = name;
                 businessUnit.LegalName = legalName;
@@ -212,7 +188,10 @@ namespace ImportData
                 businessUnit.Bank = bank;
                 businessUnit.Status = "Active";
 
-                BusinessLogic.CreateEntity<IBusinessUnits>(businessUnit, exceptionList, logger);
+                if (isNewBU)
+                    BusinessLogic.CreateEntity(businessUnit, exceptionList, logger);
+                else
+                    BusinessLogic.UpdateEntity(businessUnit, exceptionList, logger);
             }
             catch (Exception ex)
             {

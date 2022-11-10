@@ -89,27 +89,17 @@ namespace ImportData
                     return exceptionList;
                 }
 
-                var departments = BusinessLogic.GetEntityWithFilter<IDepartments>(x => x.Name == nameDepartment, exceptionList, logger);
+                IDepartments department = null;
+                var isNewDepartment = false;
 
-                // Обновление сущности при условии, что найдено одно совпадение.
-                if (departments != null)
+                if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+                    department = BusinessLogic.GetEntityWithFilter<IDepartments>(x => x.Name == nameDepartment, exceptionList, logger);
+
+                if (department is null)
                 {
-                    departments.Name = nameDepartment;
-                    departments.ShortName = shortName;
-                    departments.BusinessUnit = businessUnit;
-                    departments.HeadOffice = headOffice;
-                    departments.Manager = manager;
-                    departments.Code = code;
-                    departments.Phone = phone;
-                    departments.Note = note;
-                    departments.Status = "Active";
-
-                    var updatedEntity = BusinessLogic.UpdateEntity<IDepartments>(departments, exceptionList, logger);
-
-                    return exceptionList;
+                    isNewDepartment = true;
+                    department = new IDepartments();
                 }
-
-                var department = new IDepartments();
 
                 department.Name = nameDepartment;
                 department.ShortName = shortName;
@@ -121,7 +111,10 @@ namespace ImportData
                 department.Note = note;
                 department.Status = "Active";
 
-                BusinessLogic.CreateEntity<IDepartments>(department, exceptionList, logger);
+                if (isNewDepartment)
+                    BusinessLogic.CreateEntity(department, exceptionList, logger);
+                else
+                    BusinessLogic.UpdateEntity(department, exceptionList, logger);
             }
             catch (Exception ex)
             {
