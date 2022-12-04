@@ -99,7 +99,6 @@ ENV/
 /.vs/ImportData/*
 /ImportData/obj/*
 
-
 /Template/.~lock.*
 *.suo
 *.bak
@@ -108,3 +107,4 @@ ENV/
 /src/ImportData/Properties/PublishProfiles
 /src/ImportData/ImportData.csproj.user
 /.vs
+
