@@ -2,15 +2,6 @@
 # Данный GITIGNORE-файл был автоматически создан Microsoft(R) Visual Studio.
 ################################################################################
 
-/Template/.~lock.*
-*.suo
-*.bak
-/src/.vs
-/src/ImportData/bin/Release/netcoreapp3.0
-/src/ImportData/Properties/PublishProfiles
-/src/ImportData/ImportData.csproj.user
-/.vs/ImportData/
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -107,3 +98,14 @@ ENV/
 /ImportData/obj/Debug/*
 /.vs/ImportData/*
 /ImportData/obj/*
+
+/Template/.~lock.*
+*.suo
+*.bak
+/src/.vs
+/src/ImportData/bin/Release/netcoreapp3.0
+/src/ImportData/Properties/PublishProfiles
+/src/ImportData/ImportData.csproj.user
+/.vs
+
+
