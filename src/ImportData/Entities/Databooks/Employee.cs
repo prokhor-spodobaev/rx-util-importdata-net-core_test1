@@ -108,14 +108,37 @@ namespace ImportData
                 employee.Phone = phone;
                 employee.Note = note;
                 employee.NeedNotifyExpiredAssignments = false;
-                employee.NeedNotifyNewAssignments = !string.IsNullOrWhiteSpace(email); ;
-                employee.NeedNotifyAssignmentsSummary = !string.IsNullOrWhiteSpace(email); ;
+                employee.NeedNotifyNewAssignments = !string.IsNullOrWhiteSpace(email);
+                employee.NeedNotifyAssignmentsSummary = !string.IsNullOrWhiteSpace(email);
                 employee.Status = "Active";
 
+                var response = new IEmployees();
                 if (isNewEmployee)
-                    employee = BusinessLogic.CreateEntity(employee, exceptionList, logger);
+                    response = BusinessLogic.CreateEntity(employee, exceptionList, logger);
                 else
-                    employee = BusinessLogic.UpdateEntity(employee, exceptionList, logger);
+                    response = BusinessLogic.UpdateEntity(employee, exceptionList, logger);
+
+                // Если отправка сотрудника не удалась, то попробовать отправить, используя старую модель сотрудника
+                if (response is null)
+                {
+                    var oldModelEmployee = new IntegrationServicesClient.Models.OldModels.IEmployees
+                    {
+                        Name = employee.Name,
+                        Person = employee.Person,
+                        Department = employee.Department,
+                        JobTitle = employee.JobTitle,
+                        Email = employee.Email,
+                        Phone = employee.Phone,
+                        Note = employee.Note,
+                        NeedNotifyExpiredAssignments = employee.NeedNotifyExpiredAssignments,
+                        NeedNotifyNewAssignments = employee.NeedNotifyNewAssignments,
+                        Status = employee.Status,
+                    };
+                    if (isNewEmployee)
+                        BusinessLogic.CreateEntity(oldModelEmployee, exceptionList, logger);
+                    else
+                        BusinessLogic.UpdateEntity(oldModelEmployee, exceptionList, logger);
+                }
             }
             catch (Exception ex)
             {

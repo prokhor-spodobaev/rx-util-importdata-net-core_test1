@@ -137,7 +137,6 @@ namespace ImportData
 
         throw;
       }
-      return null;
     }
 
     /// <summary>
