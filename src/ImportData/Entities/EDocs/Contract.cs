@@ -242,7 +242,6 @@ namespace ImportData
         contract.ValidTill = validTill != DateTimeOffset.MinValue ? validTill : Constants.defaultDateTime;
         contract.TotalAmount = totalAmount;
         contract.Currency = currency;
-        contract.LifeCycleState = lifeCycleState;
         contract.ResponsibleEmployee = responsibleEmployee;
         contract.OurSignatory = ourSignatory;
         contract.Note = note;
@@ -267,11 +266,15 @@ namespace ImportData
 
             return exceptionList;
           }
+
+        // Дополнительно обновляем свойство Состояние, так как после установки регистрационного номера Состояние сбрасывается в значение "В разработке"
+        if (!string.IsNullOrEmpty(lifeCycleState))
+          createdContract = createdContract.UpdateLifeCycleState(createdContract, lifeCycleState);
       }
       catch (Exception ex)
       {
         exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = ex.Message });
-
+        logger.Error(ex, ex.Message);
         return exceptionList;
       }
 
