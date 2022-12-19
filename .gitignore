@@ -116,3 +116,5 @@ ENV/
 /src/ImportData/Properties/PublishProfiles
 /src/ImportData/ImportData.csproj.user
 /.vs
+/.vs/VSWorkspaceState.json
+/.vs/slnx.sqlite
