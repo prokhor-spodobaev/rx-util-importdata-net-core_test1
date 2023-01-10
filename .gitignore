@@ -1,6 +1,15 @@
-﻿################################################################################
+################################################################################
 # Данный GITIGNORE-файл был автоматически создан Microsoft(R) Visual Studio.
 ################################################################################
+
+/Template/.~lock.*
+*.suo
+*.bak
+/src/.vs
+/src/ImportData/bin/Release
+/src/ImportData/Properties/PublishProfiles
+/src/ImportData/ImportData.csproj.user
+/.vs/ImportData/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -107,4 +116,5 @@ ENV/
 /src/ImportData/Properties/PublishProfiles
 /src/ImportData/ImportData.csproj.user
 /.vs
-
+/.vs/VSWorkspaceState.json
+/.vs/slnx.sqlite

@@ -8,7 +8,6 @@
         public string Description { get; set; }
         public bool IsSystem { get; set; }
         public string Status { get; set; }
-        public ILogins Login { get; set; }
         public int Id { get; set; }
 
         public override string ToString()

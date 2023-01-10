@@ -113,40 +113,17 @@ namespace ImportData
 
             try
             {
+                IPersons person = null;
+                var isNewPerson = false;
+
                 if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+                    person = BusinessLogic.GetEntityWithFilter<IPersons>(x => x.LastName == lastName && x.FirstName == firstName, exceptionList, logger);
+
+                if (person is null)
                 {
-                    var persons = BusinessLogic.GetEntityWithFilter<IPersons>(x => x.LastName == lastName && x.FirstName == firstName, exceptionList, logger);
-
-                    // Обновление сущности при условии, что найдено одно совпадение.
-                    if (persons != null)
-                    {
-                        persons.Name = string.Format("{0} {1} {2}", lastName, firstName, middleName);
-                        persons.LastName = lastName;
-                        persons.FirstName = firstName;
-                        persons.MiddleName = middleName;
-                        persons.Sex = sex;
-                        persons.DateOfBirth = dateOfBirth != DateTimeOffset.MinValue ? dateOfBirth : Constants.defaultDateTime;
-                        persons.TIN = tin;
-                        persons.INILA = inila;
-                        persons.City = city;
-                        persons.Region = region;
-                        persons.LegalAddress = legalAdress;
-                        persons.PostalAddress = postalAdress;
-                        persons.Phones = phones;
-                        persons.Email = email;
-                        persons.Homepage = homepage;
-                        persons.Bank = bank;
-                        persons.Account = account;
-                        persons.Note = note;
-                        persons.Status = "Active";
-
-                        var updatedEntity = BusinessLogic.UpdateEntity<IPersons>(persons, exceptionList, logger);
-
-                        return exceptionList;
-                    }
+                    isNewPerson = true;
+                    person = new IPersons();
                 }
-
-                var person = new IPersons();
 
                 person.Name = string.Format("{0} {1} {2}", lastName, firstName, middleName);
                 person.LastName = lastName;
@@ -168,7 +145,10 @@ namespace ImportData
                 person.Note = note;
                 person.Status = "Active";
 
-                BusinessLogic.CreateEntity<IPersons>(person, exceptionList, logger);
+                if (isNewPerson)
+                    BusinessLogic.CreateEntity(person, exceptionList, logger);
+                else
+                    BusinessLogic.UpdateEntity(person, exceptionList, logger);
             }
             catch (Exception ex)
             {
