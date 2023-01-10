@@ -71,7 +71,6 @@ namespace ImportData.Entities.Databooks
                 company = BusinessLogic.CreateEntity<ICompanies>(new ICompanies() { Name = variableForParameters, Status = "Active" }, exceptionList, logger);
             }
 
-
             var jobTitle = this.Parameters[shift + 4].Trim();
             var phone = this.Parameters[shift + 5].Trim();
             var fax = this.Parameters[shift + 6].Trim();
@@ -81,32 +80,17 @@ namespace ImportData.Entities.Databooks
 
             try
             {
+                IContacts contact = null;
+                var isNewContact = false;
 
                 if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+                    contact = BusinessLogic.GetEntityWithFilter<IContacts>(x => x.Name == person.Name, exceptionList, logger);
+
+                if (contact == null)
                 {
-                    var contacts = BusinessLogic.GetEntityWithFilter<IContacts>(x => x.Name == person.Name, exceptionList, logger);
-
-                    // Обновление сущности при условии, что найдено одно совпадение.
-                    if (contacts != null)
-                    {
-                        contacts.Person = person;
-                        contacts.Company = company;
-                        contacts.Name = person.Name;
-                        contacts.JobTitle = jobTitle;
-                        contacts.Phone = phone;
-                        contacts.Fax = fax;
-                        contacts.Email = email;
-                        contacts.Homepage = homepage;
-                        contacts.Note = note;
-                        contacts.Status = "Active";
-
-                        var updatedEntity = BusinessLogic.UpdateEntity<IContacts>(contacts, exceptionList, logger);
-
-                        return exceptionList;
-                    }
+                    isNewContact = true;
+                    contact = new IContacts();
                 }
-
-                var contact = new IContacts();
 
                 contact.Person = person;
                 contact.Company = company;
@@ -119,7 +103,11 @@ namespace ImportData.Entities.Databooks
                 contact.Note = note;
                 contact.Status = "Active";
 
-                BusinessLogic.CreateEntity<IContacts>(contact, exceptionList, logger);
+                if (isNewContact)
+                    BusinessLogic.CreateEntity(contact, exceptionList, logger);
+                else
+                    BusinessLogic.UpdateEntity(contact, exceptionList, logger);
+
             }
             catch (Exception ex)
             {

@@ -55,6 +55,9 @@ namespace ImportData
         case "importoutgoingletters":
           EntityProcessor.Process(typeof(OutgoingLetter), xlsxPath, Constants.SheetNames.OutgoingLetters, extraParameters, ignoreDuplicates, logger);
           break;
+        case "importoutgoinglettersaddressees":
+          EntityProcessor.Process(typeof(OutgoingLetterAddressees), xlsxPath, Constants.SheetNames.OutgoingLettersAddressees, extraParameters, ignoreDuplicates, logger);
+          break;
         case "importorders":
           EntityProcessor.Process(typeof(Order), xlsxPath, Constants.SheetNames.Orders, extraParameters, ignoreDuplicates, logger);
           break;
