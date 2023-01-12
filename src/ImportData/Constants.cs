@@ -102,7 +102,7 @@ namespace ImportData
     }
 
     public static readonly DateTimeOffset defaultDateTime = new DateTime(1971, 1, 1);
-    public const string ignoreDuplicates = "ignore_duplicates";
+    public const string ignoreDuplicates = "ignore";
     public static Dictionary<string, string> dictIgnoreDuplicates = new Dictionary<string, string>
     {
       { ignoreDuplicates, ignoreDuplicates}
