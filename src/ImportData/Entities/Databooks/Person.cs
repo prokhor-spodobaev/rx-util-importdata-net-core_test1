@@ -55,7 +55,7 @@ namespace ImportData
             var middleName = this.Parameters[shift + 2].Trim();
 
             var sex = BusinessLogic.GetPropertySex(this.Parameters[shift + 3].Trim());
-            var dateOfBirth = DateTimeOffset.MinValue;
+            DateTimeOffset? dateOfBirth = DateTimeOffset.MinValue;
             var culture = CultureInfo.CreateSpecificCulture("en-GB");
             try
             {
@@ -130,7 +130,7 @@ namespace ImportData
                 person.FirstName = firstName;
                 person.MiddleName = middleName;
                 person.Sex = sex;
-                person.DateOfBirth = dateOfBirth != DateTimeOffset.MinValue ? dateOfBirth : Constants.defaultDateTime;
+                person.DateOfBirth = dateOfBirth != DateTimeOffset.MinValue ? dateOfBirth : null;
                 person.TIN = tin;
                 person.INILA = inila;
                 person.City = city;
