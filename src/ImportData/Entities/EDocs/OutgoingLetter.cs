@@ -117,8 +117,8 @@ namespace ImportData
       if (documentRegisters == null)
       {
         var message = string.Format("Не найден Журнал регистрации по ИД: \"{3}\". Входящее письмо: \"{0} {1} {2}\". ", regNumber, regDate.ToString(), counterparty, this.Parameters[shift + 10].Trim());
-        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
-        logger.Warn(message);
+        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        logger.Error(message);
 
         return exceptionList;
       }

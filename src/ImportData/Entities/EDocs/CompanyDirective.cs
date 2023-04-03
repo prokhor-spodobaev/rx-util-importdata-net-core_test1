@@ -137,8 +137,8 @@ namespace ImportData
       if (documentRegisters == null)
       {
         var message = string.Format("Приложение не может быть импортировано. Не найден журнал регистрации по ИД \"{0}\" ", this.Parameters[shift + 12].Trim());
-        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
-        logger.Warn(message);
+        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        logger.Error(message);
 
         return exceptionList;
       }
