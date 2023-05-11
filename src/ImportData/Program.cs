@@ -9,7 +9,7 @@ using ImportData.IntegrationServicesClient.Exceptions;
 
 namespace ImportData
 {
-  class Program
+  public class Program
   {
     public static Logger logger = LogManager.GetCurrentClassLogger();
     private const string DefaultConfigSettingsName = @"_ConfigSettings.xml";
@@ -87,7 +87,7 @@ namespace ImportData
       }
     }
 
-    static void Main(string[] args)
+    public static void Main(string[] args)
     {
       logger.Info("=========================== Process Start ===========================");
       var watch = System.Diagnostics.Stopwatch.StartNew();
