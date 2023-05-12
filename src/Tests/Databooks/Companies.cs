@@ -9,11 +9,12 @@ namespace Tests.Databooks
     public class Companies
     {
         [Fact]
-        public void CompanyNotNull()
+        public void CompaniesImport()
         {
             Program.Main(TestSettings.GetArgsCompanies());
 
-            foreach (var expectedCompany in TestData.Company.GetCompanies())
+            var result = true;
+            foreach (var expectedCompany in TestData.Companies.GetCompanies())
             {
                 var exceptionList = new List<Structures.ExceptionsStruct>();
                 var actualCompany = BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == expectedCompany.Name &&
@@ -21,8 +22,9 @@ namespace Tests.Databooks
                                   x.TRRC == expectedCompany.TRRC &&
                                   x.PSRN == expectedCompany.PSRN, exceptionList, TestSettings.Logger, true);
 
-                Assert.True(expectedCompany.Equals(actualCompany));
+                result = result && expectedCompany == actualCompany;
             }
+            Assert.True(result);
         }
     }
 }
