@@ -14,8 +14,6 @@ namespace ImportData
 {
   public class BusinessLogic
   {
-    public static IEnumerable<string> ErrorList;
-
     /// <summary>
     /// Чтение атрибута EntityName.
     /// </summary>

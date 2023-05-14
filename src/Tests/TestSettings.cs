@@ -7,34 +7,36 @@ using NLog;
 
 namespace Tests
 {
-  internal static class TestSettings
-  {
-    public static Logger Logger = LogManager.GetCurrentClassLogger();
+    internal static class TestSettings
+    {
+        public static Logger Logger = LogManager.GetCurrentClassLogger();
 
-    public const string Login = "Administrator";
-    public const string Password = "11111";
-    public const string XlsxPath = "Templates";
+        public const string Login = "Administrator";
+        public const string Password = "11111";
+        public const string XlsxFolderPath = "Templates";
 
-    public const string Company = "Company.xlsx";
-    public const string Companies = "Companies.xlsx";
-    public const string Persons = "Persons.xlsx";
-    public const string Logins = "Logins.xlsx";
-    public const string Contacts = "Contacts.xlsx";
-    public const string Supagreements = "Supagreements.xlsx";
-    public const string IncomingLetters = "IncomingLetters.xlsx";
-    public const string OutgoingLettersAddressees = "OutgoingLettersAddressees.xlsx";
-    public const string Orders = "Orders.xlsx";
-    public const string CompanyDirectives = "IncomingLetters.xlsx";
+        public const string CompanyAction = "ImportCompany";
+        public const string CompaniesAction = "ImportCompanies";
+        public const string PersonsAction = "ImportPersons";
+        public const string LoginsAction = "ImportLogins";
+        public const string ContactsAction = "ImportContacts";
+        public const string ContractsAction = "ImportContracts";
+        public const string SupagreementsAction = "ImportSupagreements";
+        public const string IncomingLettersAction = "ImportIncomingLetters";
+        public const string OutgoingLettersAddresseesAction = "ImportOutgoingLettersAddressees";
+        public const string OrdersAction = "ImportOrders";
+        public const string CompanyDirectivesAction = "ImportCompanyDirectives";
 
-    public static string[] GetArgsCompany() => new[] { "-n", Login, "-p", Password, "-a", "ImportCompany", "-f", $@"{XlsxPath}\{Company}" };
-    public static string[] GetArgsCompanies() => new[] { "-n", Login, "-p", Password, "-a", "ImportCompanies", "-f", $@"{XlsxPath}\{Companies}" };
-    public static string[] GetArgsPersons() => new[] { "-n", Login, "-p", Password, "-a", "ImportPersons", "-f", $@"{XlsxPath}\{Persons}" };
-    public static string[] GetArgsLogins() => new[] { "-n", Login, "-p", Password, "-a", "ImportLogins", "-f", $@"{XlsxPath}\{Logins}" };
-    public static string[] GetArgsContacts() => new[] { "-n", Login, "-p", Password, "-a", "ImportContacts", "-f", $@"{XlsxPath}\{Contacts}" };
-    public static string[] GetArgsSupagreements() => new[] { "-n", Login, "-p", Password, "-a", "ImportSupagreements", "-f", $@"{XlsxPath}\{Supagreements}" };
-    public static string[] GetArgsIncomingLetters() => new[] { "-n", Login, "-p", Password, "-a", "ImportIncomingLetters", "-f", $@"{XlsxPath}\{IncomingLetters}" };
-    public static string[] GetArgsOutgoingLettersAddressees() => new[] { "-n", Login, "-p", Password, "-a", "ImportOutgoingLettersAddressees", "-f", $@"{XlsxPath}\{OutgoingLettersAddressees}" };
-    public static string[] GetArgsOrders() => new[] { "-n", Login, "-p", Password, "-a", "ImportOrders", "-f", $@"{XlsxPath}\{Orders}" };
-    public static string[] GetArgsCompanyDirectives() => new[] { "-n", Login, "-p", Password, "-a", "ImportCompanyDirectives", "-f", $@"{XlsxPath}\{CompanyDirectives}" };
-  }
+        public const string CompanyPathXlsx = $@"{XlsxFolderPath}\Company.xlsx";
+        public const string CompaniesPathXlsx = $@"{XlsxFolderPath}\Companies.xlsx";
+        public const string PersonsPathXlsx = $@"{XlsxFolderPath}\Persons.xlsx";
+        public const string LoginsPathXlsx = $@"{XlsxFolderPath}\Logins.xlsx";
+        public const string ContactsPathXlsx = $@"{XlsxFolderPath}\Contacts.xlsx";
+        public const string ContractsPathXlsx = $@"{XlsxFolderPath}\Contracts.xlsx";
+        public const string SupagreementsPathXlsx = $@"{XlsxFolderPath}\Supagreements.xlsx";
+        public const string IncomingLettersPathXlsx = $@"{XlsxFolderPath}\IncomingLetters.xlsx";
+        public const string OutgoingLettersAddresseesPathXlsx = $@"{XlsxFolderPath}\OutgoingLettersAddressees.xlsx";
+        public const string OrdersPathXlsx = $@"{XlsxFolderPath}\Orders.xlsx";
+        public const string CompanyDirectivesPathXlsx = $@"{XlsxFolderPath}\IncomingLetters.xlsx";
+    }
 }
