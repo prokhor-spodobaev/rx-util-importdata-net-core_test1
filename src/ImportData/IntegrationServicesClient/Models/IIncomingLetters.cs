@@ -3,7 +3,7 @@
 namespace ImportData.IntegrationServicesClient.Models
 {
     [EntityName("Входящее письмо")]
-    class IIncomingLetters : IOfficialDocuments
+    public class IIncomingLetters : IOfficialDocuments
     {
         public DateTimeOffset Dated { get; set; }
         public string InNumber { get; set; }

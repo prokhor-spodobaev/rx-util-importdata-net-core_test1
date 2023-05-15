@@ -8,13 +8,13 @@ namespace Tests.Databooks
         public void T5_ContactsImport()
         {
             var xlsxPath = TestSettings.ContactsPathXlsx;
+            var action = ImportData.Constants.Actions.ImportCompany;
             var sheetName = ImportData.Constants.SheetNames.Contact;
             var logger = TestSettings.Logger;
 
-            Program.Main(Common.GetArgs(TestSettings.ContactsAction, xlsxPath));
+            Program.Main(Common.GetArgs(action, xlsxPath));
 
             var errorList = new List<string>();
-            //Проверка работников.
             foreach (var expectedContact in Common.XlsxParse(xlsxPath, sheetName, logger))
             {
                 var error = EqualsContact(expectedContact);

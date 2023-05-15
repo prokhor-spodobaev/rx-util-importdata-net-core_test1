@@ -8,13 +8,13 @@ namespace Tests.Databooks
         public void T3_PersonImport()
         {
             var xlsxPath = TestSettings.PersonsPathXlsx;
+            var action = ImportData.Constants.Actions.ImportPersons;
             var sheetName = ImportData.Constants.SheetNames.Persons;
             var logger = TestSettings.Logger;
 
-            Program.Main(Common.GetArgs(TestSettings.PersonsAction, xlsxPath));
+            Program.Main(Common.GetArgs(action, xlsxPath));
 
             var errorList = new List<string>();
-            //Проверка работников.
             foreach (var expectedPerson in Common.XlsxParse(xlsxPath, sheetName, logger))
             {
                 var error = EqualsPerson(expectedPerson);
@@ -43,7 +43,7 @@ namespace Tests.Databooks
                 Common.CheckParam(actualPerson.FirstName, parameters[shift + 1].Trim(), "FirstName"),
                 Common.CheckParam(actualPerson.MiddleName, parameters[shift + 2].Trim(), "MiddleName"),
                 // Пол определяется прикладной логикой.
-                // Common.CheckParam(actualPerson.Sex, parameters[shift + 3].Trim(), "Sex"),
+                //Common.CheckParam(actualPerson.Sex, BusinessLogic.GetPropertySex((parameters[shift + 3].Trim()), "Sex"),
                 Common.CheckParam(actualPerson.DateOfBirth == null ? string.Empty : actualPerson.DateOfBirth.Value.ToString("dd.MM.yyyy"), parameters[shift + 4].Trim(), "DateOfBirth"),
                 Common.CheckParam(actualPerson.TIN, parameters[shift + 5].Trim(), "TIN"),
                 Common.CheckParam(actualPerson.INILA, parameters[shift + 6].Trim(), "INILA"),

@@ -6,7 +6,7 @@ using NLog;
 namespace ImportData.IntegrationServicesClient.Models
 {
   [EntityName("Исходящее письмо")]
-  class IOutgoingLetters : IOfficialDocuments
+  public class IOutgoingLetters : IOfficialDocuments
   {
     public bool IsManyAddressees { get; set; }
     public IEmployees Addressee { get; set; }

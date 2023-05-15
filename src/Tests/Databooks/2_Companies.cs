@@ -11,10 +11,11 @@ namespace Tests.Databooks
         public void T2_CompaniesImport()
         {
             var xlsxPath = TestSettings.CompaniesPathXlsx;
+            var action = ImportData.Constants.Actions.ImportCompanies;
             var sheetName = ImportData.Constants.SheetNames.Companies;
             var logger = TestSettings.Logger;
 
-            Program.Main(Common.GetArgs(TestSettings.CompaniesAction, xlsxPath));
+            Program.Main(Common.GetArgs(action, xlsxPath));
 
             var errorList = new List<string>();
             foreach (var expectedCompany in Common.XlsxParse(xlsxPath, sheetName, logger))

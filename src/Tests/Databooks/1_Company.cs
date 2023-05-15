@@ -8,12 +8,13 @@ namespace Tests.Databooks
         public void T1_CompanyImport()
         {
             var xlsxPath = TestSettings.CompanyPathXlsx;
+            var action = ImportData.Constants.Actions.ImportCompany;
             var sheetNameEmployees = ImportData.Constants.SheetNames.Employees;
             var sheetNameBusinessUnits = ImportData.Constants.SheetNames.BusinessUnits;
             var sheetNameDepartments = ImportData.Constants.SheetNames.Departments;
             var logger = TestSettings.Logger;
 
-            Program.Main(Common.GetArgs(TestSettings.CompanyAction, xlsxPath));
+            Program.Main(Common.GetArgs(action, xlsxPath));
 
             var errorList = new List<string>();
             //Проверка работников.
@@ -71,7 +72,7 @@ namespace Tests.Databooks
                 Common.CheckParam(actualPerson.LastName, parameters[shift + 2].Trim(), "LastName"),
                 Common.CheckParam(actualPerson.FirstName, parameters[shift + 3].Trim(), "FirstName"),
                 Common.CheckParam(actualPerson.MiddleName, parameters[shift + 4].Trim(), "MiddleName"),
-                Common.CheckParam(actualPerson.Sex, SexConvert(parameters[shift + 5].Trim()), "Sex"),
+                Common.CheckParam(actualPerson.Sex, BusinessLogic.GetPropertySex(parameters[shift + 5].Trim()), "Sex"),
                 Common.CheckParam(actualPerson.DateOfBirth == null ? string.Empty : actualPerson.DateOfBirth.Value.ToString("dd.MM.yyyy"), parameters[shift + 6].Trim(), "DateOfBirth"),
                 Common.CheckParam(actualPerson.TIN, parameters[shift + 7].Trim(), "TIN"),
                 Common.CheckParam(actualPerson.INILA, parameters[shift + 8].Trim(), "INILA"),
@@ -164,13 +165,6 @@ namespace Tests.Databooks
                 errorList.Insert(0, $"Ошибка в сущности: {name}");
 
             return string.Join(Environment.NewLine, errorList);
-        }
-
-        public static string SexConvert(string sex)
-        {
-            return sex == "Мужской" ? "Male" :
-                sex == "Женский" ? "Female" :
-                string.Empty;
         }
     }
 }

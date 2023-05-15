@@ -8,13 +8,13 @@ namespace Tests.Databooks
         public void T4_LoginsImport()
         {
             var xlsxPath = TestSettings.LoginsPathXlsx;
+            var action = ImportData.Constants.Actions.ImportLogins;
             var sheetName = ImportData.Constants.SheetNames.Logins;
             var logger = TestSettings.Logger;
 
-            Program.Main(Common.GetArgs(TestSettings.LoginsAction, xlsxPath));
+            Program.Main(Common.GetArgs(action, xlsxPath));
 
             var errorList = new List<string>();
-            //Проверка работников.
             foreach (var expectedLogin in Common.XlsxParse(xlsxPath, sheetName, logger))
             {
                 var error = EqualsLogin(expectedLogin);
