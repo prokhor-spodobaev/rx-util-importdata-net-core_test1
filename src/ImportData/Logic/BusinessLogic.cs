@@ -289,7 +289,7 @@ namespace ImportData
 
         try
         {
-            return RegistrationState[key];
+            return RegistrationState[key.Trim()];
         }
         catch (KeyNotFoundException ex)
         {

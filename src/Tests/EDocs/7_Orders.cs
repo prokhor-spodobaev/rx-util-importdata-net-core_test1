@@ -1,17 +1,23 @@
+using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using System.Security.Cryptography;
 using ImportData;
+using ImportData.IntegrationServicesClient.Models;
+using Xunit.Extensions.Ordering;
+using DocumentFormat.OpenXml.Office2010.Word;
 
 namespace Tests.EDocs
 {
     public partial class Tests
     {
-        [Fact]
-        public void OrdersImport()
+        [Fact, Order(70)]
+        public void T7_OrdersImport()
         {
             var xlsxPath = TestSettings.OrdersPathXlsx;
             var action = ImportData.Constants.Actions.ImportOrders;
             var sheetName = ImportData.Constants.SheetNames.Orders;
-            var logger = TestSettings.Logger;
-            var items = Common.XlsxParse(xlsxPath, sheetName, logger);
+
+            var items = Common.XlsxParse(xlsxPath, sheetName);
 
             Program.Main(Common.GetArgs(action, xlsxPath));
 
@@ -33,14 +39,27 @@ namespace Tests.EDocs
         {
             var exceptionList = new List<Structures.ExceptionsStruct>();
 
-            var actualOrder = BusinessLogic.GetEntityWithFilter<IOrders>(x => true, exceptionList, TestSettings.Logger, true);
+            var actualOrder = Common.GetOfficialDocument<IOrders>(parameters[shift + 0], parameters[shift + 1], parameters[shift + 12]);
 
             if (actualOrder == null)
-                return $"Не найдено дополнительное соглашение";
+                return $"Не найден приказ";
 
             var errorList = new List<string>
             {
-
+                Common.CheckParam(actualOrder.RegistrationNumber, parameters[shift + 0], "RegistrationNumber"),
+                Common.CheckParam(actualOrder.RegistrationDate, parameters[shift + 1], "RegistrationDate"),
+                Common.CheckParam(actualOrder.DocumentKind, parameters[shift + 2], "DocumentKind"),
+                Common.CheckParam(actualOrder.Subject, parameters[shift + 3], "Subject"),
+                Common.CheckParam(actualOrder.BusinessUnit, parameters[shift + 4], "BusinessUnit"),
+                Common.CheckParam(actualOrder.Department, parameters[shift + 5], "Department"),
+                Common.CheckParam(actualOrder.LastVersion(), parameters[shift + 6], "LastVersion"),
+                Common.CheckParam(actualOrder.Assignee, parameters[shift + 7], "Assignee"),
+                Common.CheckParam(actualOrder.PreparedBy, parameters[shift + 8], "PreparedBy"),
+                Common.CheckParam(actualOrder.OurSignatory, parameters[shift + 9], "OurSignatory"),
+                Common.CheckParam(actualOrder.LifeCycleState, BusinessLogic.GetPropertyLifeCycleState(parameters[shift + 10]), "LifeCycleState"),
+                Common.CheckParam(actualOrder.Note, parameters[shift + 11], "Note"),
+                Common.CheckParam(actualOrder.DocumentRegister, parameters[shift + 12], "DocumentRegister"),
+                Common.CheckParam(actualOrder.RegistrationState, BusinessLogic.GetRegistrationsState(parameters[shift + 13]), "RegistrationState")
             };
 
             errorList = errorList.Where(x => !string.IsNullOrEmpty(x)).ToList();

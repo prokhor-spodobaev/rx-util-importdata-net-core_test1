@@ -5,19 +5,21 @@ using ImportData;
 using ImportData.Entities.Databooks;
 using ImportData.IntegrationServicesClient.Models;
 using System.Linq;
+using Xunit.Extensions.Ordering;
 
 namespace Tests.EDocs
 {
+    [Order(20)]
     public partial class Tests
     {
-        [Fact]
+        [Fact, Order(10)]
         public void T1_ContractsImport()
         {
             var xlsxPath = TestSettings.ContractsPathXlsx;
             var action = ImportData.Constants.Actions.ImportContracts;
             var sheetName = ImportData.Constants.SheetNames.Contracts;
-            var logger = TestSettings.Logger;
-            var items = Common.XlsxParse(xlsxPath, sheetName, logger);
+
+            var items = Common.XlsxParse(xlsxPath, sheetName);
 
             // Создание категорий договора из файла.
             foreach (var item in items)
@@ -43,47 +45,32 @@ namespace Tests.EDocs
 
         public static string EqualsContract(List<string> parameters, int shift = 0)
         {
-            var exceptionList = new List<Structures.ExceptionsStruct>();
-            var regNumber = parameters[shift + 0].Trim();
-
-            DateTimeOffset regDate = DateTimeOffset.MinValue;
-
-            var regDateBeginningOfDay = Common.ParseDate(parameters[shift + 1].Trim());
-            var counterpartyName = parameters[shift + 2].Trim();
-            var documentRegisterId = -1;
-            int.TryParse(parameters[shift + 17].Trim(), out documentRegisterId);
-
-
-            var actualContract = BusinessLogic.GetEntityWithFilter<IContracts>(x => x.RegistrationNumber != null &&
-                                                                                    x.RegistrationNumber == regNumber &&
-                                                                                    x.RegistrationDate == regDateBeginningOfDay &&
-                                                                                    x.Counterparty.Name == counterpartyName &&
-                                                                                    x.DocumentRegister.Id == documentRegisterId, exceptionList, TestSettings.Logger, true);
+            var actualContract = Common.GetOfficialDocument<IContracts>(parameters[shift + 0], parameters[shift + 1], parameters[shift + 17]);
         
             if (actualContract == null)
                 return $"Не найден договор";
 
             var errorList = new List<string>
             {
-                Common.CheckParam(actualContract.RegistrationNumber, parameters[shift + 0].Trim(), "RegistrationNumber"),
-                Common.CheckParam(actualContract.RegistrationDate, Common.ParseDate(parameters[shift + 1].Trim()), "RegistrationDate"),
-                Common.CheckParam(actualContract.Counterparty == null ? string.Empty : actualContract.Counterparty.Name, parameters[shift + 2].Trim(), "Counterparty"),
-                Common.CheckParam(actualContract.DocumentKind == null ? string.Empty : actualContract.DocumentKind.Name, parameters[shift + 3].Trim(), "DocumentKind"),
-                Common.CheckParam(actualContract.DocumentGroup == null ? string.Empty : actualContract.DocumentGroup.Name, parameters[shift + 4].Trim(), "DocumentGroup"),
-                Common.CheckParam(actualContract.Subject, parameters[shift + 5].Trim(), "Subject"),
-                Common.CheckParam(actualContract.BusinessUnit == null ? string.Empty : actualContract.BusinessUnit.Name, parameters[shift + 6].Trim(), "BusinessUnit"),
-                Common.CheckParam(actualContract.Department == null ? string.Empty : actualContract.Department.Name, parameters[shift + 7].Trim(), "Department"),
-                Common.CheckParam(actualContract.LastVersion().Body.Value.SequenceEqual(File.ReadAllBytes(parameters[shift + 8].Trim())), "LastVersion"),
-                Common.CheckParam(actualContract.ValidFrom, Common.ParseDate(parameters[shift + 9].Trim()), "ValidFrom"),
-                Common.CheckParam(actualContract.ValidTill, Common.ParseDate(parameters[shift + 10].Trim()), "ValidTill"),
-                Common.CheckParam(actualContract.TotalAmount, parameters[shift + 11].Trim(), "TotalAmount"),
-                Common.CheckParam(actualContract.Currency == null ? string.Empty : actualContract.Currency.Name, parameters[shift + 12].Trim(), "Currency"),
-                Common.CheckParam(actualContract.LifeCycleState, BusinessLogic.GetPropertyLifeCycleState(parameters[shift + 13].Trim()), "LifeCycleState"),
-                Common.CheckParam(actualContract.ResponsibleEmployee == null ? string.Empty : actualContract.ResponsibleEmployee.Name, parameters[shift + 14].Trim(), "ResponsibleEmployee"),
-                Common.CheckParam(actualContract.OurSignatory == null ? string.Empty : actualContract.OurSignatory.Name, parameters[shift + 15].Trim(), "OurSignatory"),
-                Common.CheckParam(actualContract.Note, parameters[shift + 16].Trim(), "Note"),
-                Common.CheckParam(actualContract.DocumentRegister?.Id, parameters[shift + 17].Trim(), "DocumentRegister"),
-                Common.CheckParam(actualContract.RegistrationState, BusinessLogic.GetRegistrationsState(parameters[shift + 18].Trim()), "RegistrationState")
+                Common.CheckParam(actualContract.RegistrationNumber, parameters[shift + 0], "RegistrationNumber"),
+                Common.CheckParam(actualContract.RegistrationDate, parameters[shift + 1], "RegistrationDate"),
+                Common.CheckParam(actualContract.Counterparty, parameters[shift + 2], "Counterparty"),
+                Common.CheckParam(actualContract.DocumentKind, parameters[shift + 3], "DocumentKind"),
+                Common.CheckParam(actualContract.DocumentGroup, parameters[shift + 4], "DocumentGroup"),
+                Common.CheckParam(actualContract.Subject, parameters[shift + 5], "Subject"),
+                Common.CheckParam(actualContract.BusinessUnit, parameters[shift + 6], "BusinessUnit"),
+                Common.CheckParam(actualContract.Department, parameters[shift + 7], "Department"),
+                Common.CheckParam(actualContract.LastVersion(), parameters[shift + 8], "LastVersion"),
+                Common.CheckParam(actualContract.ValidFrom, parameters[shift + 9], "ValidFrom"),
+                Common.CheckParam(actualContract.ValidTill, parameters[shift + 10], "ValidTill"),
+                Common.CheckParam(actualContract.TotalAmount, parameters[shift + 11], "TotalAmount"),
+                Common.CheckParam(actualContract.Currency, parameters[shift + 12], "Currency"),
+                Common.CheckParam(actualContract.LifeCycleState, BusinessLogic.GetPropertyLifeCycleState(parameters[shift + 13]), "LifeCycleState"),
+                Common.CheckParam(actualContract.ResponsibleEmployee, parameters[shift + 14], "ResponsibleEmployee"),
+                Common.CheckParam(actualContract.OurSignatory, parameters[shift + 15], "OurSignatory"),
+                Common.CheckParam(actualContract.Note, parameters[shift + 16], "Note"),
+                Common.CheckParam(actualContract.DocumentRegister?.Id, parameters[shift + 17], "DocumentRegister"),
+                Common.CheckParam(actualContract.RegistrationState, BusinessLogic.GetRegistrationsState(parameters[shift + 18]), "RegistrationState")
             };
 
             errorList = errorList.Where(x => !string.IsNullOrEmpty(x)).ToList();

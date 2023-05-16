@@ -1,21 +1,21 @@
 using ImportData;
+using Xunit.Extensions.Ordering;
 
 namespace Tests.Databooks
 {
     public partial class Tests
     {
-        [Fact]
+        [Fact, Order(40)]
         public void T4_LoginsImport()
         {
             var xlsxPath = TestSettings.LoginsPathXlsx;
             var action = ImportData.Constants.Actions.ImportLogins;
             var sheetName = ImportData.Constants.SheetNames.Logins;
-            var logger = TestSettings.Logger;
 
             Program.Main(Common.GetArgs(action, xlsxPath));
 
             var errorList = new List<string>();
-            foreach (var expectedLogin in Common.XlsxParse(xlsxPath, sheetName, logger))
+            foreach (var expectedLogin in Common.XlsxParse(xlsxPath, sheetName))
             {
                 var error = EqualsLogin(expectedLogin);
 
@@ -45,10 +45,10 @@ namespace Tests.Databooks
 
             var errorList = new List<string>
             {
-                Common.CheckParam(actualLogin == null ? string.Empty : actualLogin.LoginName, parameters[shift + 0].Trim(), "LoginName"),
-                Common.CheckParam(actualPerson == null ? string.Empty : actualPerson.LastName, parameters[shift + 1].Trim(), "LastName"),
-                Common.CheckParam(actualPerson == null ? string.Empty : actualPerson.FirstName, parameters[shift + 2].Trim(), "FirstName"),
-                Common.CheckParam(actualPerson == null ? string.Empty : actualPerson.MiddleName, parameters[shift + 3].Trim(), "MiddleName")
+                Common.CheckParam(actualLogin, parameters[shift + 0], "LoginName"),
+                Common.CheckParam(actualPerson.LastName, parameters[shift + 1], "LastName"),
+                Common.CheckParam(actualPerson.FirstName, parameters[shift + 2], "FirstName"),
+                Common.CheckParam(actualPerson.MiddleName, parameters[shift + 3], "MiddleName")
             };
 
             errorList = errorList.Where(x => !string.IsNullOrEmpty(x)).ToList();
