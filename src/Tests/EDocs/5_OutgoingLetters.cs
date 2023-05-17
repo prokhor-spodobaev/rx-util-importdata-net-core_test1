@@ -36,8 +36,10 @@ namespace Tests.EDocs
         {
             var actualOutgoingLetter = Common.GetOfficialDocument<IOutgoingLetters>(parameters[shift + 0], parameters[shift + 1], parameters[shift + 10]);
 
+            var name = Common.GetDocumentName(parameters[shift + 3], parameters[shift + 0], parameters[shift + 1], parameters[shift + 4]);
+
             if (actualOutgoingLetter == null)
-                return $"Не найдено дополнительное соглашение";
+                return $"Не найдено входящее письмо: {name}";
 
             var errorList = new List<string>
             {
@@ -56,7 +58,7 @@ namespace Tests.EDocs
 
             errorList = errorList.Where(x => !string.IsNullOrEmpty(x)).ToList();
             if (errorList.Any())
-                errorList.Insert(0, $"Ошибка в сущности:");
+                errorList.Insert(0, $"Ошибка в сущности: {name}");
 
             return string.Join(Environment.NewLine, errorList);
         }

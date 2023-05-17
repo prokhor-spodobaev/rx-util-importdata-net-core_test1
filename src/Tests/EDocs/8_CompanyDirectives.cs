@@ -40,8 +40,10 @@ namespace Tests.EDocs
 
             var actualCompanyDirective = Common.GetOfficialDocument<ICompanyDirective>(parameters[shift + 0], parameters[shift + 1], parameters[shift + 12]);
 
+            var name = Common.GetDocumentName(parameters[shift + 2], parameters[shift + 0], parameters[shift + 1], parameters[shift + 3]);
+
             if (actualCompanyDirective == null)
-                return $"Не найдено дополнительное соглашение";
+                return $"Не найдено распоряжение: {name}";
 
             var errorList = new List<string>
             {
@@ -63,7 +65,7 @@ namespace Tests.EDocs
 
             errorList = errorList.Where(x => !string.IsNullOrEmpty(x)).ToList();
             if (errorList.Any())
-                errorList.Insert(0, $"Ошибка в сущности:");
+                errorList.Insert(0, $"Ошибка в сущности:  {name}");
 
             return string.Join(Environment.NewLine, errorList);
         }

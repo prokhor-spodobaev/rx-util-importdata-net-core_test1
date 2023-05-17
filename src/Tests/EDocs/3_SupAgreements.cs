@@ -33,13 +33,14 @@ namespace Tests.EDocs
         public static string EqualsSupAgreement(List<string> parameters, int shift = 0)
         {
             var actualSupAgreement = Common.GetOfficialDocument<ISupAgreements>(parameters[shift + 0], parameters[shift + 1]);
-            var leadingDocument = Common.GetOfficialDocument<ISupAgreements>(parameters[shift + 2], parameters[shift + 3]);
+            var leadingDocument = Common.GetOfficialDocument<IContracts>(parameters[shift + 2], parameters[shift + 3]);
+            var name = Common.GetDocumentName(parameters[shift + 5], parameters[shift + 0], parameters[shift + 1], parameters[shift + 6]);
 
             if (actualSupAgreement == null)
-                return $"Не найдено дополнительное соглашение";
+                return $"Не найдено дополнительное соглашение: {name}";
 
             if (leadingDocument == null)
-                return $"Не найден ведущий документ";
+                return $"Не найден ведущий документ для дополнительного соглашения: {name}";
 
             var errorList = new List<string>
             {
@@ -67,7 +68,7 @@ namespace Tests.EDocs
 
             errorList = errorList.Where(x => !string.IsNullOrEmpty(x)).ToList();
             if (errorList.Any())
-                errorList.Insert(0, $"Ошибка в сущности:");
+                errorList.Insert(0, $"Ошибка в сущности: {name}");
 
             return string.Join(Environment.NewLine, errorList);
         }

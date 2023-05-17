@@ -9,7 +9,7 @@ namespace Tests.Databooks
         public void T5_ContactsImport()
         {
             var xlsxPath = TestSettings.ContactsPathXlsx;
-            var action = ImportData.Constants.Actions.ImportCompany;
+            var action = ImportData.Constants.Actions.ImportContacts;
             var sheetName = ImportData.Constants.SheetNames.Contact;
 
             Program.Main(Common.GetArgs(action, xlsxPath));
@@ -32,11 +32,12 @@ namespace Tests.Databooks
         {
             var exceptionList = new List<Structures.ExceptionsStruct>();
             var name = string.Join(' ', parameters[shift + 0].Trim(), parameters[shift + 1].Trim(), parameters[shift + 2].Trim()).Trim();
-            var actualContact = BusinessLogic.GetEntityWithFilter<IContacts>(x => x.Name == name, exceptionList, TestSettings.Logger, true);
-            var actualPerson = actualContact.Person;
 
+            var actualContact = BusinessLogic.GetEntityWithFilter<IContacts>(x => x.Name == name, exceptionList, TestSettings.Logger, true);
             if (actualContact == null)
                 return $"Не найден контакт {name}";
+
+            var actualPerson = actualContact.Person;
             if (actualPerson == null)
                 return $"Не найдена персона {name}";
 

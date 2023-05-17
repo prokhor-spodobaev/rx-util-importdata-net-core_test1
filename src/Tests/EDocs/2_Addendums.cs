@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Office2010.Word;
 using ImportData;
+using ImportData.IntegrationServicesClient.Models;
 using Xunit.Extensions.Ordering;
 
 namespace Tests.EDocs
@@ -13,8 +15,6 @@ namespace Tests.EDocs
         [Fact, Order(20)]
         public void T2_AddendumsImport()
         {
-            Assert.Fail("Приложения не поддерживаются");
-
             var xlsxPath = TestSettings.AddendumsPathXlsx;
             var action = ImportData.Constants.Actions.ImportAddendums;
             var sheetName = ImportData.Constants.SheetNames.Addendums;
@@ -39,11 +39,26 @@ namespace Tests.EDocs
 
         public static string EqualsAddendums(List<string> parameters, int shift = 0)
         {
-            var actualAddendum = Common.GetOfficialDocument<IAddendums>(parameters[shift + 0], parameters[shift + 1]);
-            var leadingDocument = Common.GetOfficialDocument<IAddendums>(parameters[shift + 2], parameters[shift + 3]);
+            var exceptionList = new List<Structures.ExceptionsStruct>();
+            var leadingDocument = Common.GetOfficialDocument<IContracts>(parameters[shift + 2], parameters[shift + 3]);
 
+            var docKind = parameters[shift + 5].Trim();
+            var subject = parameters[shift + 6].Trim();
+            var docRegisterId = parameters[shift + 14].Trim();
+            var name = $"{docKind} \"{subject}\"";
+
+            if (leadingDocument == null)
+                return $"Не найден ведущий документ для приложения: {name}";
+
+            var actualAddendum = BusinessLogic.GetEntityWithFilter<IAddendums>(c => c.LeadingDocument.Id == leadingDocument.Id &&
+                                                                                    c.DocumentKind.Name == docKind &&
+                                                                                    c.Subject == subject,// &&
+                                                                                    //c.DocumentRegister.Id.ToString() == docRegisterId, 
+                                                                                    exceptionList, TestSettings.Logger, true);
             if (actualAddendum == null)
-                return $"Не найдено дополнительное соглашение";
+                return $"Не найдено приложение: {name}";
+
+
 
             var errorList = new List<string>
             {
@@ -67,7 +82,7 @@ namespace Tests.EDocs
 
             errorList = errorList.Where(x => !string.IsNullOrEmpty(x)).ToList();
             if (errorList.Any())
-                errorList.Insert(0, $"Ошибка в сущности:");
+                errorList.Insert(0, $"Ошибка в сущности: {name}");
 
             return string.Join(Environment.NewLine, errorList);
         }

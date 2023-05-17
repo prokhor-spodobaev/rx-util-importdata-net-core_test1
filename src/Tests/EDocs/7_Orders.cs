@@ -41,8 +41,10 @@ namespace Tests.EDocs
 
             var actualOrder = Common.GetOfficialDocument<IOrders>(parameters[shift + 0], parameters[shift + 1], parameters[shift + 12]);
 
+            var name = Common.GetDocumentName(parameters[shift + 2], parameters[shift + 0], parameters[shift + 1], parameters[shift + 3]);
+
             if (actualOrder == null)
-                return $"Не найден приказ";
+                return $"Не найден приказ: {name}";
 
             var errorList = new List<string>
             {
@@ -64,7 +66,7 @@ namespace Tests.EDocs
 
             errorList = errorList.Where(x => !string.IsNullOrEmpty(x)).ToList();
             if (errorList.Any())
-                errorList.Insert(0, $"Ошибка в сущности:");
+                errorList.Insert(0, $"Ошибка в сущности: {name}");
 
             return string.Join(Environment.NewLine, errorList);
         }

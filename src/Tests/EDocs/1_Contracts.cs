@@ -46,9 +46,10 @@ namespace Tests.EDocs
         public static string EqualsContract(List<string> parameters, int shift = 0)
         {
             var actualContract = Common.GetOfficialDocument<IContracts>(parameters[shift + 0], parameters[shift + 1], parameters[shift + 17]);
+            var name = Common.GetDocumentName(parameters[shift + 3], parameters[shift + 0], parameters[shift + 1], parameters[shift + 5]);
         
             if (actualContract == null)
-                return $"Не найден договор";
+                return $"Не найден договор: {name}";
 
             var errorList = new List<string>
             {
@@ -75,7 +76,7 @@ namespace Tests.EDocs
 
             errorList = errorList.Where(x => !string.IsNullOrEmpty(x)).ToList();
             if (errorList.Any())
-                errorList.Insert(0, $"Ошибка в сущности:");
+                errorList.Insert(0, $"Ошибка в сущности: {name}");
 
             return string.Join(Environment.NewLine, errorList);
         }
@@ -90,8 +91,8 @@ namespace Tests.EDocs
 
             if (contractCategory == null)
             {
-                contractCategory = new IContractCategories() { Name = name };
-                BusinessLogic.CreateEntity(contractCategory, exceptionList, TestSettings.Logger);
+                contractCategory = new IContractCategories() { Name = name, Status = "Active" };
+                contractCategory = BusinessLogic.CreateEntity(contractCategory, exceptionList, TestSettings.Logger);
             }
 
             return contractCategory;
