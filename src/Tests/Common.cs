@@ -121,8 +121,12 @@ namespace Tests
         /// <param name="expected">Ожидаемый (из xlsx).</param>
         /// <param name="paramName">Имя параметра.</param>
         /// <returns>Строку с ошибкой, если параметры не равны.</returns>
-        public static string CheckParam(string? actual, string? expected, string paramName) => actual == (expected == null ? string.Empty : expected.Trim()) ? 
-            string.Empty : $"ParamName: \"{paramName}\". Expected: \"{expected}\". Actual: \"{actual}\"";
+        public static string CheckParam(string? actual, string? expected, string paramName)
+        {
+            actual ??= string.Empty;
+            expected ??= string.Empty;
+            return actual == expected.Trim() ? string.Empty : $"ParamName: \"{paramName}\". Expected: \"{expected}\". Actual: \"{actual}\"";
+        }
 
         /// <summary>
         /// Сравнить параметры и получить строку с ошибкой.
