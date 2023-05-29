@@ -6,6 +6,7 @@ using NDesk.Options;
 using NLog;
 using ImportData.Entities.Databooks;
 using ImportData.IntegrationServicesClient.Exceptions;
+using ImportData.IntegrationServicesClient.Models;
 
 namespace ImportData
 {
@@ -82,6 +83,9 @@ namespace ImportData
         case "importcompanydirectives":
           EntityProcessor.Process(typeof(CompanyDirective), xlsxPath, Constants.SheetNames.CompanyDirectives, extraParameters, ignoreDuplicates, logger);
           break;
+        case "importcasefiles":
+          EntityProcessor.Process(typeof(CaseFile), xlsxPath, Constants.SheetNames.CaseFiles, extraParameters, ignoreDuplicates, logger);
+          break;
         default:
           break;
       }
@@ -89,6 +93,7 @@ namespace ImportData
 
     static void Main(string[] args)
     {
+      args = new[] { "-n", "Administrator", "-p", "11111", "-a", "importcasefiles", "-f", $@"C:\Users\Nevolin_DA\Desktop\rx-util-importdata-net-core\Template\Example\Номенклатура дел.xlsx" };
       logger.Info("=========================== Process Start ===========================");
       var watch = System.Diagnostics.Stopwatch.StartNew();
 
