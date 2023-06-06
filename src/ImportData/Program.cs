@@ -93,7 +93,7 @@ namespace ImportData
 
     static void Main(string[] args)
     {
-      args = new[] { "-n", "Administrator", "-p", "11111", "-a", "importcasefiles", "-f", $@"C:\Users\Nevolin_DA\Desktop\rx-util-importdata-net-core\Template\Example\Номенклатура дел.xlsx" };
+      //args = new[] { "-n", "Administrator", "-p", "11111", "-a", "importcasefiles", "-f", $@"C:\Users\Nevolin_DA\Desktop\rx-util-importdata-net-core\Template\Example\Номенклатура дел.xlsx" };
       logger.Info("=========================== Process Start ===========================");
       var watch = System.Diagnostics.Stopwatch.StartNew();
 
