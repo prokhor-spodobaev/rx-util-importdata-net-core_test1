@@ -155,12 +155,16 @@ namespace ImportData
 
       try
       {
+        var isNewOrder = false;
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
         var order = BusinessLogic.GetEntityWithFilter<IOrders>(x => x.RegistrationNumber == regNumber && 
             x.RegistrationDate == regDateBeginningOfDay &&
-            x.DocumentRegister == documentRegisters, exceptionList, logger);
+            x.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger, true);
         if (order == null)
+        {
           order = new IOrders();
+          isNewOrder = true;
+        }
 
         order.Name = fileNameWithoutExtension;
         order.Created = DateTimeOffset.UtcNow;
@@ -180,10 +184,16 @@ namespace ImportData
         if (!string.IsNullOrEmpty(order.RegistrationNumber) && order.DocumentRegister != null)
           order.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 
-        var createdOrder = BusinessLogic.CreateEntity<IOrders>(order, exceptionList, logger);
+        IOrders createdOrder;
+        if (isNewOrder)
+          createdOrder = BusinessLogic.CreateEntity(order, exceptionList, logger);
+        else
+          // Карточку не обновляем, там ошибка, если у документа есть версия.
+          createdOrder = order;//BusinessLogic.UpdateEntity(contract, exceptionList, logger);
 
+        var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
         if (!string.IsNullOrWhiteSpace(filePath))
-          exceptionList.AddRange(BusinessLogic.ImportBody(createdOrder, filePath, logger));
+          exceptionList.AddRange(BusinessLogic.ImportBody(createdOrder, filePath, logger, update_body));
 
         var documentRegisterId = 0;
 

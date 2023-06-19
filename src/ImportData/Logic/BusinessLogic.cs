@@ -175,7 +175,7 @@ namespace ImportData
     /// <param name="pathToBody">Путь к телу документа.</param>
     /// <param name="logger">Логировщик.</param>
     /// <returns>Список ошибок.</returns>
-    public static IEnumerable<Structures.ExceptionsStruct> ImportBody(IElectronicDocuments edoc, string pathToBody, Logger logger)
+    public static IEnumerable<Structures.ExceptionsStruct> ImportBody(IElectronicDocuments edoc, string pathToBody, Logger logger, bool update_body = false)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
       logger.Info("Импорт тела документа");
@@ -188,9 +188,11 @@ namespace ImportData
 
         if (associatedApplication != null)
         {
-          var createdVersion = edoc.CreateVersion(edoc.Name, associatedApplication);
           var lastVersion = edoc.LastVersion();
-          lastVersion.Body.Value = new byte[0];
+          if (lastVersion == null || !update_body || lastVersion.AssociatedApplication.Extension != extention)
+            lastVersion = edoc.CreateVersion(edoc.Name, associatedApplication);
+
+          lastVersion.Body ??= new IBinaryData();
 
           if (!File.Exists(pathToBody))
           {

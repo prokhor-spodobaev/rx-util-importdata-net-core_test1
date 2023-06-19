@@ -161,12 +161,16 @@ namespace ImportData
 
         try
         {
-          var addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(c => c.LeadingDocument.Id == leadingDocuments.Id && 
-              c.DocumentKind.Id == documentKind.Id && 
+          var isNewAddendum = false;
+          var addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(c => c.LeadingDocument.Id == leadingDocuments.Id &&
+              c.DocumentKind.Id == documentKind.Id &&
               c.Subject == subject &&
-              c.DocumentRegister == documentRegisters, exceptionList, logger);
+              c.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger);
           if (addendum == null)
+          {
             addendum = new IAddendums();
+            isNewAddendum = true;
+          }
 
           // Обязательные поля.
           addendum.Name = fileNameWithoutExtension;
@@ -185,12 +189,16 @@ namespace ImportData
           if (!string.IsNullOrEmpty(addendum.RegistrationNumber) && addendum.DocumentRegister != null)
             addendum.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 
-          var createdAddendum = BusinessLogic.CreateEntity<IAddendums>(addendum, exceptionList, logger);
+          IAddendums createdAddendum;
+          if (isNewAddendum)
+            createdAddendum = BusinessLogic.CreateEntity(addendum, exceptionList, logger);
+          else
+            // Карточку не обновляем, там ошибка, если у документа есть версия.
+            createdAddendum = addendum;//BusinessLogic.UpdateEntity(contract, exceptionList, logger);
 
+          var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
           if (!string.IsNullOrWhiteSpace(filePath))
-          {
-            var importBody = BusinessLogic.ImportBody(createdAddendum, filePath, logger);
-          }
+            exceptionList.AddRange(BusinessLogic.ImportBody(createdAddendum, filePath, logger, update_body));
 
           var documentRegisterId = 0;
 

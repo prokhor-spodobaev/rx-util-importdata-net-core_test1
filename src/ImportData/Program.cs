@@ -93,7 +93,7 @@ namespace ImportData
 
     static void Main(string[] args)
     {
-      //args = new[] { "-n", "Administrator", "-p", "11111", "-a", "importcasefiles", "-f", $@"C:\Users\Nevolin_DA\Desktop\rx-util-importdata-net-core\Template\Example\Номенклатура дел.xlsx" };
+      //args = new[] { "-n", "Administrator", "-p", "11111", "-a", "importsupagreements", "-ub", "true", "-f", $@"C:\Users\Nevolin_DA\Desktop\rx-util-importdata-net-core\src\ImportData\bin\Debug\netcoreapp3.0\Допсоглашения.xlsx" };
       logger.Info("=========================== Process Start ===========================");
       var watch = System.Diagnostics.Stopwatch.StartNew();
 
@@ -115,8 +115,9 @@ namespace ImportData
                 { "f|file=",  "Файл с исходными данными.", v => xlsxPath = v },
                 { "dr|doc_register_id=",  "Журнал регистрации.", v => extraParameters.Add("doc_register_id", v)},
                 { "d|search_doubles=", "Признак поиска дублей сущностей.", d => ignoreDuplicates = d},
+                { "ub|update_body=", "Признак обновления последней версии документа.", t => extraParameters.Add("update_body", t) },
                 { "h|help", "Show this help", v => isHelp = (v != null) },
-              };
+      };
 
       try
       {

@@ -232,13 +232,17 @@ namespace ImportData
 
       try
       {
+        var isNewSupAgreement = false;
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
         var supAgreement = BusinessLogic.GetEntityWithFilter<ISupAgreements>(x => x.RegistrationNumber == regNumber &&
             x.RegistrationDate == regDateBeginningOfDay &&
             x.Counterparty.Id == counterparty.Id &&
-            x.DocumentRegister == documentRegisters, exceptionList, logger);
+            x.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger, true);
         if (supAgreement == null)
+        {
           supAgreement = new ISupAgreements();
+          isNewSupAgreement = true;
+        }
 
         supAgreement.Name = fileNameWithoutExtension;
         supAgreement.Created = DateTimeOffset.UtcNow;
@@ -263,10 +267,16 @@ namespace ImportData
         if (!string.IsNullOrEmpty(supAgreement.RegistrationNumber) && supAgreement.DocumentRegister != null)
           supAgreement.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 
-        var createdSupAgreement = BusinessLogic.CreateEntity<ISupAgreements>(supAgreement, exceptionList, logger);
+        ISupAgreements createdSupAgreement;
+        if (isNewSupAgreement)
+          createdSupAgreement = BusinessLogic.CreateEntity(supAgreement, exceptionList, logger);
+        else
+          // Карточку не обновляем, там ошибка, если у документа есть версия.
+          createdSupAgreement = supAgreement;//BusinessLogic.UpdateEntity(contract, exceptionList, logger);
 
+        var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
         if (!string.IsNullOrWhiteSpace(filePath))
-          exceptionList.AddRange(BusinessLogic.ImportBody(createdSupAgreement, filePath, logger));
+          exceptionList.AddRange(BusinessLogic.ImportBody(createdSupAgreement, filePath, logger, update_body));
 
         var documentRegisterId = 0;
 
