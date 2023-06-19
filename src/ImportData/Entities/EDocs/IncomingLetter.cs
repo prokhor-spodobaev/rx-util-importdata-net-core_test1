@@ -143,12 +143,16 @@ namespace ImportData
 
       try
       {
+        var isNewIncomingLetter = false;
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
         var incomingLetter = BusinessLogic.GetEntityWithFilter<IIncomingLetters>(x => x.RegistrationNumber == regNumber &&
             x.RegistrationDate == regDateBeginningOfDay &&
-            x.DocumentRegister == documentRegisters, exceptionList, logger);
+            x.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger, true);
         if (incomingLetter == null)
+        {
           incomingLetter = new IIncomingLetters();
+          isNewIncomingLetter = true;
+        }
 
         incomingLetter.Name = fileNameWithoutExtension;
         incomingLetter.Created = DateTimeOffset.UtcNow;
@@ -173,10 +177,16 @@ namespace ImportData
         if (!string.IsNullOrEmpty(incomingLetter.RegistrationNumber) && incomingLetter.DocumentRegister != null)
           incomingLetter.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 
-        var createdIncomingLetter = BusinessLogic.CreateEntity<IIncomingLetters>(incomingLetter, exceptionList, logger);
+        IIncomingLetters createdIncomingLetter;
+        if (isNewIncomingLetter)
+          createdIncomingLetter = BusinessLogic.CreateEntity(incomingLetter, exceptionList, logger);
+        else
+          // Карточку не обновляем, там ошибка, если у документа есть версия.
+          createdIncomingLetter = incomingLetter;//BusinessLogic.UpdateEntity(contract, exceptionList, logger);
 
+        var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
         if (!string.IsNullOrWhiteSpace(filePath))
-          exceptionList.AddRange(BusinessLogic.ImportBody(createdIncomingLetter, filePath, logger));
+          exceptionList.AddRange(BusinessLogic.ImportBody(createdIncomingLetter, filePath, logger, update_body));
 
         var documentRegisterId = 0;
 
