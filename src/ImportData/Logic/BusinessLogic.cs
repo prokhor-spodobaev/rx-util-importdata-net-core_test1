@@ -182,6 +182,15 @@ namespace ImportData
 
       try
       {
+        if (!File.Exists(pathToBody))
+        {
+          var message = string.Format("Не найден файл по заданому пути: \"{0}\"", pathToBody);
+          exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+          logger.Warn(message);
+
+          return exceptionList;
+        }
+
         // GetExtension возвращает расширение в формате ".<расширение>". Убираем точку.
         var extention = Path.GetExtension(pathToBody).Replace(".", "");
         var associatedApplication = BusinessLogic.GetEntityWithFilter<IAssociatedApplications>(a => a.Extension == extention, exceptionList, logger);
@@ -193,15 +202,6 @@ namespace ImportData
             lastVersion = edoc.CreateVersion(edoc.Name, associatedApplication);
 
           lastVersion.Body ??= new IBinaryData();
-
-          if (!File.Exists(pathToBody))
-          {
-            var message = string.Format("Не найден файл по заданому пути: \"{0}\"", pathToBody);
-            exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-            logger.Warn(message);
-
-            return exceptionList;
-          }
 
           lastVersion.Body.Value = File.ReadAllBytes(pathToBody);
           lastVersion.AssociatedApplication = associatedApplication;
