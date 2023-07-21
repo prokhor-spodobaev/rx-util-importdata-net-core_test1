@@ -3,7 +3,7 @@
 namespace ImportData.IntegrationServicesClient.Models
 {
     [EntityName("Договор")]
-    class IContracts : IOfficialDocuments
+    public class IContracts : IOfficialDocuments
     {
         public IEmployees Assignee { get; set; }
         public IBusinessUnits BusinessUnit { get; set; }

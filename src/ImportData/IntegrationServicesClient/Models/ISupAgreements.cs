@@ -3,7 +3,7 @@
 namespace ImportData.IntegrationServicesClient.Models
 {
     [EntityName("Дополнительные соглашения")]
-    class ISupAgreements : IOfficialDocuments
+    public class ISupAgreements : IOfficialDocuments
     {
         public IEmployees Assignee { get; set; }
         public IBusinessUnits BusinessUnit { get; set; }

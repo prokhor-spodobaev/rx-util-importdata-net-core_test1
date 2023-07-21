@@ -10,7 +10,7 @@ using ImportData.IntegrationServicesClient.Models;
 
 namespace ImportData
 {
-  class Program
+  public class Program
   {
     public static Logger logger = LogManager.GetCurrentClassLogger();
     private const string DefaultConfigSettingsName = @"_ConfigSettings.xml";
@@ -91,7 +91,7 @@ namespace ImportData
       }
     }
 
-    static void Main(string[] args)
+    public static void Main(string[] args)
     {
       //args = new[] { "-n", "Administrator", "-p", "11111", "-a", "importsupagreements", "-ub", "true", "-f", $@"C:\Users\Nevolin_DA\Desktop\rx-util-importdata-net-core\src\ImportData\bin\Debug\netcoreapp3.0\Допсоглашения.xlsx" };
       logger.Info("=========================== Process Start ===========================");

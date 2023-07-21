@@ -7,9 +7,8 @@ using Simple.OData.Client;
 namespace ImportData.IntegrationServicesClient.Models
 {
     [EntityName("Электронный документ")]
-    public class IElectronicDocuments
+    public class IElectronicDocuments : IEntity
     {
-        public string Name { get; set; }
         public DateTimeOffset Created { get; set; }
         public DateTimeOffset Modified { get; set; }
         public bool HasRelations { get; set; }
@@ -18,14 +17,8 @@ namespace ImportData.IntegrationServicesClient.Models
         public bool HasVersions { get; set; }
         public bool HasPublicBody { get; set; }
         public bool VersionsLocked { get; set; }
-        public int Id { get; set; }
         public IAssociatedApplications AssociatedApplication { get; set; }
         public IEnumerable<IElectronicDocumentVersionss> Versions { get; set; }
-
-        public override string ToString()
-        {
-            return Name;
-        }
 
         public IElectronicDocumentVersionss LastVersion()
         {

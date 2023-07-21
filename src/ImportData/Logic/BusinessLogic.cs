@@ -14,8 +14,6 @@ namespace ImportData
 {
   public class BusinessLogic
   {
-    public static IEnumerable<string> ErrorList;
-
     /// <summary>
     /// Чтение атрибута EntityName.
     /// </summary>
@@ -293,7 +291,7 @@ namespace ImportData
 
         try
         {
-            return RegistrationState[key];
+            return RegistrationState[key.Trim()];
         }
         catch (KeyNotFoundException ex)
         {
