@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Simple.OData.Client;
 
 namespace ImportData.IntegrationServicesClient.Models
 {
@@ -27,13 +28,16 @@ namespace ImportData.IntegrationServicesClient.Models
             .FindEntriesAsync()
             .Result.FirstOrDefault().Versions.LastOrDefault();
 
+            if (lastVersions == null)
+              return null;
+
             var lastVersion = Client.Instance()
             .For<IElectronicDocuments>()
             .Key(Id)
             .NavigateTo(v => v.Versions)
             .Key(lastVersions.Id)
             //.Expand(v => v.ElectronicDocument)
-            .Expand(v => v.Body)
+            .Expand(ODataExpandOptions.ByValue())
             .FindEntriesAsync()
             .Result.LastOrDefault();
 

@@ -37,6 +37,7 @@ namespace ImportData
             public const string CompanyDirectives = "Распоряжения";
             public const string Logins = "Логины";
             public const string Substitutions = "Замещения";
+            public const string CaseFiles = "Номенклатура дел";
         }
 
         public class Actions
@@ -57,6 +58,7 @@ namespace ImportData
             public const string ImportCompanyDirectives = "importcompanydirectives";
             public const string ImportLogins = "importlogins";
             public const string ImportSubstitutions = "importsubstitutions";
+            public const string ImportCaseFiles = "importcasefiles";
 
             // Инициализация клиента, для тестов.
             public const string InitForTests = "init";
@@ -78,6 +80,7 @@ namespace ImportData
                 {ImportContacts, ImportContacts},
                 {ImportCompanyDirectives, ImportCompanyDirectives},
                 {ImportLogins, ImportLogins},
+                {ImportCaseFiles, ImportCaseFiles},
 
                 // Инициализация клиента, для тестов.
                 {InitForTests, InitForTests}

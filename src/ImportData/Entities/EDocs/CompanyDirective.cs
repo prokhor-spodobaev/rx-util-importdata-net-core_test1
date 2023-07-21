@@ -147,12 +147,16 @@ namespace ImportData
 
       try
       {
+        var isNewCompanyDirective = false;
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
         var companyDirective = BusinessLogic.GetEntityWithFilter<ICompanyDirective>(x => x.RegistrationNumber == regNumber && 
             x.RegistrationDate == regDateBeginningOfDay &&
-            x.DocumentRegister == documentRegisters, exceptionList, logger);
+            x.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger, true);
         if (companyDirective == null)
+        {
           companyDirective = new ICompanyDirective();
+          isNewCompanyDirective = true;
+        }
 
         companyDirective.Name = fileNameWithoutExtension;
         companyDirective.Created = DateTimeOffset.UtcNow;
@@ -173,10 +177,16 @@ namespace ImportData
         if (!string.IsNullOrEmpty(companyDirective.RegistrationNumber) && companyDirective.DocumentRegister != null)
           companyDirective.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 
-        var createdcompanyDirective = BusinessLogic.CreateEntity<ICompanyDirective>(companyDirective, exceptionList, logger);
+        ICompanyDirective createdCompanyDirective;
+        if (isNewCompanyDirective)
+          createdCompanyDirective = BusinessLogic.CreateEntity(companyDirective, exceptionList, logger);
+        else
+          // Карточку не обновляем, там ошибка, если у документа есть версия.
+          createdCompanyDirective = companyDirective;//BusinessLogic.UpdateEntity(contract, exceptionList, logger);
 
+        var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
         if (!string.IsNullOrWhiteSpace(filePath))
-          exceptionList.AddRange(BusinessLogic.ImportBody(createdcompanyDirective, filePath, logger));
+          exceptionList.AddRange(BusinessLogic.ImportBody(createdCompanyDirective, filePath, logger, update_body));
 
         var documentRegisterId = 0;
 
@@ -194,7 +204,7 @@ namespace ImportData
         
         // Дополнительно обновляем свойство Состояние, так как после установки регистрационного номера Состояние сбрасывается в значение "В разработке"
         if (!string.IsNullOrEmpty(lifeCycleState))
-          createdcompanyDirective = createdcompanyDirective.UpdateLifeCycleState(createdcompanyDirective, lifeCycleState);
+          createdCompanyDirective = createdCompanyDirective.UpdateLifeCycleState(createdCompanyDirective, lifeCycleState);
       }
       catch (Exception ex)
       {

@@ -4,7 +4,6 @@ using System.Globalization;
 using NLog;
 using ImportData.IntegrationServicesClient.Models;
 using System.IO;
-using System.Linq;
 
 namespace ImportData
 {
@@ -222,13 +221,18 @@ namespace ImportData
       try
       {
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
+        var isNewContract = false;
         var contract = BusinessLogic.GetEntityWithFilter<IContracts>(x => x.RegistrationNumber != null && 
             x.RegistrationNumber == regNumber &&
             x.RegistrationDate == regDateBeginningOfDay &&
             x.Counterparty.Id == counterparty.Id &&
-            x.DocumentRegister == documentRegisters, exceptionList, logger, true);
+            x.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger, true);
+
         if (contract == null)
+        {
           contract = new IContracts();
+          isNewContract = true;
+        }
 
         // Обязательные поля.
         contract.Name = fileNameWithoutExtension;
@@ -253,10 +257,16 @@ namespace ImportData
         if (!string.IsNullOrEmpty(contract.RegistrationNumber) && contract.DocumentRegister != null)
           contract.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 
-        var createdContract = BusinessLogic.CreateEntity<IContracts>(contract, exceptionList, logger);
+        IContracts createdContract;
+        if (isNewContract)
+          createdContract = BusinessLogic.CreateEntity(contract, exceptionList, logger);
+        else
+          // Карточку не обновляем, там ошибка, если у документа есть версия.
+          createdContract = contract;//BusinessLogic.UpdateEntity(contract, exceptionList, logger);
 
+        var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
         if (!string.IsNullOrWhiteSpace(filePath))
-          exceptionList.AddRange(BusinessLogic.ImportBody(createdContract, filePath, logger));
+          exceptionList.AddRange(BusinessLogic.ImportBody(createdContract, filePath, logger, update_body));
 
         var documentRegisterId = 0;
 

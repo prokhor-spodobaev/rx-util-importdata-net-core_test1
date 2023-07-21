@@ -173,31 +173,33 @@ namespace ImportData
     /// <param name="pathToBody">Путь к телу документа.</param>
     /// <param name="logger">Логировщик.</param>
     /// <returns>Список ошибок.</returns>
-    public static IEnumerable<Structures.ExceptionsStruct> ImportBody(IElectronicDocuments edoc, string pathToBody, Logger logger)
+    public static IEnumerable<Structures.ExceptionsStruct> ImportBody(IElectronicDocuments edoc, string pathToBody, Logger logger, bool update_body = false)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
       logger.Info("Импорт тела документа");
 
       try
       {
+        if (!File.Exists(pathToBody))
+        {
+          var message = string.Format("Не найден файл по заданому пути: \"{0}\"", pathToBody);
+          exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+          logger.Warn(message);
+
+          return exceptionList;
+        }
+
         // GetExtension возвращает расширение в формате ".<расширение>". Убираем точку.
         var extention = Path.GetExtension(pathToBody).Replace(".", "");
         var associatedApplication = BusinessLogic.GetEntityWithFilter<IAssociatedApplications>(a => a.Extension == extention, exceptionList, logger);
 
         if (associatedApplication != null)
         {
-          var createdVersion = edoc.CreateVersion(edoc.Name, associatedApplication);
           var lastVersion = edoc.LastVersion();
-          lastVersion.Body.Value = new byte[0];
+          if (lastVersion == null || !update_body || lastVersion.AssociatedApplication.Extension != extention)
+            lastVersion = edoc.CreateVersion(edoc.Name, associatedApplication);
 
-          if (!File.Exists(pathToBody))
-          {
-            var message = string.Format("Не найден файл по заданому пути: \"{0}\"", pathToBody);
-            exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-            logger.Warn(message);
-
-            return exceptionList;
-          }
+          lastVersion.Body ??= new IBinaryData();
 
           lastVersion.Body.Value = File.ReadAllBytes(pathToBody);
           lastVersion.AssociatedApplication = associatedApplication;
