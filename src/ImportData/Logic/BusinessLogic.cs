@@ -9,6 +9,8 @@ using Simple.OData.Client;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using ImportData.IntegrationServicesClient.Exceptions;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.Extensions.Logging;
 
 namespace ImportData
 {
@@ -77,6 +79,13 @@ namespace ImportData
       }
       catch (Exception ex)
       {
+        if (ex.InnerException is WebRequestException webEx)
+        {
+          var message = $"Ошибка на стороне Directum RX. Код ошибки: {webEx.Code}, Причина: {webEx.ReasonPhrase}, Ответ сервиса интеграции: {webEx.Response}";
+          logger.Error(message);
+          exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        }
+
         if (ex.Message.Contains("(Not Found)"))
           throw new FoundMatchesException("Проверьте коррекность адреса службы интеграции Directum RX.");
 
@@ -92,7 +101,7 @@ namespace ImportData
     /// </summary>
     /// <typeparam name="T">Тип сущности.</typeparam>
     /// <returns>Список сущностей.</returns>
-    public static IEnumerable<T> GetEntities<T>() where T : class
+    public static IEnumerable<T> GetEntities<T>(List<Structures.ExceptionsStruct> exceptionList, Logger logger) where T : class
     {
       try
       {
@@ -101,6 +110,13 @@ namespace ImportData
       }
       catch (Exception ex)
       {
+        if (ex.InnerException is WebRequestException webEx)
+        {
+          var message = $"Ошибка на стороне Directum RX. Код ошибки: {webEx.Code}, Причина: {webEx.ReasonPhrase}, Ответ сервиса интеграции: {webEx.Response}";
+          logger.Error(message);
+          exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        }
+
         if (ex.Message.Contains("(Not Found)"))
           throw new FoundMatchesException("Проверьте коррекность адреса службы интеграции Directum RX.");
 
@@ -121,20 +137,33 @@ namespace ImportData
       logger.Info(string.Format("Создание сущности {0}", PrintInfo(typeof(T))));
       try
       {
-        var entities = Client.CreateEntity<T>(entity, logger);
+        var createdEntity = Client.CreateEntity<T>(entity, logger);
 
-        return entities;
+        if (createdEntity == null)
+        {
+          var message = $"Ошибка при создании сущности";
+          exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        }
+
+        return createdEntity;
       }
       catch (Exception ex)
       {
+        if (ex.InnerException is WebRequestException webEx)
+        {
+          var message = $"Ошибка на стороне Directum RX. Код ошибки: {webEx.Code}, Причина: {webEx.ReasonPhrase}, Ответ сервиса интеграции: {webEx.Response}";
+          logger.Error(message);
+          exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        }
+
         if (ex.Message.Contains("(Not Found)"))
           throw new FoundMatchesException("Проверьте коррекность адреса службы интеграции Directum RX.");
 
         if (ex.Message.Contains("(Unauthorized)"))
           throw new FoundMatchesException("Проверьте коррекность указанной учетной записи.");
-
-        throw;
       }
+
+      return null;
     }
 
     /// <summary>
@@ -155,6 +184,13 @@ namespace ImportData
       }
       catch (Exception ex)
       {
+        if (ex.InnerException is WebRequestException webEx)
+        {
+          var message = $"Ошибка на стороне Directum RX. Код ошибки: {webEx.Code}, Причина: {webEx.ReasonPhrase}, Ответ сервиса интеграции: {webEx.Response}";
+          logger.Error(message);
+          exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        }
+
         if (ex.Message.Contains("(Not Found)"))
           throw new FoundMatchesException("Проверьте коррекность адреса службы интеграции Directum RX.");
 

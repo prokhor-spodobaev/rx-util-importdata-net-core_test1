@@ -184,6 +184,9 @@ namespace ImportData
           // Карточку не обновляем, там ошибка, если у документа есть версия.
           createdIncomingLetter = incomingLetter;//BusinessLogic.UpdateEntity(contract, exceptionList, logger);
 
+        if (createdIncomingLetter == null)
+          return exceptionList;
+
         var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
         if (!string.IsNullOrWhiteSpace(filePath))
           exceptionList.AddRange(BusinessLogic.ImportBody(createdIncomingLetter, filePath, logger, update_body));

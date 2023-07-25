@@ -274,6 +274,9 @@ namespace ImportData
           // Карточку не обновляем, там ошибка, если у документа есть версия.
           createdSupAgreement = supAgreement;//BusinessLogic.UpdateEntity(contract, exceptionList, logger);
 
+        if (createdSupAgreement == null)
+          return exceptionList;
+
         var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
         if (!string.IsNullOrWhiteSpace(filePath))
           exceptionList.AddRange(BusinessLogic.ImportBody(createdSupAgreement, filePath, logger, update_body));
