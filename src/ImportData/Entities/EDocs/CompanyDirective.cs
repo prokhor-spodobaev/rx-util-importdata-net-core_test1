@@ -184,6 +184,9 @@ namespace ImportData
           // Карточку не обновляем, там ошибка, если у документа есть версия.
           createdCompanyDirective = companyDirective;//BusinessLogic.UpdateEntity(contract, exceptionList, logger);
 
+        if (createdCompanyDirective == null)
+          return exceptionList;
+
         var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
         if (!string.IsNullOrWhiteSpace(filePath))
           exceptionList.AddRange(BusinessLogic.ImportBody(createdCompanyDirective, filePath, logger, update_body));

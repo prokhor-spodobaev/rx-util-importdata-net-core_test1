@@ -140,19 +140,14 @@ namespace ImportData
 
         outgoingLetter.Name = fileNameWithoutExtension;
         outgoingLetter.Correspondent = counterparty;
-
         outgoingLetter.Created = DateTimeOffset.UtcNow;
-
         outgoingLetter.DocumentKind = documentKind;
         outgoingLetter.Subject = subject;
         outgoingLetter.Department = department;
-
-        if (department != null)
-          outgoingLetter.BusinessUnit = department.BusinessUnit;
-
+        outgoingLetter.BusinessUnit = department?.BusinessUnit;
+        outgoingLetter.DeliveryMethod = deliveryMethod;
         outgoingLetter.PreparedBy = preparedBy;
         outgoingLetter.Note = note;
-
         outgoingLetter.DocumentRegister = documentRegisters;
         outgoingLetter.RegistrationNumber = regNumber;
         outgoingLetter.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
