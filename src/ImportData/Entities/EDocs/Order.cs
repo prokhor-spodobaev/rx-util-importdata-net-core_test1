@@ -179,7 +179,10 @@ namespace ImportData
         order.Note = note;
 
         order.DocumentRegister = documentRegisters;
-        order.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
+        if (regDate != DateTimeOffset.MinValue)
+          order.RegistrationDate = regDate.UtcDateTime;
+        else
+          order.RegistrationDate = null;
         order.RegistrationNumber = regNumber;
         if (!string.IsNullOrEmpty(order.RegistrationNumber) && order.DocumentRegister != null)
           order.RegistrationState = BusinessLogic.GetRegistrationsState(regState);

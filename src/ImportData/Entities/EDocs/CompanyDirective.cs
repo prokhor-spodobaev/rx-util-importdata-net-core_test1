@@ -172,8 +172,13 @@ namespace ImportData
         companyDirective.Note = note;
 
         companyDirective.DocumentRegister = documentRegisters;
-        companyDirective.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
-        companyDirective.RegistrationNumber = regNumber;
+
+        if (regDate != DateTimeOffset.MinValue)
+          companyDirective.RegistrationDate = regDate.UtcDateTime;
+        else
+          companyDirective.RegistrationDate = null;
+
+				companyDirective.RegistrationNumber = regNumber;
         if (!string.IsNullOrEmpty(companyDirective.RegistrationNumber) && companyDirective.DocumentRegister != null)
           companyDirective.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 

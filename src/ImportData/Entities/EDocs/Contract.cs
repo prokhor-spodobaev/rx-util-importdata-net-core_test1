@@ -103,10 +103,10 @@ namespace ImportData
       variableForParameters = this.Parameters[shift + 7].Trim();
       IDepartments department = null;
       if (businessUnit != null)
-        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters && 
+        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters &&
         (d.BusinessUnit == null || d.BusinessUnit.Id == businessUnit.Id), exceptionList, logger, true);
       else
-        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters , exceptionList, logger);
+        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters, exceptionList, logger);
 
       if (department == null)
       {
@@ -222,7 +222,7 @@ namespace ImportData
       {
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
         var isNewContract = false;
-        var contract = BusinessLogic.GetEntityWithFilter<IContracts>(x => x.RegistrationNumber != null && 
+        var contract = BusinessLogic.GetEntityWithFilter<IContracts>(x => x.RegistrationNumber != null &&
             x.RegistrationNumber == regNumber &&
             x.RegistrationDate == regDateBeginningOfDay &&
             x.Counterparty.Id == counterparty.Id &&
@@ -243,16 +243,25 @@ namespace ImportData
         contract.Subject = subject;
         contract.BusinessUnit = businessUnit;
         contract.Department = department;
-        contract.ValidFrom = validFrom != DateTimeOffset.MinValue ? validFrom : Constants.defaultDateTime;
-        contract.ValidTill = validTill != DateTimeOffset.MinValue ? validTill : Constants.defaultDateTime;
+        if (validFrom != DateTimeOffset.MinValue)
+          contract.ValidFrom = validFrom;
+        else
+          contract.ValidFrom = null;
+        if (validTill != DateTimeOffset.MinValue)
+          contract.ValidTill = validTill;
+        else
+          contract.ValidTill = null;
         contract.TotalAmount = totalAmount;
         contract.Currency = currency;
         contract.ResponsibleEmployee = responsibleEmployee;
         contract.OurSignatory = ourSignatory;
         contract.Note = note;
-                
+
         contract.DocumentRegister = documentRegisters;
-        contract.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
+        if (regDate != DateTimeOffset.MinValue)
+          contract.RegistrationDate = regDate.UtcDateTime;
+        else
+          contract.RegistrationDate = null;
         contract.RegistrationNumber = regNumber;
         if (!string.IsNullOrEmpty(contract.RegistrationNumber) && contract.DocumentRegister != null)
           contract.RegistrationState = BusinessLogic.GetRegistrationsState(regState);

@@ -6,7 +6,7 @@ namespace ImportData.IntegrationServicesClient.Models
   public class IOfficialDocuments : IElectronicDocuments
   {
     public string RegistrationNumber { get; set; }
-    public DateTimeOffset RegistrationDate { get; set; }
+    public DateTimeOffset? RegistrationDate { get; set; }
     public string Subject { get; set; }
     public string Note { get; set; }
     public DateTimeOffset DocumentDate { get; set; }

@@ -150,7 +150,10 @@ namespace ImportData
         outgoingLetter.Note = note;
         outgoingLetter.DocumentRegister = documentRegisters;
         outgoingLetter.RegistrationNumber = regNumber;
-        outgoingLetter.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
+        if (regDate != DateTimeOffset.MinValue)
+          outgoingLetter.RegistrationDate = regDate.UtcDateTime;
+        else
+					outgoingLetter.RegistrationDate = null;
         if (!string.IsNullOrEmpty(outgoingLetter.RegistrationNumber) && outgoingLetter.DocumentRegister != null)
           outgoingLetter.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 

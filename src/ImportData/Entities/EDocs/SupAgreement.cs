@@ -4,6 +4,7 @@ using System.Globalization;
 using NLog;
 using ImportData.IntegrationServicesClient.Models;
 using System.IO;
+using System.Diagnostics.Contracts;
 
 namespace ImportData
 {
@@ -217,7 +218,7 @@ namespace ImportData
         return exceptionList;
       }
 
-      var leadingDocument = BusinessLogic.GetEntityWithFilter<IContracts>(d => d.RegistrationNumber == regNumberLeadingDocument && d.RegistrationDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDateLeadingDocument.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"), exceptionList, logger);
+      var leadingDocument = BusinessLogic.GetEntityWithFilter<IContracts>(d => d.RegistrationNumber == regNumberLeadingDocument && d.RegistrationDate.Value.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDateLeadingDocument.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"), exceptionList, logger);
 
       if (leadingDocument == null)
       {
@@ -252,8 +253,15 @@ namespace ImportData
         supAgreement.Subject = subject;
         supAgreement.BusinessUnit = businessUnit;
         supAgreement.Department = department;
-        supAgreement.ValidFrom = validFrom != DateTimeOffset.MinValue ? validFrom : Constants.defaultDateTime;
-        supAgreement.ValidTill = validTill != DateTimeOffset.MinValue ? validTill : Constants.defaultDateTime;
+
+        if (validFrom != DateTimeOffset.MinValue)
+          supAgreement.ValidFrom = validFrom;
+        else
+          supAgreement.ValidFrom = null;
+        if (validTill != DateTimeOffset.MinValue)
+          supAgreement.ValidTill = validTill;
+        else
+          supAgreement.ValidTill = null;
         supAgreement.TotalAmount = totalAmount;
         supAgreement.Currency = currency;
         supAgreement.LifeCycleState = lifeCycleState;
@@ -263,7 +271,11 @@ namespace ImportData
 
         supAgreement.DocumentRegister = documentRegisters;
         supAgreement.RegistrationNumber = regNumber;
-        supAgreement.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
+        if (regDate != DateTimeOffset.MinValue)
+          supAgreement.RegistrationDate = regDate.UtcDateTime;
+        else
+          supAgreement.RegistrationDate = null;
+
         if (!string.IsNullOrEmpty(supAgreement.RegistrationNumber) && supAgreement.DocumentRegister != null)
           supAgreement.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 

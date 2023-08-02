@@ -144,10 +144,10 @@ namespace ImportData
         if (!string.IsNullOrEmpty(variableForParameters))
           idDocumentRegisters = int.Parse(variableForParameters);
 
-        var documentRegisters = idDocumentRegisters != 0 
+        var documentRegisters = idDocumentRegisters != 0
           ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == idDocumentRegisters, exceptionList, logger)
           : null;
-        
+
         if (documentRegisters == null)
         {
           var message = string.Format("Приложение не может быть импортировано. Не найден журнал регистрации по ИД \"{0}\" ", this.Parameters[shift + 14].Trim());
@@ -182,10 +182,15 @@ namespace ImportData
           addendum.Subject = subject;
           addendum.LifeCycleState = lifeCycleState;
           addendum.Note = note;
-                    
+
           addendum.DocumentRegister = documentRegisters;
           addendum.RegistrationNumber = regNumber;
-          addendum.RegistrationDate = regDateLeadingDocument != DateTimeOffset.MinValue ? regDateLeadingDocument.UtcDateTime : Constants.defaultDateTime;
+
+          if (regDateLeadingDocument != DateTimeOffset.MinValue)
+            addendum.RegistrationDate = regDateLeadingDocument.UtcDateTime;
+          else
+            addendum.RegistrationDate = null;
+
           if (!string.IsNullOrEmpty(addendum.RegistrationNumber) && addendum.DocumentRegister != null)
             addendum.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 

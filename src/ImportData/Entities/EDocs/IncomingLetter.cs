@@ -165,14 +165,22 @@ namespace ImportData
         if (department != null)
           incomingLetter.BusinessUnit = department.BusinessUnit;
 
-        incomingLetter.Dated = dated != DateTimeOffset.MinValue ? dated : Constants.defaultDateTime;
+				if (dated != DateTimeOffset.MinValue)
+					incomingLetter.Dated = dated;
+				else
+					incomingLetter.Dated = null;
+
         incomingLetter.InNumber = inNumber;
         incomingLetter.Addressee = addressee;
         incomingLetter.DeliveryMethod = deliveryMethod;
         incomingLetter.Note = note;
 
         incomingLetter.DocumentRegister = documentRegisters;
-        incomingLetter.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
+
+				if (dated != DateTimeOffset.MinValue)
+					incomingLetter.RegistrationDate = regDate.UtcDateTime;
+				else
+					incomingLetter.RegistrationDate = null;
         incomingLetter.RegistrationNumber = regNumber;
         if (!string.IsNullOrEmpty(incomingLetter.RegistrationNumber) && incomingLetter.DocumentRegister != null)
           incomingLetter.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
