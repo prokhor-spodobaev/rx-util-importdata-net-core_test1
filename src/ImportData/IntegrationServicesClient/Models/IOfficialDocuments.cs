@@ -31,13 +31,14 @@ namespace ImportData.IntegrationServicesClient.Models
     /// <returns>Обновленная сущность.</returns>
     public static T UpdateLifeCycleState<T>(this T entity, string lifeCycleState) where T : IOfficialDocuments
     {
-      var data = Client.Instance()
-                       .For<T>()
-                       .Key(entity)
-                       .Set(new { LifeCycleState = lifeCycleState })
-                       .UpdateEntryAsync().Result;
+      if (!string.IsNullOrEmpty(lifeCycleState))
+        entity = Client.Instance()
+                         .For<T>()
+                         .Key(entity)
+                         .Set(new { LifeCycleState = lifeCycleState })
+                         .UpdateEntryAsync().Result;
 
-      return data;
+      return entity;
     }
   }
 }

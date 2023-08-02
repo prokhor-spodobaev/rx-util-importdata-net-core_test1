@@ -124,13 +124,16 @@ namespace ImportData
         logger.Warn(message);
       }
 
-      variableForParameters = this.Parameters[shift + 12].Trim();
-      int idDocumentRegisters = int.Parse(variableForParameters);
-      var documentRegisters = BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == idDocumentRegisters, exceptionList, logger);
+			var documentRegisterIdStr = this.Parameters[shift + 12].Trim();
+			if (!int.TryParse(documentRegisterIdStr, out var documentRegisterId))
+				if (ExtraParameters.ContainsKey("doc_register_id"))
+					int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId);
 
-      if (documentRegisters == null)
+			var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
+
+			if (documentRegisters == null)
       {
-        var message = string.Format("Не найден Журнал регистрации по ИД: \"{3}\". Входящее письмо: \"{0} {1} {2}\". ", regNumber, regDate.ToString(), counterparty, this.Parameters[shift + 12].Trim());
+        var message = string.Format("Не найден журнал регистрации по ИД \"{0}\"", documentRegisterIdStr);
         exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
         logger.Error(message);
 
@@ -187,10 +190,14 @@ namespace ImportData
 
         IIncomingLetters createdIncomingLetter;
         if (isNewIncomingLetter)
+        {
           createdIncomingLetter = BusinessLogic.CreateEntity(incomingLetter, exceptionList, logger);
+        }
         else
+        {
           // Карточку не обновляем, там ошибка, если у документа есть версия.
           createdIncomingLetter = incomingLetter;//BusinessLogic.UpdateEntity(contract, exceptionList, logger);
+        }
 
         if (createdIncomingLetter == null)
           return exceptionList;
@@ -198,20 +205,6 @@ namespace ImportData
         var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
         if (!string.IsNullOrWhiteSpace(filePath))
           exceptionList.AddRange(BusinessLogic.ImportBody(createdIncomingLetter, filePath, logger, update_body));
-
-        var documentRegisterId = 0;
-
-        if (ExtraParameters.ContainsKey("doc_register_id"))
-          if (int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId))
-            exceptionList.AddRange(BusinessLogic.RegisterDocument(createdIncomingLetter, documentRegisterId, regNumber, regDate, Constants.RolesGuides.RoleIncomingDocumentsResponsible, logger));
-          else
-          {
-            var message = string.Format("Не удалось обработать параметр \"doc_register_id\". Полученное значение: {0}.", ExtraParameters["doc_register_id"]);
-            exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-            logger.Error(message);
-
-            return exceptionList;
-          }
       }
       catch (Exception ex)
       {

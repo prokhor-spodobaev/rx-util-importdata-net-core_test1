@@ -204,12 +204,16 @@ namespace ImportData
 
       var note = this.Parameters[shift + 16];
 
-      variableForParameters = this.Parameters[shift + 17].Trim();
-      int idDocumentRegisters = int.Parse(variableForParameters);
-      var documentRegisters = BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == idDocumentRegisters, exceptionList, logger);
-      if (documentRegisters == null)
+			var documentRegisterIdStr = this.Parameters[shift + 17].Trim();
+			if (!int.TryParse(documentRegisterIdStr, out var documentRegisterId))
+				if (ExtraParameters.ContainsKey("doc_register_id"))
+					int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId);
+
+			var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
+
+			if (documentRegisters == null)
       {
-        var message = string.Format("Не найден Журнал регистрации по ИД: \"{3}\". Договор: \"{0} {1} {2}\". ", regNumber, regDate.ToString(), counterparty, this.Parameters[shift + 17].Trim());
+        var message = string.Format("Не найден журнал регистрации по ИД \"{0}\"", documentRegisterIdStr);
         exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
         logger.Error(message);
 
@@ -268,10 +272,16 @@ namespace ImportData
 
         IContracts createdContract;
         if (isNewContract)
+        {
           createdContract = BusinessLogic.CreateEntity(contract, exceptionList, logger);
+					// Дополнительно обновляем свойство Состояние, так как после установки регистрационного номера Состояние сбрасывается в значение "В разработке"
+					createdContract?.UpdateLifeCycleState(lifeCycleState);
+				}
         else
+        {
           // Карточку не обновляем, там ошибка, если у документа есть версия.
           createdContract = contract;//BusinessLogic.UpdateEntity(contract, exceptionList, logger);
+        }
 
         if (createdContract == null)
           return exceptionList;
@@ -279,23 +289,6 @@ namespace ImportData
         var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
         if (!string.IsNullOrWhiteSpace(filePath))
           exceptionList.AddRange(BusinessLogic.ImportBody(createdContract, filePath, logger, update_body));
-
-        var documentRegisterId = 0;
-
-        if (ExtraParameters.ContainsKey("doc_register_id"))
-          if (int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId))
-            exceptionList.AddRange(BusinessLogic.RegisterDocument(createdContract, documentRegisterId, regNumber, regDate, Constants.RolesGuides.RoleContractResponsible, logger));
-          else
-          {
-            var message = string.Format("Не удалось обработать параметр \"doc_register_id\". Полученное значение: {0}.", ExtraParameters["doc_register_id"]);
-            exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-            logger.Error(message);
-
-            return exceptionList;
-          }
-
-        if (createdContract != null && !string.IsNullOrEmpty(lifeCycleState))
-          createdContract.UpdateLifeCycleState(lifeCycleState);
       }
       catch (Exception ex)
       {
