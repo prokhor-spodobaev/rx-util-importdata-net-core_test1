@@ -93,7 +93,7 @@ namespace ImportData
 
     public static void Main(string[] args)
     {
-      //args = new[] { "-n", "Administrator", "-p", "11111", "-a", "importsupagreements", "-ub", "true", "-f", $@"C:\Users\Nevolin_DA\Desktop\rx-util-importdata-net-core\src\ImportData\bin\Debug\netcoreapp3.0\Допсоглашения.xlsx" };
+      //args = new[] { "-n", "Administrator", "-p", "11111", "-a", "importaddendums", "-ub", "true", "-f", $@"Приложения.xlsx" };
       logger.Info("=========================== Process Start ===========================");
       var watch = System.Diagnostics.Stopwatch.StartNew();
 

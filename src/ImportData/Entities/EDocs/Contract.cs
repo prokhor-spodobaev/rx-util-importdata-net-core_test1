@@ -275,7 +275,7 @@ namespace ImportData
 
         if (ExtraParameters.ContainsKey("doc_register_id"))
           if (int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId))
-            exceptionList.AddRange(BusinessLogic.RegisterDocument(contract, documentRegisterId, regNumber, regDate, Constants.RolesGuides.RoleContractResponsible, logger));
+            exceptionList.AddRange(BusinessLogic.RegisterDocument(createdContract, documentRegisterId, regNumber, regDate, Constants.RolesGuides.RoleContractResponsible, logger));
           else
           {
             var message = string.Format("Не удалось обработать параметр \"doc_register_id\". Полученное значение: {0}.", ExtraParameters["doc_register_id"]);
@@ -285,9 +285,8 @@ namespace ImportData
             return exceptionList;
           }
 
-        // Дополнительно обновляем свойство Состояние, так как после установки регистрационного номера Состояние сбрасывается в значение "В разработке"
-        if (!string.IsNullOrEmpty(lifeCycleState))
-          createdContract = createdContract.UpdateLifeCycleState(createdContract, lifeCycleState);
+        if (createdContract != null && !string.IsNullOrEmpty(lifeCycleState))
+          createdContract.UpdateLifeCycleState(lifeCycleState);
       }
       catch (Exception ex)
       {

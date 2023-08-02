@@ -195,7 +195,7 @@ namespace ImportData
 
         if (ExtraParameters.ContainsKey("doc_register_id"))
           if (int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId))
-            exceptionList.AddRange(BusinessLogic.RegisterDocument(incomingLetter, documentRegisterId, regNumber, regDate, Constants.RolesGuides.RoleIncomingDocumentsResponsible, logger));
+            exceptionList.AddRange(BusinessLogic.RegisterDocument(createdIncomingLetter, documentRegisterId, regNumber, regDate, Constants.RolesGuides.RoleIncomingDocumentsResponsible, logger));
           else
           {
             var message = string.Format("Не удалось обработать параметр \"doc_register_id\". Полученное значение: {0}.", ExtraParameters["doc_register_id"]);
@@ -205,7 +205,6 @@ namespace ImportData
             return exceptionList;
           }
       }
-
       catch (Exception ex)
       {
         exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = ex.Message });
