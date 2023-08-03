@@ -5,7 +5,7 @@ namespace ImportData.IntegrationServicesClient.Models
     [EntityName("Входящее письмо")]
     public class IIncomingLetters : IOfficialDocuments
     {
-        public DateTimeOffset Dated { get; set; }
+        public DateTimeOffset? Dated { get; set; }
         public string InNumber { get; set; }
         public bool IsManyAddressees { get; set; }
         public string ManyAddresseesPlaceholder { get; set; }

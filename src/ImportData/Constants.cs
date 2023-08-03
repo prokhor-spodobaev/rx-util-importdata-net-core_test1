@@ -64,7 +64,7 @@ namespace ImportData
             public const string InitForTests = "init";
 
             public static Dictionary<string, string> dictActions = new Dictionary<string, string>
-            { 
+            {
                 {ImportCompany, ImportCompany},
                 {ImportCompanies, ImportCompanies},
                 {ImportPersons, ImportPersons},
@@ -107,7 +107,6 @@ namespace ImportData
             public const string RequestTimeoutParamName = "INTEGRATION_SERVICE_REQUEST_TIMEOUT";
         }
 
-        public static readonly DateTimeOffset defaultDateTime = new DateTime(1971, 1, 1);
         public const string ignoreDuplicates = "ignore";
         public static Dictionary<string, string> dictIgnoreDuplicates = new Dictionary<string, string>
     {

@@ -139,18 +139,16 @@ namespace ImportData
           return exceptionList;
         }
 
-        variableForParameters = this.Parameters[shift + 14].Trim();
-        var idDocumentRegisters = 0;
-        if (!string.IsNullOrEmpty(variableForParameters))
-          idDocumentRegisters = int.Parse(variableForParameters);
+				var documentRegisterIdStr = this.Parameters[shift + 14].Trim();
+				if (!int.TryParse(documentRegisterIdStr, out var documentRegisterId))
+					if (ExtraParameters.ContainsKey("doc_register_id"))
+						int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId);
 
-        var documentRegisters = idDocumentRegisters != 0 
-          ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == idDocumentRegisters, exceptionList, logger)
-          : null;
-        
-        if (documentRegisters == null)
+				var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
+
+				if (documentRegisters == null)
         {
-          var message = string.Format("Приложение не может быть импортировано. Не найден журнал регистрации по ИД \"{0}\" ", this.Parameters[shift + 14].Trim());
+          var message = string.Format("Не найден журнал регистрации по ИД \"{0}\"", documentRegisterIdStr);
           exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
           logger.Error(message);
 
@@ -182,19 +180,30 @@ namespace ImportData
           addendum.Subject = subject;
           addendum.LifeCycleState = lifeCycleState;
           addendum.Note = note;
-                    
+
           addendum.DocumentRegister = documentRegisters;
           addendum.RegistrationNumber = regNumber;
-          addendum.RegistrationDate = regDateLeadingDocument != DateTimeOffset.MinValue ? regDateLeadingDocument.UtcDateTime : Constants.defaultDateTime;
+
+          if (regDateLeadingDocument != DateTimeOffset.MinValue)
+            addendum.RegistrationDate = regDateLeadingDocument.UtcDateTime;
+          else
+            addendum.RegistrationDate = null;
+
           if (!string.IsNullOrEmpty(addendum.RegistrationNumber) && addendum.DocumentRegister != null)
             addendum.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 
           IAddendums createdAddendum;
           if (isNewAddendum)
+          {
             createdAddendum = BusinessLogic.CreateEntity(addendum, exceptionList, logger);
+            createdAddendum?.UpdateLifeCycleState(lifeCycleState);
+
+					}
           else
+          {
             // Карточку не обновляем, там ошибка, если у документа есть версия.
             createdAddendum = addendum;//BusinessLogic.UpdateEntity(contract, exceptionList, logger);
+          }
 
           if (createdAddendum == null)
             return exceptionList;
@@ -202,20 +211,6 @@ namespace ImportData
           var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
           if (!string.IsNullOrWhiteSpace(filePath))
             exceptionList.AddRange(BusinessLogic.ImportBody(createdAddendum, filePath, logger, update_body));
-
-          var documentRegisterId = 0;
-
-          if (ExtraParameters.ContainsKey("doc_register_id"))
-            if (int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId))
-              exceptionList.AddRange(BusinessLogic.RegisterDocument(addendum, documentRegisterId, regNumberLeadingDocument, regDateLeadingDocument, Constants.RolesGuides.RoleContractResponsible, logger));
-            else
-            {
-              var message = string.Format("Не удалось обработать параметр \"doc_register_id\". Полученное значение: {0}.", ExtraParameters["doc_register_id"]);
-              exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-              logger.Error(message);
-
-              return exceptionList;
-            }
         }
         catch (Exception ex)
         {

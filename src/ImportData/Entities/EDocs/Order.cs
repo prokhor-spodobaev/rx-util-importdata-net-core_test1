@@ -138,13 +138,16 @@ namespace ImportData
 
       var note = this.Parameters[shift + 11];
 
-      variableForParameters = this.Parameters[shift + 12].Trim();
-      int idDocumentRegisters = int.Parse(variableForParameters);
-      var documentRegisters = BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == idDocumentRegisters, exceptionList, logger);
+			var documentRegisterIdStr = this.Parameters[shift + 12].Trim();
+			if (!int.TryParse(documentRegisterIdStr, out var documentRegisterId))
+				if (ExtraParameters.ContainsKey("doc_register_id"))
+					int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId);
 
-      if (documentRegisters == null)
+			var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
+
+			if (documentRegisters == null)
       {
-        var message = string.Format("Приложение не может быть импортировано. Не найден журнал регистрации по ИД \"{0}\" ", this.Parameters[shift + 12].Trim());
+        var message = string.Format("Не найден журнал регистрации по ИД \"{0}\"", documentRegisterIdStr);
         exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
         logger.Warn(message);
 
@@ -179,17 +182,26 @@ namespace ImportData
         order.Note = note;
 
         order.DocumentRegister = documentRegisters;
-        order.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
+        if (regDate != DateTimeOffset.MinValue)
+          order.RegistrationDate = regDate.UtcDateTime;
+        else
+          order.RegistrationDate = null;
         order.RegistrationNumber = regNumber;
         if (!string.IsNullOrEmpty(order.RegistrationNumber) && order.DocumentRegister != null)
           order.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 
         IOrders createdOrder;
         if (isNewOrder)
+        {
           createdOrder = BusinessLogic.CreateEntity(order, exceptionList, logger);
+					// Дополнительно обновляем свойство Состояние, так как после установки регистрационного номера Состояние сбрасывается в значение "В разработке"
+					createdOrder?.UpdateLifeCycleState(lifeCycleState);
+				}
         else
+        {
           // Карточку не обновляем, там ошибка, если у документа есть версия.
           createdOrder = order;//BusinessLogic.UpdateEntity(contract, exceptionList, logger);
+        }
 
         if (createdOrder == null)
           return exceptionList;
@@ -197,24 +209,6 @@ namespace ImportData
         var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
         if (!string.IsNullOrWhiteSpace(filePath))
           exceptionList.AddRange(BusinessLogic.ImportBody(createdOrder, filePath, logger, update_body));
-
-        var documentRegisterId = 0;
-
-        if (ExtraParameters.ContainsKey("doc_register_id"))
-          if (int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId))
-            exceptionList.AddRange(BusinessLogic.RegisterDocument(order, documentRegisterId, regNumber, regDate, Constants.RolesGuides.RoleIncomingDocumentsResponsible, logger));
-          else
-          {
-            var message = string.Format("Не удалось обработать параметр \"doc_register_id\". Полученное значение: {0}.", ExtraParameters["doc_register_id"]);
-            exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-            logger.Error(message);
-
-            return exceptionList;
-          }
-
-        // Дополнительно обновляем свойство Состояние, так как после установки регистрационного номера Состояние сбрасывается в значение "В разработке"
-        if (!string.IsNullOrEmpty(lifeCycleState))
-          createdOrder = createdOrder.UpdateLifeCycleState(createdOrder, lifeCycleState);
       }
       catch (Exception ex)
       {

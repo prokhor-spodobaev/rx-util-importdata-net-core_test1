@@ -10,8 +10,8 @@ namespace ImportData.IntegrationServicesClient.Models
         public ICounterparties Counterparty { get; set; }
         public IEmployees ResponsibleEmployee { get; set; }
         public IEmployees ResponsibleForReturnEmployee { get; set; }
-        public DateTimeOffset ValidFrom { get; set; }
-        public DateTimeOffset ValidTill { get; set; }
+        public DateTimeOffset? ValidFrom { get; set; }
+        public DateTimeOffset? ValidTill { get; set; }
         public double TotalAmount { get; set; }
         public ICurrency Currency { get; set; }
     }

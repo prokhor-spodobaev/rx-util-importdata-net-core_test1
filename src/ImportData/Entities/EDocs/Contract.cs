@@ -103,10 +103,10 @@ namespace ImportData
       variableForParameters = this.Parameters[shift + 7].Trim();
       IDepartments department = null;
       if (businessUnit != null)
-        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters && 
+        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters &&
         (d.BusinessUnit == null || d.BusinessUnit.Id == businessUnit.Id), exceptionList, logger, true);
       else
-        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters , exceptionList, logger);
+        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters, exceptionList, logger);
 
       if (department == null)
       {
@@ -204,12 +204,16 @@ namespace ImportData
 
       var note = this.Parameters[shift + 16];
 
-      variableForParameters = this.Parameters[shift + 17].Trim();
-      int idDocumentRegisters = int.Parse(variableForParameters);
-      var documentRegisters = BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == idDocumentRegisters, exceptionList, logger);
-      if (documentRegisters == null)
+			var documentRegisterIdStr = this.Parameters[shift + 17].Trim();
+			if (!int.TryParse(documentRegisterIdStr, out var documentRegisterId))
+				if (ExtraParameters.ContainsKey("doc_register_id"))
+					int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId);
+
+			var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
+
+			if (documentRegisters == null)
       {
-        var message = string.Format("Не найден Журнал регистрации по ИД: \"{3}\". Договор: \"{0} {1} {2}\". ", regNumber, regDate.ToString(), counterparty, this.Parameters[shift + 17].Trim());
+        var message = string.Format("Не найден журнал регистрации по ИД \"{0}\"", documentRegisterIdStr);
         exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
         logger.Error(message);
 
@@ -222,7 +226,7 @@ namespace ImportData
       {
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
         var isNewContract = false;
-        var contract = BusinessLogic.GetEntityWithFilter<IContracts>(x => x.RegistrationNumber != null && 
+        var contract = BusinessLogic.GetEntityWithFilter<IContracts>(x => x.RegistrationNumber != null &&
             x.RegistrationNumber == regNumber &&
             x.RegistrationDate == regDateBeginningOfDay &&
             x.Counterparty.Id == counterparty.Id &&
@@ -243,26 +247,41 @@ namespace ImportData
         contract.Subject = subject;
         contract.BusinessUnit = businessUnit;
         contract.Department = department;
-        contract.ValidFrom = validFrom != DateTimeOffset.MinValue ? validFrom : Constants.defaultDateTime;
-        contract.ValidTill = validTill != DateTimeOffset.MinValue ? validTill : Constants.defaultDateTime;
+        if (validFrom != DateTimeOffset.MinValue)
+          contract.ValidFrom = validFrom;
+        else
+          contract.ValidFrom = null;
+        if (validTill != DateTimeOffset.MinValue)
+          contract.ValidTill = validTill;
+        else
+          contract.ValidTill = null;
         contract.TotalAmount = totalAmount;
         contract.Currency = currency;
         contract.ResponsibleEmployee = responsibleEmployee;
         contract.OurSignatory = ourSignatory;
         contract.Note = note;
-                
+
         contract.DocumentRegister = documentRegisters;
-        contract.RegistrationDate = regDate != DateTimeOffset.MinValue ? regDate.UtcDateTime : Constants.defaultDateTime;
+        if (regDate != DateTimeOffset.MinValue)
+          contract.RegistrationDate = regDate.UtcDateTime;
+        else
+          contract.RegistrationDate = null;
         contract.RegistrationNumber = regNumber;
         if (!string.IsNullOrEmpty(contract.RegistrationNumber) && contract.DocumentRegister != null)
           contract.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 
         IContracts createdContract;
         if (isNewContract)
+        {
           createdContract = BusinessLogic.CreateEntity(contract, exceptionList, logger);
+					// Дополнительно обновляем свойство Состояние, так как после установки регистрационного номера Состояние сбрасывается в значение "В разработке"
+					createdContract?.UpdateLifeCycleState(lifeCycleState);
+				}
         else
+        {
           // Карточку не обновляем, там ошибка, если у документа есть версия.
           createdContract = contract;//BusinessLogic.UpdateEntity(contract, exceptionList, logger);
+        }
 
         if (createdContract == null)
           return exceptionList;
@@ -270,24 +289,6 @@ namespace ImportData
         var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
         if (!string.IsNullOrWhiteSpace(filePath))
           exceptionList.AddRange(BusinessLogic.ImportBody(createdContract, filePath, logger, update_body));
-
-        var documentRegisterId = 0;
-
-        if (ExtraParameters.ContainsKey("doc_register_id"))
-          if (int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId))
-            exceptionList.AddRange(BusinessLogic.RegisterDocument(contract, documentRegisterId, regNumber, regDate, Constants.RolesGuides.RoleContractResponsible, logger));
-          else
-          {
-            var message = string.Format("Не удалось обработать параметр \"doc_register_id\". Полученное значение: {0}.", ExtraParameters["doc_register_id"]);
-            exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-            logger.Error(message);
-
-            return exceptionList;
-          }
-
-        // Дополнительно обновляем свойство Состояние, так как после установки регистрационного номера Состояние сбрасывается в значение "В разработке"
-        if (!string.IsNullOrEmpty(lifeCycleState))
-          createdContract = createdContract.UpdateLifeCycleState(createdContract, lifeCycleState);
       }
       catch (Exception ex)
       {

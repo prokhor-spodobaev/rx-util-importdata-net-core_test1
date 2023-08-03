@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "L6FTDixiepkKgpjqzwMm/OFKunx+tmEImuxomUn25EN0ej0jZWw8tBIkPBVJsUxCL7k2q0QaNfhOafM0GJqMEw==",
+  "dgSpecHash": "ndw97QVSNygEXeLI1XTYPVi+VtxGQVAV7PwjdFl49Lt2bRGba7uicphYjSF8WcO4OyhrnVaYX307g9/ViSI+dA==",
   "success": true,
   "projectFilePath": "C:\\Users\\Nevolin_DA\\Desktop\\rx-util-importdata-net-core\\src\\Tests\\Tests.csproj",
   "expectedPackageFiles": [
@@ -169,7 +169,10 @@
     "C:\\Users\\Nevolin_DA\\.nuget\\packages\\xunit.extensibility.core\\2.4.2\\xunit.extensibility.core.2.4.2.nupkg.sha512",
     "C:\\Users\\Nevolin_DA\\.nuget\\packages\\xunit.extensibility.execution\\2.4.2\\xunit.extensibility.execution.2.4.2.nupkg.sha512",
     "C:\\Users\\Nevolin_DA\\.nuget\\packages\\xunit.extensions.ordering\\1.4.5\\xunit.extensions.ordering.1.4.5.nupkg.sha512",
-    "C:\\Users\\Nevolin_DA\\.nuget\\packages\\xunit.runner.visualstudio\\2.4.5\\xunit.runner.visualstudio.2.4.5.nupkg.sha512"
+    "C:\\Users\\Nevolin_DA\\.nuget\\packages\\xunit.runner.visualstudio\\2.4.5\\xunit.runner.visualstudio.2.4.5.nupkg.sha512",
+    "C:\\Users\\Nevolin_DA\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\6.0.15\\microsoft.windowsdesktop.app.ref.6.0.15.nupkg.sha512",
+    "C:\\Users\\Nevolin_DA\\.nuget\\packages\\microsoft.netcore.app.ref\\6.0.15\\microsoft.netcore.app.ref.6.0.15.nupkg.sha512",
+    "C:\\Users\\Nevolin_DA\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.15\\microsoft.aspnetcore.app.ref.6.0.15.nupkg.sha512"
   ],
   "logs": []
 }
