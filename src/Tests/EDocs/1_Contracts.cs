@@ -71,7 +71,9 @@ namespace Tests.EDocs
                 Common.CheckParam(actualContract.OurSignatory, parameters[shift + 15], "OurSignatory"),
                 Common.CheckParam(actualContract.Note, parameters[shift + 16], "Note"),
                 Common.CheckParam(actualContract.DocumentRegister?.Id, parameters[shift + 17], "DocumentRegister"),
-                Common.CheckParam(actualContract.RegistrationState, BusinessLogic.GetRegistrationsState(parameters[shift + 18]), "RegistrationState")
+                Common.CheckParam(actualContract.RegistrationState, BusinessLogic.GetRegistrationsState(parameters[shift + 18]), "RegistrationState"),
+                Common.CheckParam(actualContract.CaseFile, parameters[shift + 19], "CaseFile"),
+                Common.CheckParam(actualContract.PlacedToCaseFileDate, parameters[shift + 20], "PlacedToCaseFileDate")
             };
 
             errorList = errorList.Where(x => !string.IsNullOrEmpty(x)).ToList();
