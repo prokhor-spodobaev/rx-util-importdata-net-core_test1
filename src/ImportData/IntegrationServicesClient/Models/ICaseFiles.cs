@@ -5,9 +5,8 @@ using System.Text;
 namespace ImportData.IntegrationServicesClient.Models
 {
     [EntityName("Дело")]
-    public class ICaseFiles
+    public class ICaseFiles : IEntity
     {
-        public int Id { get; set; }
         public string Title { get; set; }
         public string Index { get; set; }
         public DateTimeOffset? StartDate { get; set; }
@@ -19,7 +18,6 @@ namespace ImportData.IntegrationServicesClient.Models
         public string Location { get; set; }
         public IRegistrationGroups RegistrationGroup { get; set; }
         public string Status { get; set; }
-        public string Name { get; set; }
         public IBusinessUnits BusinessUnit { get; set; }
     }
 }

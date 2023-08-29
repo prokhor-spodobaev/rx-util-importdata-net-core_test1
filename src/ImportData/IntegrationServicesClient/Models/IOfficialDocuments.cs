@@ -20,6 +20,8 @@ namespace ImportData.IntegrationServicesClient.Models
     public IEmployees DeliveredTo { get; set; }
     public IEmployees OurSignatory { get; set; }
     public IEmployees PreparedBy { get; set; }
+    public ICaseFiles CaseFile { get; set; }
+    public DateTimeOffset? PlacedToCaseFileDate { get; set; }
   }
   public static class IOfficialDocumentsExtensions
   {

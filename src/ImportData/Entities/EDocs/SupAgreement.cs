@@ -5,12 +5,13 @@ using NLog;
 using ImportData.IntegrationServicesClient.Models;
 using System.IO;
 using System.Diagnostics.Contracts;
+using ImportData.Entities.Databooks;
 
 namespace ImportData
 {
   class SupAgreement : Entity
   {
-    public int PropertiesCount = 20;
+    public int PropertiesCount = 22;
     /// <summary>
     /// Получить наименование число запрашиваемых параметров.
     /// </summary>
@@ -234,7 +235,30 @@ namespace ImportData
 
       var regState = this.Parameters[shift + 19].Trim();
 
-      try
+			var caseFileStr = this.Parameters[shift + 20].Trim();
+			var caseFile = BusinessLogic.GetEntityWithFilter<ICaseFiles>(x => x.Name == caseFileStr, exceptionList, logger);
+			if (!string.IsNullOrEmpty(caseFileStr) && caseFile == null)
+			{
+				var message = string.Format("Не найдено Дело по наименованию \"{0}\"", caseFileStr);
+				exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
+				logger.Error(message);
+			}
+
+			var placedToCaseFileDateStr = this.Parameters[shift + 21].Trim();
+			DateTimeOffset placedToCaseFileDate = DateTimeOffset.MinValue;
+			try
+			{
+				if (caseFile != null)
+					placedToCaseFileDate = ParseDate(placedToCaseFileDateStr, style, culture);
+			}
+			catch (Exception)
+			{
+				var message = string.Format("Не удалось обработать значение в поле \"Дата помещения\" \"{0}\".", placedToCaseFileDateStr);
+				exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
+				logger.Error(message);
+			}
+
+			try
       {
         var isNewSupAgreement = false;
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
@@ -282,7 +306,13 @@ namespace ImportData
         if (!string.IsNullOrEmpty(supAgreement.RegistrationNumber) && supAgreement.DocumentRegister != null)
           supAgreement.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 
-        ISupAgreements createdSupAgreement;
+				supAgreement.CaseFile = caseFile;
+				if (placedToCaseFileDate != DateTimeOffset.MinValue)
+					supAgreement.PlacedToCaseFileDate = placedToCaseFileDate;
+        else
+					supAgreement.PlacedToCaseFileDate = null;
+
+				ISupAgreements createdSupAgreement;
         if (isNewSupAgreement)
         {
           createdSupAgreement = BusinessLogic.CreateEntity(supAgreement, exceptionList, logger);

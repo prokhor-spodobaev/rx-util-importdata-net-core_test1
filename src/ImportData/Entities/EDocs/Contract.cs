@@ -4,12 +4,14 @@ using System.Globalization;
 using NLog;
 using ImportData.IntegrationServicesClient.Models;
 using System.IO;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using ImportData.Entities.Databooks;
 
 namespace ImportData
 {
   public class Contract : Entity
   {
-    public int PropertiesCount = 19;
+    public int PropertiesCount = 21;
     /// <summary>
     /// Получить наименование число запрашиваемых параметров.
     /// </summary>
@@ -219,10 +221,32 @@ namespace ImportData
 
         return exceptionList;
       }
-
       var regState = this.Parameters[shift + 18].Trim();
 
-      try
+      var caseFileStr = this.Parameters[shift + 19].Trim();
+			var caseFile = BusinessLogic.GetEntityWithFilter<ICaseFiles>(x => x.Name == caseFileStr, exceptionList, logger);
+      if (!string.IsNullOrEmpty(caseFileStr) && caseFile == null)
+      {
+				var message = string.Format("Не найдено Дело по наименованию \"{0}\"", caseFileStr);
+				exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
+				logger.Error(message);
+			}
+
+      var placedToCaseFileDateStr = this.Parameters[shift + 20].Trim();
+			DateTimeOffset placedToCaseFileDate = DateTimeOffset.MinValue;
+			try
+			{
+        if (caseFile != null)
+					placedToCaseFileDate = ParseDate(placedToCaseFileDateStr, style, culture);
+			}
+			catch (Exception)
+			{
+				var message = string.Format("Не удалось обработать значение в поле \"Дата помещения\" \"{0}\".", placedToCaseFileDateStr);
+				exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
+				logger.Error(message);
+			}
+
+			try
       {
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
         var isNewContract = false;
@@ -270,7 +294,13 @@ namespace ImportData
         if (!string.IsNullOrEmpty(contract.RegistrationNumber) && contract.DocumentRegister != null)
           contract.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 
-        IContracts createdContract;
+				contract.CaseFile = caseFile;
+				if (placedToCaseFileDate != DateTimeOffset.MinValue)
+					contract.PlacedToCaseFileDate = placedToCaseFileDate;
+				else
+					contract.PlacedToCaseFileDate = null;
+
+				IContracts createdContract;
         if (isNewContract)
         {
           createdContract = BusinessLogic.CreateEntity(contract, exceptionList, logger);
