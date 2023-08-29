@@ -241,7 +241,7 @@ namespace ImportData
 			}
 			catch (Exception)
 			{
-				var message = string.Format("Не удалось обработать значение в поле \"Дата помещения\" \"{0}\".", placedToCaseFileDateStr);
+				var message = string.Format("Не удалось обработать значение поля \"Дата помещения\" \"{0}\".", placedToCaseFileDateStr);
 				exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
 				logger.Error(message);
 			}
