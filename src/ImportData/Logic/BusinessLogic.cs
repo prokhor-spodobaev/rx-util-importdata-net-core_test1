@@ -104,7 +104,7 @@ namespace ImportData
 		/// <param name="exceptionList">Список ошибок.</param>
 		/// <param name="logger">Логгер</param>
 		/// <returns>Сущности.</returns>
-		public static IEnumerable<T> GetEntitiesByFilter<T>(Expression<Func<T, bool>> expression, List<Structures.ExceptionsStruct> exceptionList, Logger logger, bool isExpand = false) where T : class
+		public static IEnumerable<T> GetEntitiesWithFilter<T>(Expression<Func<T, bool>> expression, List<Structures.ExceptionsStruct> exceptionList, Logger logger, bool isExpand = false) where T : class
 		{
 			Expression<Func<T, bool>> condition = expression;
 			var filter = new ODataExpression(condition);

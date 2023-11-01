@@ -79,28 +79,6 @@ namespace Tests
         }
 
         /// <summary>
-        /// Получить официальные документы.
-        /// </summary>
-        /// <param name="regNumber">Номер регистрации.</param>
-        /// <param name="regDate">Дата регистрации.</param>
-        /// <param name="docRegisterId">Журнал регистрации.</param>
-        /// <returns>Официальные документы.</returns>
-        public static IEnumerable<T> GetOfficialDocuments<T>(string regNumber, string regDateStr, string docRegisterIdStr = "") where T : IOfficialDocuments
-        {
-            var exceptionList = new List<Structures.ExceptionsStruct>();
-            var regDate = BeginningOfDay(ParseDate(regDateStr));
-            var checkDocRegister = string.IsNullOrWhiteSpace(docRegisterIdStr);
-            if (!int.TryParse(docRegisterIdStr, out var docRegisterId))
-                docRegisterId = -1;
-            var documents = BusinessLogic.GetEntitiesByFilter<T>(x => x.RegistrationNumber != null &&
-                                                                     x.RegistrationNumber == regNumber &&
-                                                                     x.RegistrationDate == regDate &&
-                                                                     (checkDocRegister || x.DocumentRegister.Id == docRegisterId),
-                                                                     exceptionList, TestSettings.Logger, true);
-            return documents;
-        }
-
-        /// <summary>
         /// Получить официальный документ.
         /// </summary>
         /// <param name="regNumber">Номер регистрации.</param>

@@ -32,20 +32,21 @@ namespace Tests.EDocs
 
         public static string EqualsSupAgreement(List<string> parameters, int shift = 0)
         {
-            
             var actualSupAgreement = Common.GetOfficialDocument<ISupAgreements>(parameters[shift + 0], parameters[shift + 1]);
-            var leadDocSearchResult = IOfficialDocuments.GetLeadingDocument(parameters[shift + 2], Common.ParseDate(parameters[shift + 3]), TestSettings.Logger);
+            var counterpartyName = parameters[shift + 4];
+            var counterparty = BusinessLogic.GetEntityWithFilter<ICounterparties>(c => c.Name == counterpartyName, new List<Structures.ExceptionsStruct>(), TestSettings.Logger);
+            var leadDocSearchResult = IOfficialDocuments.GetLeadingDocument(TestSettings.Logger, parameters[shift + 2], Common.ParseDate(parameters[shift + 3]), counterparty.Id);
             var name = Common.GetDocumentName(parameters[shift + 5], parameters[shift + 0], parameters[shift + 1], parameters[shift + 6]);
 
-			if (!string.IsNullOrEmpty(leadDocSearchResult.errorMessage))
-				return leadDocSearchResult.errorMessage;
+            if (!string.IsNullOrEmpty(leadDocSearchResult.errorMessage))
+                return leadDocSearchResult.errorMessage;
 
-			if (actualSupAgreement == null)
+            if (actualSupAgreement == null)
                 return $"Ќе найдено дополнительное соглашение: {name}";
 
             var leadingDocument = leadDocSearchResult.leadingDocument;
 
-			var errorList = new List<string>
+            var errorList = new List<string>
             {
                 Common.CheckParam(actualSupAgreement.RegistrationNumber, parameters[shift + 0], "RegistrationNumber"),
                 Common.CheckParam(actualSupAgreement.RegistrationDate, parameters[shift + 1], "RegistrationDate"),

@@ -128,7 +128,7 @@ namespace ImportData
 
         note = this.Parameters[shift + 13].Trim();
 
-        var leadDocResearchResult = IOfficialDocuments.GetLeadingDocument(regNumberLeadingDocument, regDateLeadingDocument, logger);
+        var leadDocResearchResult = IOfficialDocuments.GetLeadingDocument(logger, regNumberLeadingDocument, regDateLeadingDocument);
 				leadingDocument = leadDocResearchResult.leadingDocument;
         if (!string.IsNullOrEmpty(leadDocResearchResult.errorMessage))
         {

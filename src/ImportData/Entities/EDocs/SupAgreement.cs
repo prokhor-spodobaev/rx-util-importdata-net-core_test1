@@ -223,7 +223,7 @@ namespace ImportData
         return exceptionList;
       }
 
-			var leadDocResearchResult = IOfficialDocuments.GetLeadingDocument(regNumberLeadingDocument, regDateLeadingDocument, logger);
+			var leadDocResearchResult = IOfficialDocuments.GetLeadingDocument(logger, regNumberLeadingDocument, regDateLeadingDocument, counterparty.Id);
 			var leadingDocument = leadDocResearchResult.leadingDocument;
 			if (!string.IsNullOrEmpty(leadDocResearchResult.errorMessage))
 			{
@@ -233,7 +233,6 @@ namespace ImportData
 
 				return exceptionList;
 			}
-
 
 			var regState = this.Parameters[shift + 19].Trim();
 

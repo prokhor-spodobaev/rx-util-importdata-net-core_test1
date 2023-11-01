@@ -40,7 +40,7 @@ namespace Tests.EDocs
         public static string EqualsAddendums(List<string> parameters, int shift = 0)
         {
             var exceptionList = new List<Structures.ExceptionsStruct>();
-			var leadDocSearchResult = IOfficialDocuments.GetLeadingDocument(parameters[shift + 2], Common.ParseDate(parameters[shift + 3]), TestSettings.Logger);
+			var leadDocSearchResult = IOfficialDocuments.GetLeadingDocument(TestSettings.Logger, parameters[shift + 2], Common.ParseDate(parameters[shift + 3]));
 
 			var docKind = parameters[shift + 5].Trim();
             var subject = parameters[shift + 6].Trim();

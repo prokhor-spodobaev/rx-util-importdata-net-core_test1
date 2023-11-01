@@ -26,11 +26,12 @@ namespace ImportData.IntegrationServicesClient.Models
         public ICaseFiles CaseFile { get; set; }
         public DateTimeOffset? PlacedToCaseFileDate { get; set; }
 
-        public static (IOfficialDocuments leadingDocument, string errorMessage) GetLeadingDocument(string registrationNumber, DateTimeOffset regDate, Logger logger)
+        public static (IOfficialDocuments leadingDocument, string errorMessage) GetLeadingDocument(Logger logger, string registrationNumber, DateTimeOffset regDate, int counterpartyId = -1)
         {
-            var leadingDocuments = BusinessLogic.GetEntitiesByFilter<IContracts>(d => d.RegistrationNumber == registrationNumber &&
-                    d.RegistrationDate.Value.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"), 
-                    new List<Structures.ExceptionsStruct>(), logger);
+            var leadingDocuments = BusinessLogic.GetEntitiesWithFilter<IContracts>(d => d.RegistrationNumber == registrationNumber &&
+                    d.RegistrationDate.Value.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") &&
+                    (counterpartyId == -1 || d.Counterparty.Id == counterpartyId), 
+                    new List<Structures.ExceptionsStruct>(), logger, true);
 
             var message = string.Empty;
             if (!leadingDocuments.Any())
