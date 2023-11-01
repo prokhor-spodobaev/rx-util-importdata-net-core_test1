@@ -6,6 +6,7 @@ using ImportData.IntegrationServicesClient.Models;
 using System.IO;
 using System.Diagnostics.Contracts;
 using ImportData.Entities.Databooks;
+using System.Linq;
 
 namespace ImportData
 {
@@ -206,14 +207,14 @@ namespace ImportData
 
       var note = this.Parameters[shift + 17];
 
-			var documentRegisterIdStr = this.Parameters[shift + 18].Trim();
+      var documentRegisterIdStr = this.Parameters[shift + 18].Trim();
       if (!int.TryParse(documentRegisterIdStr, out var documentRegisterId))
         if (ExtraParameters.ContainsKey("doc_register_id"))
           int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId);
 
-			var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
+      var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
 
-			if (documentRegisters == null)
+      if (documentRegisters == null)
       {
         var message = string.Format("Не найден журнал регистрации по ИД \"{0}\"", documentRegisterIdStr);
         exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
@@ -222,43 +223,44 @@ namespace ImportData
         return exceptionList;
       }
 
-      var leadingDocument = BusinessLogic.GetEntityWithFilter<IContracts>(d => d.RegistrationNumber == regNumberLeadingDocument && d.RegistrationDate.Value.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDateLeadingDocument.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"), exceptionList, logger);
+			var leadDocResearchResult = IOfficialDocuments.GetLeadingDocument(regNumberLeadingDocument, regDateLeadingDocument, logger);
+			var leadingDocument = leadDocResearchResult.leadingDocument;
+			if (!string.IsNullOrEmpty(leadDocResearchResult.errorMessage))
+			{
+				var message = leadDocResearchResult.errorMessage;
+				exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+				logger.Error(message);
 
-      if (leadingDocument == null)
+				return exceptionList;
+			}
+
+
+			var regState = this.Parameters[shift + 19].Trim();
+
+      var caseFileStr = this.Parameters[shift + 20].Trim();
+      var caseFile = BusinessLogic.GetEntityWithFilter<ICaseFiles>(x => x.Name == caseFileStr, exceptionList, logger);
+      if (!string.IsNullOrEmpty(caseFileStr) && caseFile == null)
       {
-        var message = string.Format("Доп.соглашение не может быть импортировано. Не найден ведущий документ с реквизитами \"Дата документа\" {0}, \"Рег. №\" {1} и \"Контрагент\" {2}.", regDateLeadingDocument.ToString("d"), regNumberLeadingDocument, counterparty.Name);
-        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        var message = string.Format("Не найдено Дело по наименованию \"{0}\"", caseFileStr);
+        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
         logger.Error(message);
-
-        return exceptionList;
       }
 
-      var regState = this.Parameters[shift + 19].Trim();
+      var placedToCaseFileDateStr = this.Parameters[shift + 21].Trim();
+      DateTimeOffset placedToCaseFileDate = DateTimeOffset.MinValue;
+      try
+      {
+        if (caseFile != null)
+          placedToCaseFileDate = ParseDate(placedToCaseFileDateStr, style, culture);
+      }
+      catch (Exception)
+      {
+        var message = string.Format("Не удалось обработать значение поля \"Дата помещения\" \"{0}\".", placedToCaseFileDateStr);
+        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
+        logger.Error(message);
+      }
 
-			var caseFileStr = this.Parameters[shift + 20].Trim();
-			var caseFile = BusinessLogic.GetEntityWithFilter<ICaseFiles>(x => x.Name == caseFileStr, exceptionList, logger);
-			if (!string.IsNullOrEmpty(caseFileStr) && caseFile == null)
-			{
-				var message = string.Format("Не найдено Дело по наименованию \"{0}\"", caseFileStr);
-				exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
-				logger.Error(message);
-			}
-
-			var placedToCaseFileDateStr = this.Parameters[shift + 21].Trim();
-			DateTimeOffset placedToCaseFileDate = DateTimeOffset.MinValue;
-			try
-			{
-				if (caseFile != null)
-					placedToCaseFileDate = ParseDate(placedToCaseFileDateStr, style, culture);
-			}
-			catch (Exception)
-			{
-				var message = string.Format("Не удалось обработать значение поля \"Дата помещения\" \"{0}\".", placedToCaseFileDateStr);
-				exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
-				logger.Error(message);
-			}
-
-			try
+      try
       {
         var isNewSupAgreement = false;
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
@@ -306,13 +308,13 @@ namespace ImportData
         if (!string.IsNullOrEmpty(supAgreement.RegistrationNumber) && supAgreement.DocumentRegister != null)
           supAgreement.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 
-				supAgreement.CaseFile = caseFile;
-				if (placedToCaseFileDate != DateTimeOffset.MinValue)
-					supAgreement.PlacedToCaseFileDate = placedToCaseFileDate;
+        supAgreement.CaseFile = caseFile;
+        if (placedToCaseFileDate != DateTimeOffset.MinValue)
+          supAgreement.PlacedToCaseFileDate = placedToCaseFileDate;
         else
-					supAgreement.PlacedToCaseFileDate = null;
+          supAgreement.PlacedToCaseFileDate = null;
 
-				ISupAgreements createdSupAgreement;
+        ISupAgreements createdSupAgreement;
         if (isNewSupAgreement)
         {
           createdSupAgreement = BusinessLogic.CreateEntity(supAgreement, exceptionList, logger);

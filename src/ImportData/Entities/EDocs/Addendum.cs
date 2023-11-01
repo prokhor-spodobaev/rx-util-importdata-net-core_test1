@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace ImportData
 {
@@ -127,12 +128,11 @@ namespace ImportData
 
         note = this.Parameters[shift + 13].Trim();
 
-        var regDateBeginningOfDay = BeginningOfDay(regDateLeadingDocument);
-        var leadingDocuments = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(d => d.RegistrationNumber == regNumberLeadingDocument && d.RegistrationDate == regDateBeginningOfDay, exceptionList, logger);
-
-        if (leadingDocuments == null)
+        var leadDocResearchResult = IOfficialDocuments.GetLeadingDocument(regNumberLeadingDocument, regDateLeadingDocument, logger);
+				leadingDocument = leadDocResearchResult.leadingDocument;
+        if (!string.IsNullOrEmpty(leadDocResearchResult.errorMessage))
         {
-          var message = string.Format("Приложение не может быть импортировано. Найдены совпадения или не найден ведущий документ с реквизитами \"Дата документа\" {0}, \"Рег. №\" {1}.", regDateLeadingDocument.ToString("d"), regNumberLeadingDocument);
+          var message = leadDocResearchResult.errorMessage;
           exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
           logger.Error(message);
 
@@ -140,13 +140,13 @@ namespace ImportData
         }
 
 				var documentRegisterIdStr = this.Parameters[shift + 14].Trim();
-				if (!int.TryParse(documentRegisterIdStr, out var documentRegisterId))
-					if (ExtraParameters.ContainsKey("doc_register_id"))
-						int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId);
+        if (!int.TryParse(documentRegisterIdStr, out var documentRegisterId))
+          if (ExtraParameters.ContainsKey("doc_register_id"))
+            int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId);
 
-				var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
+        var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
 
-				if (documentRegisters == null)
+        if (documentRegisters == null)
         {
           var message = string.Format("Не найден журнал регистрации по ИД \"{0}\"", documentRegisterIdStr);
           exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
@@ -160,7 +160,7 @@ namespace ImportData
         try
         {
           var isNewAddendum = false;
-          var addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(c => c.LeadingDocument.Id == leadingDocuments.Id &&
+          var addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(c => c.LeadingDocument.Id == leadingDocument.Id &&
               c.DocumentKind.Id == documentKind.Id &&
               c.Subject == subject &&
               c.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger);
@@ -175,7 +175,7 @@ namespace ImportData
           addendum.Department = department;
 
           addendum.Created = DateTimeOffset.UtcNow;
-          addendum.LeadingDocument = leadingDocuments;
+          addendum.LeadingDocument = leadingDocument;
           addendum.DocumentKind = documentKind;
           addendum.Subject = subject;
           addendum.LifeCycleState = lifeCycleState;
@@ -198,7 +198,7 @@ namespace ImportData
             createdAddendum = BusinessLogic.CreateEntity(addendum, exceptionList, logger);
             createdAddendum?.UpdateLifeCycleState(lifeCycleState);
 
-					}
+          }
           else
           {
             // Карточку не обновляем, там ошибка, если у документа есть версия.

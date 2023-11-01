@@ -32,17 +32,20 @@ namespace Tests.EDocs
 
         public static string EqualsSupAgreement(List<string> parameters, int shift = 0)
         {
+            
             var actualSupAgreement = Common.GetOfficialDocument<ISupAgreements>(parameters[shift + 0], parameters[shift + 1]);
-            var leadingDocument = Common.GetOfficialDocument<IContracts>(parameters[shift + 2], parameters[shift + 3]);
+            var leadDocSearchResult = IOfficialDocuments.GetLeadingDocument(parameters[shift + 2], Common.ParseDate(parameters[shift + 3]), TestSettings.Logger);
             var name = Common.GetDocumentName(parameters[shift + 5], parameters[shift + 0], parameters[shift + 1], parameters[shift + 6]);
 
-            if (actualSupAgreement == null)
+			if (!string.IsNullOrEmpty(leadDocSearchResult.errorMessage))
+				return leadDocSearchResult.errorMessage;
+
+			if (actualSupAgreement == null)
                 return $"Ќе найдено дополнительное соглашение: {name}";
 
-            if (leadingDocument == null)
-                return $"Ќе найден ведущий документ дл€ дополнительного соглашени€: {name}";
+            var leadingDocument = leadDocSearchResult.leadingDocument;
 
-            var errorList = new List<string>
+			var errorList = new List<string>
             {
                 Common.CheckParam(actualSupAgreement.RegistrationNumber, parameters[shift + 0], "RegistrationNumber"),
                 Common.CheckParam(actualSupAgreement.RegistrationDate, parameters[shift + 1], "RegistrationDate"),
