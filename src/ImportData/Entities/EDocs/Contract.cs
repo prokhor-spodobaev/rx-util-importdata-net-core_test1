@@ -206,14 +206,14 @@ namespace ImportData
 
       var note = this.Parameters[shift + 16];
 
-			var documentRegisterIdStr = this.Parameters[shift + 17].Trim();
-			if (!int.TryParse(documentRegisterIdStr, out var documentRegisterId))
-				if (ExtraParameters.ContainsKey("doc_register_id"))
-					int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId);
+      var documentRegisterIdStr = this.Parameters[shift + 17].Trim();
+      if (!int.TryParse(documentRegisterIdStr, out var documentRegisterId))
+        if (ExtraParameters.ContainsKey("doc_register_id"))
+          int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId);
 
-			var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
+      var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
 
-			if (documentRegisters == null)
+      if (documentRegisters == null)
       {
         var message = string.Format("Не найден журнал регистрации по ИД \"{0}\"", documentRegisterIdStr);
         exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
@@ -224,29 +224,29 @@ namespace ImportData
       var regState = this.Parameters[shift + 18].Trim();
 
       var caseFileStr = this.Parameters[shift + 19].Trim();
-			var caseFile = BusinessLogic.GetEntityWithFilter<ICaseFiles>(x => x.Name == caseFileStr, exceptionList, logger);
+      var caseFile = BusinessLogic.GetEntityWithFilter<ICaseFiles>(x => x.Name == caseFileStr, exceptionList, logger);
       if (!string.IsNullOrEmpty(caseFileStr) && caseFile == null)
       {
-				var message = string.Format("Не найдено Дело по наименованию \"{0}\"", caseFileStr);
-				exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
-				logger.Error(message);
-			}
+        var message = string.Format("Не найдено Дело по наименованию \"{0}\"", caseFileStr);
+        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
+        logger.Error(message);
+      }
 
       var placedToCaseFileDateStr = this.Parameters[shift + 20].Trim();
-			DateTimeOffset placedToCaseFileDate = DateTimeOffset.MinValue;
-			try
-			{
+      DateTimeOffset placedToCaseFileDate = DateTimeOffset.MinValue;
+      try
+      {
         if (caseFile != null)
-					placedToCaseFileDate = ParseDate(placedToCaseFileDateStr, style, culture);
-			}
-			catch (Exception)
-			{
-				var message = string.Format("Не удалось обработать значение поля \"Дата помещения\" \"{0}\".", placedToCaseFileDateStr);
-				exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
-				logger.Error(message);
-			}
+          placedToCaseFileDate = ParseDate(placedToCaseFileDateStr, style, culture);
+      }
+      catch (Exception)
+      {
+        var message = string.Format("Не удалось обработать значение поля \"Дата помещения\" \"{0}\".", placedToCaseFileDateStr);
+        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
+        logger.Error(message);
+      }
 
-			try
+      try
       {
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
         var isNewContract = false;
@@ -294,19 +294,19 @@ namespace ImportData
         if (!string.IsNullOrEmpty(contract.RegistrationNumber) && contract.DocumentRegister != null)
           contract.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 
-				contract.CaseFile = caseFile;
-				if (placedToCaseFileDate != DateTimeOffset.MinValue)
-					contract.PlacedToCaseFileDate = placedToCaseFileDate;
-				else
-					contract.PlacedToCaseFileDate = null;
+        contract.CaseFile = caseFile;
+        if (placedToCaseFileDate != DateTimeOffset.MinValue)
+          contract.PlacedToCaseFileDate = placedToCaseFileDate;
+        else
+          contract.PlacedToCaseFileDate = null;
 
-				IContracts createdContract;
+        IContracts createdContract;
         if (isNewContract)
         {
           createdContract = BusinessLogic.CreateEntity(contract, exceptionList, logger);
-					// Дополнительно обновляем свойство Состояние, так как после установки регистрационного номера Состояние сбрасывается в значение "В разработке"
-					createdContract?.UpdateLifeCycleState(lifeCycleState);
-				}
+          // Дополнительно обновляем свойство Состояние, так как после установки регистрационного номера Состояние сбрасывается в значение "В разработке"
+          createdContract?.UpdateLifeCycleState(lifeCycleState);
+        }
         else
         {
           // Карточку не обновляем, там ошибка, если у документа есть версия.

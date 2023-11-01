@@ -33,14 +33,19 @@ namespace Tests.EDocs
         public static string EqualsSupAgreement(List<string> parameters, int shift = 0)
         {
             var actualSupAgreement = Common.GetOfficialDocument<ISupAgreements>(parameters[shift + 0], parameters[shift + 1]);
-            var leadingDocument = Common.GetOfficialDocument<IContracts>(parameters[shift + 2], parameters[shift + 3]);
+            var counterpartyName = parameters[shift + 4];
+            var counterparty = BusinessLogic.GetEntityWithFilter<ICounterparties>(c => c.Name == counterpartyName, new List<Structures.ExceptionsStruct>(), TestSettings.Logger);
+            var counterpartyId = counterparty?.Id ?? -1;
+			var leadDocSearchResult = IOfficialDocuments.GetLeadingDocument(TestSettings.Logger, parameters[shift + 2], Common.ParseDate(parameters[shift + 3]), counterpartyId);
             var name = Common.GetDocumentName(parameters[shift + 5], parameters[shift + 0], parameters[shift + 1], parameters[shift + 6]);
+
+            if (!string.IsNullOrEmpty(leadDocSearchResult.errorMessage))
+                return leadDocSearchResult.errorMessage;
 
             if (actualSupAgreement == null)
                 return $"Ќе найдено дополнительное соглашение: {name}";
 
-            if (leadingDocument == null)
-                return $"Ќе найден ведущий документ дл€ дополнительного соглашени€: {name}";
+            var leadingDocument = leadDocSearchResult.leadingDocument;
 
             var errorList = new List<string>
             {

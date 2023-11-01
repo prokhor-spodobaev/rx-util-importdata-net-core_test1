@@ -95,7 +95,7 @@ namespace Tests
             var document = BusinessLogic.GetEntityWithFilter<T>(x => x.RegistrationNumber != null &&
                                                                                     x.RegistrationNumber == regNumber &&
                                                                                     x.RegistrationDate == regDate &&
-                                                                                    (checkDocRegister || x.DocumentRegister.Id == docRegisterId), 
+                                                                                    (checkDocRegister || x.DocumentRegister.Id == docRegisterId),
                                                                                     exceptionList, TestSettings.Logger, true);
             return document;
         }

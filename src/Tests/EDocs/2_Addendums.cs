@@ -40,17 +40,19 @@ namespace Tests.EDocs
         public static string EqualsAddendums(List<string> parameters, int shift = 0)
         {
             var exceptionList = new List<Structures.ExceptionsStruct>();
-            var leadingDocument = Common.GetOfficialDocument<IContracts>(parameters[shift + 2], parameters[shift + 3]);
+			var leadDocSearchResult = IOfficialDocuments.GetLeadingDocument(TestSettings.Logger, parameters[shift + 2], Common.ParseDate(parameters[shift + 3]));
 
-            var docKind = parameters[shift + 5].Trim();
+			var docKind = parameters[shift + 5].Trim();
             var subject = parameters[shift + 6].Trim();
             var docRegisterId = parameters[shift + 14].Trim();
             var name = $"{docKind} \"{subject}\"";
 
-            if (leadingDocument == null)
-                return $"Не найден ведущий документ для приложения: {name}";
+			if (!string.IsNullOrEmpty(leadDocSearchResult.errorMessage))
+				return leadDocSearchResult.errorMessage;
 
-            var actualAddendum = BusinessLogic.GetEntityWithFilter<IAddendums>(c => c.LeadingDocument.Id == leadingDocument.Id &&
+			var leadingDocument = leadDocSearchResult.leadingDocument;
+
+			var actualAddendum = BusinessLogic.GetEntityWithFilter<IAddendums>(c => c.LeadingDocument.Id == leadingDocument.Id &&
                                                                                     c.DocumentKind.Name == docKind &&
                                                                                     c.Subject == subject,// &&
                                                                                     //c.DocumentRegister.Id.ToString() == docRegisterId, 
