@@ -9,9 +9,19 @@ namespace ImportData.IntegrationServicesClient.Models
     [EntityName("Электронный документ")]
     public class IElectronicDocuments : IEntity
     {
-        public DateTimeOffset Created { get; set; }
-        public DateTimeOffset Modified { get; set; }
-        public bool HasRelations { get; set; }
+        private DateTimeOffset? created;
+        private DateTimeOffset? modified;
+		public DateTimeOffset? Created
+		{
+			get { return created; }
+			set { created = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
+		}
+		public DateTimeOffset? Modified
+		{
+			get { return modified; }
+			set { modified = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
+		}
+		public bool HasRelations { get; set; }
         public int LastVersionSignatureType { get; set; }
         public bool LastVersionApproved { get; set; }
         public bool HasVersions { get; set; }

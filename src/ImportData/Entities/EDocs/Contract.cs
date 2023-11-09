@@ -248,11 +248,10 @@ namespace ImportData
 
       try
       {
-        var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
         var isNewContract = false;
         var contract = BusinessLogic.GetEntityWithFilter<IContracts>(x => x.RegistrationNumber != null &&
             x.RegistrationNumber == regNumber &&
-            x.RegistrationDate == regDateBeginningOfDay &&
+            x.RegistrationDate.Value.ToString("d") == regDate.ToString("d") &&
             x.Counterparty.Id == counterparty.Id &&
             x.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger, true);
 
