@@ -21,7 +21,7 @@ namespace ImportData
     /// </summary>
     /// <param name="t">Тип класса.</param>
     /// <returns>Значение атрибута EntityName.</returns>
-    private static string PrintInfo(Type t)
+    internal static string PrintInfo(Type t)
     {
       Attribute[] attrs = Attribute.GetCustomAttributes(t);
 

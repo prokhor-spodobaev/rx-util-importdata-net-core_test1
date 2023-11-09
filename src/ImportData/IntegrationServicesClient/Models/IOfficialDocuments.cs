@@ -8,12 +8,24 @@ namespace ImportData.IntegrationServicesClient.Models
     [EntityName("Официальный документ")]
     public class IOfficialDocuments : IElectronicDocuments
     {
-        public string RegistrationNumber { get; set; }
-        public DateTimeOffset? RegistrationDate { get; set; }
-        public string Subject { get; set; }
+        private DateTimeOffset? registrationDate;
+		private DateTimeOffset? documentDate;
+        private DateTimeOffset? placedToCaseFileDate;
+
+		public string RegistrationNumber { get; set; }
+        public DateTimeOffset? RegistrationDate
+		{
+			get { return registrationDate; }
+			set { registrationDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
+		}
+		public string Subject { get; set; }
         public string Note { get; set; }
-        public DateTimeOffset DocumentDate { get; set; }
-        public string LifeCycleState { get; set; }
+        public DateTimeOffset? DocumentDate
+		{
+			get { return documentDate; }
+			set { documentDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
+		}
+		public string LifeCycleState { get; set; }
         public string RegistrationState { get; set; }
         public IDocumentRegisters DocumentRegister { get; set; }
         public IDocumentKinds DocumentKind { get; set; }
@@ -24,12 +36,16 @@ namespace ImportData.IntegrationServicesClient.Models
         public IEmployees OurSignatory { get; set; }
         public IEmployees PreparedBy { get; set; }
         public ICaseFiles CaseFile { get; set; }
-        public DateTimeOffset? PlacedToCaseFileDate { get; set; }
+        public DateTimeOffset? PlacedToCaseFileDate
+		{
+			get { return placedToCaseFileDate; }
+			set { placedToCaseFileDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
+		}
 
-        public static (IOfficialDocuments leadingDocument, string errorMessage) GetLeadingDocument(Logger logger, string registrationNumber, DateTimeOffset regDate, int counterpartyId = -1)
+		public static (IOfficialDocuments leadingDocument, string errorMessage) GetLeadingDocument(Logger logger, string registrationNumber, DateTimeOffset regDate, int counterpartyId = -1)
         {
             var leadingDocuments = BusinessLogic.GetEntitiesWithFilter<IContracts>(d => d.RegistrationNumber == registrationNumber &&
-                    d.RegistrationDate.Value.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") == regDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'") &&
+                    d.RegistrationDate.Value.ToString("d") == regDate.ToString("d") &&
                     (counterpartyId == -1 || d.Counterparty.Id == counterpartyId), 
                     new List<Structures.ExceptionsStruct>(), logger, true);
 

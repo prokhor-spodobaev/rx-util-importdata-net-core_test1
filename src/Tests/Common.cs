@@ -69,16 +69,6 @@ namespace Tests
         }
 
         /// <summary>
-        /// Получить начало дня.
-        /// </summary>
-        /// <param name="dateTimeOffset">Дата-время.</param>
-        /// <returns>Начало дня.</returns>
-        public static DateTimeOffset BeginningOfDay(DateTimeOffset dateTimeOffset)
-        {
-            return new DateTimeOffset(dateTimeOffset.Year, dateTimeOffset.Month, dateTimeOffset.Day, 0, 0, 0, dateTimeOffset.Offset);
-        }
-
-        /// <summary>
         /// Получить официальный документ.
         /// </summary>
         /// <param name="regNumber">Номер регистрации.</param>
@@ -88,13 +78,13 @@ namespace Tests
         public static T GetOfficialDocument<T>(string regNumber, string regDateStr, string docRegisterIdStr = "") where T : IOfficialDocuments
         {
             var exceptionList = new List<Structures.ExceptionsStruct>();
-            var regDate = BeginningOfDay(ParseDate(regDateStr));
+            var regDate = ParseDate(regDateStr);
             var checkDocRegister = string.IsNullOrWhiteSpace(docRegisterIdStr);
             if (!int.TryParse(docRegisterIdStr, out var docRegisterId))
                 docRegisterId = -1;
             var document = BusinessLogic.GetEntityWithFilter<T>(x => x.RegistrationNumber != null &&
                                                                                     x.RegistrationNumber == regNumber &&
-                                                                                    x.RegistrationDate == regDate &&
+                                                                                    x.RegistrationDate.Value.ToString("d") == regDate.ToString("d") &&
                                                                                     (checkDocRegister || x.DocumentRegister.Id == docRegisterId),
                                                                                     exceptionList, TestSettings.Logger, true);
             return document;
