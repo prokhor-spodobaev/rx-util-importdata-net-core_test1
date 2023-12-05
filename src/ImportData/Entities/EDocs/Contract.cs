@@ -6,6 +6,7 @@ using ImportData.IntegrationServicesClient.Models;
 using System.IO;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using ImportData.Entities.Databooks;
+using System.Linq;
 
 namespace ImportData
 {
@@ -249,12 +250,13 @@ namespace ImportData
       try
       {
         var isNewContract = false;
-        var contract = BusinessLogic.GetEntityWithFilter<IContracts>(x => x.RegistrationNumber != null &&
+        var contracts = BusinessLogic.GetEntitiesWithFilter<IContracts>(x => x.RegistrationNumber != null &&
             x.RegistrationNumber == regNumber &&
             x.RegistrationDate.Value.ToString("d") == regDate.ToString("d") &&
             x.Counterparty.Id == counterparty.Id &&
             x.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger, true);
 
+        var contract = (IContracts)IOfficialDocuments.GetDocumentByRegistrationDate(contracts, regDate, logger, exceptionList);
         if (contract == null)
         {
           contract = new IContracts();

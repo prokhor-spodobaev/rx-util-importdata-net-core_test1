@@ -159,9 +159,11 @@ namespace ImportData
       try
       {
         var isNewOrder = false;
-        var order = BusinessLogic.GetEntityWithFilter<IOrders>(x => x.RegistrationNumber == regNumber &&
+        var orders = BusinessLogic.GetEntitiesWithFilter<IOrders>(x => x.RegistrationNumber == regNumber &&
 			x.RegistrationDate.Value.ToString("d") == regDate.ToString("d") &&
 			x.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger, true);
+
+        var order = (IOrders)IOfficialDocuments.GetDocumentByRegistrationDate(orders, regDate, logger, exceptionList);
         if (order == null)
         {
           order = new IOrders();

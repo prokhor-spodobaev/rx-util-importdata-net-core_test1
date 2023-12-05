@@ -42,12 +42,31 @@ namespace ImportData.IntegrationServicesClient.Models
 			set { placedToCaseFileDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
 		}
 
-		public static (IOfficialDocuments leadingDocument, string errorMessage) GetLeadingDocument(Logger logger, string registrationNumber, DateTimeOffset regDate, int counterpartyId = -1)
+        public static IOfficialDocuments GetDocumentByRegistrationDate (IEnumerable<IOfficialDocuments> documents, DateTimeOffset regDate, Logger logger, List<Structures.ExceptionsStruct> exceptionList) 
+        {
+          // Условие по дате регистрации не срабатывает через OData из-за ToString,
+          // передача в формате даты не работает в 4.8.
+          documents = documents.Where(d => d.RegistrationDate.Value.ToString("d") == regDate.ToString("d"));
+          var document = documents.FirstOrDefault();
+          if (documents.Count() > 1)
+          {
+            var message = string.Format("Найдено несколько документов с именем \"{0}\". Проверьте, что выбрана верная запись.", document.ToString());
+            exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
+            logger.Warn(message);
+          }
+
+          return document;
+        }
+
+        public static (IOfficialDocuments leadingDocument, string errorMessage) GetLeadingDocument(Logger logger, string registrationNumber, DateTimeOffset regDate, int counterpartyId = -1)
         {
             var leadingDocuments = BusinessLogic.GetEntitiesWithFilter<IContracts>(d => d.RegistrationNumber == registrationNumber &&
                     d.RegistrationDate.Value.ToString("d") == regDate.ToString("d") &&
                     (counterpartyId == -1 || d.Counterparty.Id == counterpartyId), 
                     new List<Structures.ExceptionsStruct>(), logger, true);
+            // Условие по дате регистрации не срабатывает через OData из-за ToString,
+            // передача в формате даты не работает в 4.8.
+            leadingDocuments = leadingDocuments.Where(d => d.RegistrationDate.Value.ToString("d") == regDate.ToString("d"));
 
             var message = string.Empty;
             if (!leadingDocuments.Any())

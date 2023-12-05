@@ -147,9 +147,11 @@ namespace ImportData
       try
       {
         var isNewIncomingLetter = false;
-        var incomingLetter = BusinessLogic.GetEntityWithFilter<IIncomingLetters>(x => x.RegistrationNumber == regNumber &&
+        var incomingLetters = BusinessLogic.GetEntitiesWithFilter<IIncomingLetters>(x => x.RegistrationNumber == regNumber &&
 			x.RegistrationDate.Value.ToString("d") == regDate.ToString("d") &&
 			x.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger, true);
+
+        var incomingLetter = (IIncomingLetters)IOfficialDocuments.GetDocumentByRegistrationDate(incomingLetters, regDate, logger, exceptionList);
         if (incomingLetter == null)
         {
           incomingLetter = new IIncomingLetters();
