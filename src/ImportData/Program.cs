@@ -86,7 +86,13 @@ namespace ImportData
         case "importcasefiles":
           EntityProcessor.Process(typeof(CaseFile), xlsxPath, Constants.SheetNames.CaseFiles, extraParameters, ignoreDuplicates, logger);
           break;
-        default:
+		case "importсountries":
+		  EntityProcessor.Process(typeof(Country), xlsxPath, Constants.SheetNames.Countries, extraParameters, ignoreDuplicates, logger);
+		  break;
+        case "importcurrencies":
+		  EntityProcessor.Process(typeof(Currency), xlsxPath, Constants.SheetNames.Currencies, extraParameters, ignoreDuplicates, logger);
+		  break;
+		default:
           break;
       }
     }
