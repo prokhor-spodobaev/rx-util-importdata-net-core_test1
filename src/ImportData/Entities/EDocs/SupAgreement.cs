@@ -263,10 +263,12 @@ namespace ImportData
       {
         var isNewSupAgreement = false;
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
-        var supAgreement = BusinessLogic.GetEntityWithFilter<ISupAgreements>(x => x.RegistrationNumber == regNumber &&
+        var supAgreements = BusinessLogic.GetEntitiesWithFilter<ISupAgreements>(x => x.RegistrationNumber == regNumber &&
 			x.RegistrationDate.Value.ToString("d") == regDate.ToString("d") &&
 			x.Counterparty.Id == counterparty.Id &&
             x.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger, true);
+
+        var supAgreement = (ISupAgreements)IOfficialDocuments.GetDocumentByRegistrationDate(supAgreements, regDate, logger, exceptionList);
         if (supAgreement == null)
         {
           supAgreement = new ISupAgreements();
