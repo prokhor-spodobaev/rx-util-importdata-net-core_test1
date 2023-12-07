@@ -106,11 +106,8 @@ namespace ImportData
 				{
 					isNewCompany = true;
 					currency = new ICurrencies();
-
-					//currency.Id = BusinessLogic.GetEntities<ICurrencies>(exceptionList, logger).Last().Id++;
 				}
 
-				//currency.Id = currency.Id;
 				currency.Name = name;
 				currency.AlphaCode = alphaCode;
 				currency.ShortName = shortName;
