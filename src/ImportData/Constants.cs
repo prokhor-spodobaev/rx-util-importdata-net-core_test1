@@ -87,6 +87,7 @@ namespace ImportData
                 {ImportLogins, ImportLogins},
                 {ImportCaseFiles, ImportCaseFiles},
                 {ImportCountries, ImportCountries},
+                {ImportCurrencies, ImportCurrencies},
 
                 // Инициализация клиента, для тестов.
                 {InitForTests, InitForTests}

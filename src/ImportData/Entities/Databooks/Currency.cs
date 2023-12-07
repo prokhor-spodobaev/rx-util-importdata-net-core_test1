@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ImportData.IntegrationServicesClient.Models;
 using NLog;
 
@@ -95,17 +96,21 @@ namespace ImportData
 
 			try
 			{
-				ICurrency currency = null;
+				ICurrencies currency = null;
 				var isNewCompany = false;
 
 				if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
-					currency = BusinessLogic.GetEntityWithFilter<ICurrency>(x => x.Name == name, exceptionList, logger);
+					currency = BusinessLogic.GetEntityWithFilter<ICurrencies>(x => x.Name == name, exceptionList, logger);
 
 				if (currency is null)
 				{
 					isNewCompany = true;
-					currency = new ICurrency();
+					currency = new ICurrencies();
+
+					//currency.Id = BusinessLogic.GetEntities<ICurrencies>(exceptionList, logger).Last().Id++;
 				}
+
+				//currency.Id = currency.Id;
 				currency.Name = name;
 				currency.AlphaCode = alphaCode;
 				currency.ShortName = shortName;

@@ -62,16 +62,16 @@ namespace ImportData
 
 			try
 			{
-				ICountry country = null;
+				ICountries country = null;
 				var isNewCompany = false;
 
 				if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
-					country = BusinessLogic.GetEntityWithFilter<ICountry>(x => x.Name == name || x.Code == code, exceptionList, logger);
+					country = BusinessLogic.GetEntityWithFilter<ICountries>(x => x.Name == name || x.Code == code, exceptionList, logger);
 
 				if (country is null)
 				{
 					isNewCompany = true;
-					country = new ICountry();
+					country = new ICountries();
 				}
 
 				country.Status = status;
