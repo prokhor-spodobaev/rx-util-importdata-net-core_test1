@@ -163,7 +163,7 @@ namespace ImportData
       }
 
       variableForParameters = this.Parameters[shift + 12].Trim();
-      var currency = BusinessLogic.GetEntityWithFilter<ICurrency>(c => c.Name == variableForParameters, exceptionList, logger);
+      var currency = BusinessLogic.GetEntityWithFilter<ICurrencies>(c => c.Name == variableForParameters, exceptionList, logger);
 
       if (!string.IsNullOrEmpty(this.Parameters[shift + 12].Trim()) && currency == null)
       {

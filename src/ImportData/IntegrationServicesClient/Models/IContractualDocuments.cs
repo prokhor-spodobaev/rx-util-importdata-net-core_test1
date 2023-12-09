@@ -25,6 +25,6 @@ namespace ImportData.IntegrationServicesClient.Models
 			set { validTill = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
 		}
 		public double TotalAmount { get; set; }
-		public ICurrency Currency { get; set; }
+		public ICurrencies Currency { get; set; }
 	}
 }

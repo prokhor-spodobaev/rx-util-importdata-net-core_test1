@@ -38,7 +38,10 @@ namespace ImportData
             public const string Logins = "Логины";
             public const string Substitutions = "Замещения";
             public const string CaseFiles = "Номенклатура дел";
-        }
+            public const string Countries = "Страны";
+            public const string Currencies = "Валюты";
+
+		}
 
         public class Actions
         {
@@ -59,9 +62,11 @@ namespace ImportData
             public const string ImportLogins = "importlogins";
             public const string ImportSubstitutions = "importsubstitutions";
             public const string ImportCaseFiles = "importcasefiles";
+            public const string ImportCountries = "importсountries";
+            public const string ImportCurrencies = "importcurrencies";
 
-            // Инициализация клиента, для тестов.
-            public const string InitForTests = "init";
+			// Инициализация клиента, для тестов.
+			public const string InitForTests = "init";
 
             public static Dictionary<string, string> dictActions = new Dictionary<string, string>
             {
@@ -81,6 +86,8 @@ namespace ImportData
                 {ImportCompanyDirectives, ImportCompanyDirectives},
                 {ImportLogins, ImportLogins},
                 {ImportCaseFiles, ImportCaseFiles},
+                {ImportCountries, ImportCountries},
+                {ImportCurrencies, ImportCurrencies},
 
                 // Инициализация клиента, для тестов.
                 {InitForTests, InitForTests}
