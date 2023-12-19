@@ -93,7 +93,13 @@ namespace ImportData
                 var isNewDepartment = false;
 
                 if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+                {
+                  if (businessUnit != null)
+                    department = BusinessLogic.GetEntityWithFilter<IDepartments>(x => x.Name == nameDepartment &&
+                                                                                 (x.BusinessUnit == null || x.BusinessUnit.Id == businessUnit.Id), exceptionList, logger, true);
+                  else
                     department = BusinessLogic.GetEntityWithFilter<IDepartments>(x => x.Name == nameDepartment, exceptionList, logger);
+                }
 
                 if (department is null)
                 {
