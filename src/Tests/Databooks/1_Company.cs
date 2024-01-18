@@ -58,7 +58,7 @@ namespace Tests.Databooks
         public static string EqualsEmployee(List<string> parameters, int shift = 0)
         {
             var exceptionList = new List<Structures.ExceptionsStruct>();
-            var name = string.Join(' ', parameters[shift + 2].Trim(), parameters[shift + 3].Trim(), parameters[shift + 4].Trim()).Trim();
+            var name = string.Join(' ', parameters[shift + 3].Trim(), parameters[shift + 4].Trim(), parameters[shift + 5].Trim()).Trim();
             var actualEmployee = BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == name, exceptionList, TestSettings.Logger, true);
             var actualPerson = BusinessLogic.GetEntityWithFilter<IPersons>(x => x.Name == name, exceptionList, TestSettings.Logger, true);
             if (actualEmployee == null)
@@ -68,25 +68,25 @@ namespace Tests.Databooks
 
             var errorList = new List<string>
             {
-                Common.CheckParam(actualEmployee.Department, parameters[shift + 0], "Department"),
-                Common.CheckParam(actualEmployee.JobTitle, parameters[shift + 1], "JobTitle"),
-                Common.CheckParam(actualPerson.LastName, parameters[shift + 2], "LastName"),
-                Common.CheckParam(actualPerson.FirstName, parameters[shift + 3], "FirstName"),
-                Common.CheckParam(actualPerson.MiddleName, parameters[shift + 4], "MiddleName"),
-                Common.CheckParam(actualPerson.Sex, BusinessLogic.GetPropertySex(parameters[shift + 5]), "Sex"),
-                Common.CheckParam(actualPerson.DateOfBirth, parameters[shift + 6], "DateOfBirth"),
-                Common.CheckParam(actualPerson.TIN, parameters[shift + 7], "TIN"),
-                Common.CheckParam(actualPerson.INILA, parameters[shift + 8], "INILA"),
-                Common.CheckParam(actualPerson.City, parameters[shift + 9], "City"),
-                Common.CheckParam(actualPerson.Region, parameters[shift + 10], "Region"),
-                Common.CheckParam(actualPerson.LegalAddress, parameters[shift + 11], "LegalAddress"),
-                Common.CheckParam(actualPerson.PostalAddress, parameters[shift + 12], "PostalAddress"),
-                Common.CheckParam(actualEmployee.Phone, parameters[shift + 13], "Phone"),
-                Common.CheckParam(actualEmployee.Email, parameters[shift + 14], "Email"),
-                Common.CheckParam(actualPerson.Homepage, parameters[shift + 15], "Homepage"),
-                Common.CheckParam(actualPerson.Bank, parameters[shift + 16], "Bank"),
-                Common.CheckParam(actualPerson.Account, parameters[shift + 17], "Account"),
-                Common.CheckParam(actualEmployee.Note, parameters[shift + 18], "Note"),
+                Common.CheckParam(actualEmployee.Department, parameters[shift + 1], "Department"),
+                Common.CheckParam(actualEmployee.JobTitle, parameters[shift + 2], "JobTitle"),
+                Common.CheckParam(actualPerson.LastName, parameters[shift + 3], "LastName"),
+                Common.CheckParam(actualPerson.FirstName, parameters[shift + 4], "FirstName"),
+                Common.CheckParam(actualPerson.MiddleName, parameters[shift + 5], "MiddleName"),
+                Common.CheckParam(actualPerson.Sex, BusinessLogic.GetPropertySex(parameters[shift + 6]), "Sex"),
+                Common.CheckParam(actualPerson.DateOfBirth, parameters[shift + 7], "DateOfBirth"),
+                Common.CheckParam(actualPerson.TIN, parameters[shift + 8], "TIN"),
+                Common.CheckParam(actualPerson.INILA, parameters[shift + 9], "INILA"),
+                Common.CheckParam(actualPerson.City, parameters[shift + 10], "City"),
+                Common.CheckParam(actualPerson.Region, parameters[shift + 11], "Region"),
+                Common.CheckParam(actualPerson.LegalAddress, parameters[shift + 12], "LegalAddress"),
+                Common.CheckParam(actualPerson.PostalAddress, parameters[shift + 13], "PostalAddress"),
+                Common.CheckParam(actualEmployee.Phone, parameters[shift + 14], "Phone"),
+                Common.CheckParam(actualEmployee.Email, parameters[shift + 15], "Email"),
+                Common.CheckParam(actualPerson.Homepage, parameters[shift + 16], "Homepage"),
+                Common.CheckParam(actualPerson.Bank, parameters[shift + 17], "Bank"),
+                Common.CheckParam(actualPerson.Account, parameters[shift + 18], "Account"),
+                Common.CheckParam(actualEmployee.Note, parameters[shift + 19], "Note"),
                 
                 Common.CheckParam(actualEmployee.NeedNotifyExpiredAssignments.ToString(), (false).ToString(), "NeedNotifyExpiredAssignments"),
                 Common.CheckParam(actualEmployee.NeedNotifyNewAssignments.ToString(), (!string.IsNullOrWhiteSpace(actualEmployee.Email)).ToString(), "NeedNotifyNewAssignments"),

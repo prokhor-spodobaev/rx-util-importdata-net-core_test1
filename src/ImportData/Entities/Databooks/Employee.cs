@@ -7,7 +7,7 @@ namespace ImportData
 {
     class Employee : Person
     {
-        public int PropertiesCount = 19;
+        public int PropertiesCount = 20;
         /// <summary>
         /// Получить наименование число запрашиваемых параметров.
         /// </summary>
@@ -28,9 +28,9 @@ namespace ImportData
             var exceptionList = new List<Structures.ExceptionsStruct>();
             var variableForParameters = this.Parameters[shift + 0].Trim();
 
-            exceptionList.AddRange(base.SaveToRX(logger, supplementEntity, ignoreDuplicates, 2));
+            exceptionList.AddRange(base.SaveToRX(logger, supplementEntity, ignoreDuplicates, 3));
 
-            var lastName = this.Parameters[shift + 2].Trim();
+            var lastName = this.Parameters[shift + 3].Trim();
 
             if (string.IsNullOrEmpty(lastName))
             {
@@ -41,7 +41,7 @@ namespace ImportData
                 return exceptionList;
             }
 
-            var firstName = this.Parameters[shift + 3].Trim();
+            var firstName = this.Parameters[shift + 4].Trim();
 
             if (string.IsNullOrEmpty(firstName))
             {
@@ -52,7 +52,7 @@ namespace ImportData
                 return exceptionList;
             }
 
-            var middleName = this.Parameters[shift + 4].Trim();
+            var middleName = this.Parameters[shift + 5].Trim();
 
             var person = BusinessLogic.GetEntityWithFilter<IPersons>(x => x.FirstName == firstName && x.MiddleName == middleName && x.LastName == lastName, exceptionList, logger);
 
@@ -65,26 +65,37 @@ namespace ImportData
                 return exceptionList;
             }
 
-
-            variableForParameters = this.Parameters[shift + 0].Trim();
-            var department = BusinessLogic.GetEntityWithFilter<IDepartments>(x => x.Name == variableForParameters, exceptionList, logger);
-
-            if (department == null && !string.IsNullOrEmpty(this.Parameters[shift + 0].Trim()))
+            var businessUnitName = this.Parameters[shift + 0].Trim();
+            var businessUnit = BusinessLogic.GetEntityWithFilter<IBusinessUnits>(b => b.Name == businessUnitName, exceptionList, logger);
+            if (!string.IsNullOrEmpty(this.Parameters[shift + 0].Trim()) && businessUnit == null)
             {
-                department = BusinessLogic.CreateEntity<IDepartments>(new IDepartments() { Name = variableForParameters, Status = "Active" }, exceptionList, logger);
+              businessUnit = BusinessLogic.CreateEntity<IBusinessUnits>(new IBusinessUnits() { Name = businessUnitName, Status = "Active" }, exceptionList, logger);
             }
 
             variableForParameters = this.Parameters[shift + 1].Trim();
+            IDepartments department = null;
+            if (businessUnit != null)
+              department = BusinessLogic.GetEntityWithFilter<IDepartments>(x => x.Name == variableForParameters &&
+                                                                           (x.BusinessUnit == null || x.BusinessUnit.Id == businessUnit.Id), exceptionList, logger, true);
+            else
+              department = BusinessLogic.GetEntityWithFilter<IDepartments>(x => x.Name == variableForParameters, exceptionList, logger);
+
+            if (department == null && !string.IsNullOrEmpty(this.Parameters[shift + 1].Trim()))
+            {
+                department = BusinessLogic.CreateEntity<IDepartments>(new IDepartments() { Name = variableForParameters, BusinessUnit = businessUnit, Status = "Active" }, exceptionList, logger);
+            }
+
+            variableForParameters = this.Parameters[shift + 2].Trim();
             var jobTitle = BusinessLogic.GetEntityWithFilter<IJobTitles>(x => x.Name == variableForParameters, exceptionList, logger);
 
-            if (jobTitle == null && !string.IsNullOrEmpty(this.Parameters[shift + 1].Trim()))
+            if (jobTitle == null && !string.IsNullOrEmpty(this.Parameters[shift + 2].Trim()))
             {
                 jobTitle = BusinessLogic.CreateEntity<IJobTitles>(new IJobTitles() { Name = variableForParameters, Status = "Active" }, exceptionList, logger);
             }
 
-            var email = this.Parameters[shift + 14].Trim();
-            var phone = this.Parameters[shift + 13].Trim();
-            var note = this.Parameters[shift + 18].Trim();
+            var email = this.Parameters[shift + 15].Trim();
+            var phone = this.Parameters[shift + 14].Trim();
+            var note = this.Parameters[shift + 19].Trim();
 
             try
             {
