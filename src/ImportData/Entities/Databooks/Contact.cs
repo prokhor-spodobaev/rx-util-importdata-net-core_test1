@@ -52,7 +52,9 @@ namespace ImportData.Entities.Databooks
 
             var middleName = this.Parameters[shift + 2].Trim();
 
-            var person = BusinessLogic.CreateEntity<IPersons>(new IPersons() { FirstName = firstName, MiddleName = middleName, LastName = lastName, Name = string.Format("{0} {1} {2}", lastName, firstName, middleName), Status = "Active" }, exceptionList, logger);
+            var phones = this.Parameters[shift + 5].Trim();
+            var email = this.Parameters[shift + 7].Trim();
+            var person = BusinessLogic.CreateEntity<IPersons>(new IPersons() { FirstName = firstName, MiddleName = middleName, LastName = lastName, Name = string.Format("{0} {1} {2}", lastName, firstName, middleName), Status = "Active", Email = email,  Phones = phones}, exceptionList, logger);
 
             if (person == null)
             {
@@ -72,9 +74,7 @@ namespace ImportData.Entities.Databooks
             }
 
             var jobTitle = this.Parameters[shift + 4].Trim();
-            var phone = this.Parameters[shift + 5].Trim();
             var fax = this.Parameters[shift + 6].Trim();
-            var email = this.Parameters[shift + 7].Trim();
             var homepage = this.Parameters[shift + 8].Trim();
             var note = this.Parameters[shift + 9].Trim();
 
@@ -96,9 +96,9 @@ namespace ImportData.Entities.Databooks
                 contact.Company = company;
                 contact.Name = person.Name;
                 contact.JobTitle = jobTitle;
-                contact.Phone = phone;
+                contact.Phone = person.Phones;
                 contact.Fax = fax;
-                contact.Email = email;
+                contact.Email = person.Email;
                 contact.Homepage = homepage;
                 contact.Note = note;
                 contact.Status = "Active";
