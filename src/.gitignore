@@ -98,3 +98,5 @@ ENV/
 /Tests/bin/Debug/*
 /Tests/obj/Debug/*
 /Tests/obj/*
+
+.vscode
