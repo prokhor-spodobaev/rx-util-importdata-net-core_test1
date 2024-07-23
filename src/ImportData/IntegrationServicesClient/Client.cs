@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
+using ImportData.IntegrationServicesClient.Models;
 using NLog;
 using Simple.OData.Client;
 
@@ -45,6 +47,9 @@ namespace ImportData.IntegrationServicesClient
       // Получение адреса сервиса интеграции из конфига.
       if (instance == null)
         instance = new Client(userName, password, ConfigSettingsService.GetConfigSettingsValueByName(Constants.ConfigServices.IntegrationServiceUrlParamName));
+
+      var batchRequestsCount = ConfigSettingsService.GetIntParamValue(Constants.ConfigServices.BatchRequestsCountParamName, "100");
+      BatchClient.Setup(client, batchRequestsCount);
 
       logger.Info("Подготовка клиента OData.");
     }

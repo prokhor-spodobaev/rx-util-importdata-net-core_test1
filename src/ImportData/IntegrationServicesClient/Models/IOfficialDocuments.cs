@@ -9,23 +9,23 @@ namespace ImportData.IntegrationServicesClient.Models
     public class IOfficialDocuments : IElectronicDocuments
     {
         private DateTimeOffset? registrationDate;
-		private DateTimeOffset? documentDate;
+        private DateTimeOffset? documentDate;
         private DateTimeOffset? placedToCaseFileDate;
 
-		public string RegistrationNumber { get; set; }
+        public string RegistrationNumber { get; set; }
         public DateTimeOffset? RegistrationDate
-		{
-			get { return registrationDate; }
-			set { registrationDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
-		}
-		public string Subject { get; set; }
+        {
+            get { return registrationDate; }
+            set { registrationDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
+        }
+        public string Subject { get; set; }
         public string Note { get; set; }
         public DateTimeOffset? DocumentDate
-		{
-			get { return documentDate; }
-			set { documentDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
-		}
-		public string LifeCycleState { get; set; }
+        {
+            get { return documentDate; }
+            set { documentDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
+        }
+        public string LifeCycleState { get; set; }
         public string RegistrationState { get; set; }
         public IDocumentRegisters DocumentRegister { get; set; }
         public IDocumentKinds DocumentKind { get; set; }
@@ -37,32 +37,32 @@ namespace ImportData.IntegrationServicesClient.Models
         public IEmployees PreparedBy { get; set; }
         public ICaseFiles CaseFile { get; set; }
         public DateTimeOffset? PlacedToCaseFileDate
-		{
-			get { return placedToCaseFileDate; }
-			set { placedToCaseFileDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
-		}
-
-        public static IOfficialDocuments GetDocumentByRegistrationDate (IEnumerable<IOfficialDocuments> documents, DateTimeOffset regDate, Logger logger, List<Structures.ExceptionsStruct> exceptionList) 
         {
-          // Условие по дате регистрации не срабатывает через OData из-за ToString,
-          // передача в формате даты не работает в 4.8.
-          documents = documents.Where(d => d.RegistrationDate.Value.ToString("d") == regDate.ToString("d"));
-          var document = documents.FirstOrDefault();
-          if (documents.Count() > 1)
-          {
-            var message = string.Format("Найдено несколько документов с именем \"{0}\". Проверьте, что выбрана верная запись.", document.ToString());
-            exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
-            logger.Warn(message);
-          }
+            get { return placedToCaseFileDate; }
+            set { placedToCaseFileDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
+        }
 
-          return document;
+        public static IOfficialDocuments GetDocumentByRegistrationDate(IEnumerable<IOfficialDocuments> documents, DateTimeOffset regDate, Logger logger, List<Structures.ExceptionsStruct> exceptionList)
+        {
+            // Условие по дате регистрации не срабатывает через OData из-за ToString,
+            // передача в формате даты не работает в 4.8.
+            documents = documents.Where(d => d.RegistrationDate.Value.ToString("d") == regDate.ToString("d"));
+            var document = documents.FirstOrDefault();
+            if (documents.Count() > 1)
+            {
+                var message = string.Format("Найдено несколько документов с именем \"{0}\". Проверьте, что выбрана верная запись.", document.ToString());
+                exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
+                logger.Warn(message);
+            }
+
+            return document;
         }
 
         public static (IOfficialDocuments leadingDocument, string errorMessage) GetLeadingDocument(Logger logger, string registrationNumber, DateTimeOffset regDate, int counterpartyId = -1)
         {
             var leadingDocuments = BusinessLogic.GetEntitiesWithFilter<IContracts>(d => d.RegistrationNumber == registrationNumber &&
                     d.RegistrationDate.Value.ToString("d") == regDate.ToString("d") &&
-                    (counterpartyId == -1 || d.Counterparty.Id == counterpartyId), 
+                    (counterpartyId == -1 || d.Counterparty.Id == counterpartyId),
                     new List<Structures.ExceptionsStruct>(), logger, true);
             // Условие по дате регистрации не срабатывает через OData из-за ToString,
             // передача в формате даты не работает в 4.8.
@@ -94,16 +94,31 @@ namespace ImportData.IntegrationServicesClient.Models
         /// <param name="entity">Сущность, свойство которого необходимо обновить.</param>
         /// <param name="lifeCycleState">Новое значение свойства LifeCycleState.</param>
         /// <returns>Обновленная сущность.</returns>
-        public static T UpdateLifeCycleState<T>(this T entity, string lifeCycleState) where T : IOfficialDocuments
+        public static T UpdateLifeCycleState<T>(this T entity, string lifeCycleState, bool isBatch = false) where T : IOfficialDocuments
         {
             if (!string.IsNullOrEmpty(lifeCycleState))
+            {
+                if (isBatch)
+                    return UpdateLifeCycleStateBatch(entity, lifeCycleState);
+
                 entity = Client.Instance()
                                  .For<T>()
                                  .Key(entity)
                                  .Set(new { LifeCycleState = lifeCycleState })
                                  .UpdateEntryAsync().Result;
+            }
+            return entity;
+        }
+
+        private static T UpdateLifeCycleStateBatch<T>(T entity, string lifeCycleState) where T : IOfficialDocuments
+        {
+            BatchClient.AddRequest(odata => odata.For<T>()
+                                 .Key(entity)
+                                 .Set(new { LifeCycleState = lifeCycleState })
+                                 .UpdateEntryAsync());
 
             return entity;
         }
+
     }
 }

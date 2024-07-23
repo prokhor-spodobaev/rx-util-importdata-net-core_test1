@@ -18,12 +18,18 @@ namespace ImportData.IntegrationServicesClient.Models
         public IMailDeliveryMethods DeliveryMethod { get; set; }
         public IEnumerable<IOutgoingLetterAddresseess> Addressees { get; set; }
 
-        public void CreateAddressee(IOutgoingLetterAddresseess addressee, Logger logger)
+        public void CreateAddressee(IOutgoingLetterAddresseess addressee, Logger logger, bool isBatch = false)
         {
             try
             {
                 if (!IsManyAddressees)
                     IsManyAddressees = true;
+
+                if (isBatch)
+                {
+                    CreateAddresseeBatch(addressee, logger);
+                    return;
+                }
 
                 var result = Client.Instance().For<IOutgoingLetters>()
                  .Key(this)
@@ -42,6 +48,21 @@ namespace ImportData.IntegrationServicesClient.Models
                 logger.Error(ex);
                 throw;
             }
+        }
+
+        private void CreateAddresseeBatch(IOutgoingLetterAddresseess addressee, Logger logger)
+        {
+            BatchClient.AddRequest(odata => odata.For<IOutgoingLetters>()
+                 .Key(this)
+                 .NavigateTo(nameof(Addressees))
+                 .Set(new IOutgoingLetterAddresseess()
+                 {
+                     Addressee = addressee.Addressee,
+                     DeliveryMethod = addressee.DeliveryMethod,
+                     Correspondent = addressee.Correspondent,
+                     OutgoingDocumentBase = this,
+                 })
+                 .InsertEntryAsync());
         }
     }
 }

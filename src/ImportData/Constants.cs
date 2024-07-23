@@ -112,6 +112,7 @@ namespace ImportData
         {
             public const string IntegrationServiceUrlParamName = "INTEGRATION_SERVICE_URL";
             public const string RequestTimeoutParamName = "INTEGRATION_SERVICE_REQUEST_TIMEOUT";
+            public const string BatchRequestsCountParamName = "INTEGRATION_SERVICE_BATCH_REQUESTS_COUNT";
         }
 
         public const string ignoreDuplicates = "ignore";

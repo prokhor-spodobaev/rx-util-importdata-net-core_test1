@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using ImportData.IntegrationServicesClient.Exceptions;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Extensions.Logging;
+using DocumentFormat.OpenXml.Bibliography;
 
 namespace ImportData
 {
@@ -96,51 +97,51 @@ namespace ImportData
       return null;
     }
 
-		/// <summary>
-		/// Получение сущностей по фильтру.
-		/// </summary>
-		/// <typeparam name="T">Тип сущности.</typeparam>
-		/// <param name="expression">Условие фильтрации.</param>
-		/// <param name="exceptionList">Список ошибок.</param>
-		/// <param name="logger">Логгер</param>
-		/// <returns>Сущности.</returns>
-		public static IEnumerable<T> GetEntitiesWithFilter<T>(Expression<Func<T, bool>> expression, List<Structures.ExceptionsStruct> exceptionList, Logger logger, bool isExpand = false) where T : class
-		{
-			Expression<Func<T, bool>> condition = expression;
-			var filter = new ODataExpression(condition);
+    /// <summary>
+    /// Получение сущностей по фильтру.
+    /// </summary>
+    /// <typeparam name="T">Тип сущности.</typeparam>
+    /// <param name="expression">Условие фильтрации.</param>
+    /// <param name="exceptionList">Список ошибок.</param>
+    /// <param name="logger">Логгер</param>
+    /// <returns>Сущности.</returns>
+    public static IEnumerable<T> GetEntitiesWithFilter<T>(Expression<Func<T, bool>> expression, List<Structures.ExceptionsStruct> exceptionList, Logger logger, bool isExpand = false) where T : class
+    {
+      Expression<Func<T, bool>> condition = expression;
+      var filter = new ODataExpression(condition);
 
-			logger.Info(string.Format("Получение сущностей {0}", PrintInfo(typeof(T))));
+      logger.Info(string.Format("Получение сущностей {0}", PrintInfo(typeof(T))));
 
-			try
-			{
-				var entities = Client.GetEntitiesByFilter<T>(filter, isExpand);
+      try
+      {
+        var entities = Client.GetEntitiesByFilter<T>(filter, isExpand);
 
-				return entities ?? Enumerable.Empty<T>();
-			}
-			catch (Exception ex)
-			{
-				if (ex.InnerException is WebRequestException webEx)
-				{
-					var message = $"Ошибка на стороне Directum RX. Код ошибки: {webEx.Code}, Причина: {webEx.ReasonPhrase}, Ответ сервиса интеграции: {webEx.Response}";
-					logger.Error(message);
-					exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-				}
+        return entities ?? Enumerable.Empty<T>();
+      }
+      catch (Exception ex)
+      {
+        if (ex.InnerException is WebRequestException webEx)
+        {
+          var message = $"Ошибка на стороне Directum RX. Код ошибки: {webEx.Code}, Причина: {webEx.ReasonPhrase}, Ответ сервиса интеграции: {webEx.Response}";
+          logger.Error(message);
+          exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        }
 
-				if (ex.Message.Contains("(Not Found)"))
-					throw new FoundMatchesException("Проверьте коррекность адреса службы интеграции Directum RX.");
+        if (ex.Message.Contains("(Not Found)"))
+          throw new FoundMatchesException("Проверьте коррекность адреса службы интеграции Directum RX.");
 
-				if (ex.Message.Contains("(Unauthorized)"))
-					throw new FoundMatchesException("Проверьте коррекность указанной учетной записи.");
-			}
-			return Enumerable.Empty<T>();
-		}
+        if (ex.Message.Contains("(Unauthorized)"))
+          throw new FoundMatchesException("Проверьте коррекность указанной учетной записи.");
+      }
+      return Enumerable.Empty<T>();
+    }
 
-		/// <summary>
-		/// Получение сущностей.
-		/// </summary>
-		/// <typeparam name="T">Тип сущности.</typeparam>
-		/// <returns>Список сущностей.</returns>
-		public static IEnumerable<T> GetEntities<T>(List<Structures.ExceptionsStruct> exceptionList, Logger logger) where T : class
+    /// <summary>
+    /// Получение сущностей.
+    /// </summary>
+    /// <typeparam name="T">Тип сущности.</typeparam>
+    /// <returns>Список сущностей.</returns>
+    public static IEnumerable<T> GetEntities<T>(List<Structures.ExceptionsStruct> exceptionList, Logger logger) where T : class
     {
       try
       {
@@ -171,8 +172,11 @@ namespace ImportData
     /// <typeparam name="T">Тип сущности.</typeparam>
     /// <param name="entity">Экземпляр сущности.</param>
     /// <returns>Созданная сущность.</returns>
-    public static T CreateEntity<T>(T entity, List<Structures.ExceptionsStruct> exceptionList, Logger logger) where T : class
+    public static T CreateEntity<T>(T entity, List<Structures.ExceptionsStruct> exceptionList, Logger logger, bool isBatch = false) where T : IEntity
     {
+      if (isBatch)
+        return CreateEntityBatch(entity, exceptionList, logger);
+
       logger.Info(string.Format("Создание сущности {0}", PrintInfo(typeof(T))));
       try
       {
@@ -203,6 +207,13 @@ namespace ImportData
       }
 
       return null;
+    }
+
+    private static T CreateEntityBatch<T>(T entity, List<Structures.ExceptionsStruct> exceptionList, Logger logger) where T : IEntity
+    {
+      logger.Info(string.Format("Создание сущности {0}", PrintInfo(typeof(T))));
+      var createdEntity = BatchClient.CreateEntity(entity);
+      return createdEntity;
     }
 
     /// <summary>
@@ -248,8 +259,11 @@ namespace ImportData
     /// <param name="pathToBody">Путь к телу документа.</param>
     /// <param name="logger">Логировщик.</param>
     /// <returns>Список ошибок.</returns>
-    public static IEnumerable<Structures.ExceptionsStruct> ImportBody(IElectronicDocuments edoc, string pathToBody, Logger logger, bool update_body = false)
+    public static IEnumerable<Structures.ExceptionsStruct> ImportBody(IElectronicDocuments edoc, string pathToBody, Logger logger, bool update_body = false, bool isBatch = false)
     {
+      if (isBatch)
+        return ImportBodyBatch(edoc, pathToBody, logger, update_body);
+
       var exceptionList = new List<Structures.ExceptionsStruct>();
       logger.Info("Импорт тела документа");
 
@@ -300,6 +314,81 @@ namespace ImportData
       }
 
       return exceptionList;
+    }
+
+    private static IEnumerable<Structures.ExceptionsStruct> ImportBodyBatch<T>(T edoc, string pathToBody, Logger logger, bool update_body = false) where T : IElectronicDocuments
+    {
+      var exceptionList = new List<Structures.ExceptionsStruct>();
+      logger.Info("Импорт тела документа");
+
+      try
+      {
+        if (!File.Exists(pathToBody))
+        {
+          var message = string.Format("Не найден файл по заданому пути: \"{0}\"", pathToBody);
+          exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+          logger.Warn(message);
+
+          return exceptionList;
+        }
+
+        // GetExtension возвращает расширение в формате ".<расширение>". Убираем точку.
+        var extention = Path.GetExtension(pathToBody).Replace(".", "");
+        var associatedApplication = BusinessLogic.GetEntityWithFilter<IAssociatedApplications>(a => a.Extension == extention, exceptionList, logger);
+
+        if (associatedApplication != null)
+        {
+          var lastVersion = BatchClient.CreateVersionBatch(edoc, edoc.Name, associatedApplication);
+
+          lastVersion.Body ??= new IBinaryData();
+
+          lastVersion.Body.Value = File.ReadAllBytes(pathToBody);
+          lastVersion.AssociatedApplication = associatedApplication;
+
+          BatchClient.FillBody(edoc, lastVersion);
+        }
+        else
+        {
+          var message = string.Format("Не обнаружено соответствующее приложение-обработчик для файлов с расширением \"{0}\"", extention);
+          exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+          logger.Warn(message);
+
+          return exceptionList;
+        }
+      }
+      catch (Exception ex)
+      {
+        var message = string.Format("Не удается создать тело документа. Ошибка: \"{0}\"", ex.Message);
+        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        logger.Warn(message);
+
+        return exceptionList;
+      }
+
+      return exceptionList;
+
+    }
+
+    public static List<Structures.ExceptionsStruct> ExecuteBatch(Logger logger)
+    {
+      var exceptions = new List<Structures.ExceptionsStruct>();
+      try
+      {
+        BatchClient.Execute();
+      }
+      catch (AggregateException ex) when (ex.InnerException is WebRequestException)
+      {
+        var message = $"Не удалось выполнить batch запрос. Ошибка: {ex.InnerException.Message} Ответ: {(ex.InnerException as WebRequestException).Response}";
+        exceptions.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        logger.Error(message);
+      }
+      catch (Exception ex)
+      {
+        var message = $"Не удалось выполнить batch запрос. Ошибка: {ex.Message}";
+        exceptions.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        logger.Error(message);
+      }
+      return exceptions;
     }
 
     /// <summary>
@@ -364,14 +453,14 @@ namespace ImportData
             {"", null}
         };
 
-        try
-        {
-            return RegistrationState[key.Trim()];
-        }
-        catch (KeyNotFoundException ex)
-        {
-            throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
-        }
+      try
+      {
+        return RegistrationState[key.Trim()];
+      }
+      catch (KeyNotFoundException ex)
+      {
+        throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
+      }
     }
 
     /// <summary>
@@ -391,14 +480,14 @@ namespace ImportData
             {"", null}
         };
 
-        try
-        {
-            return LifeCycleStates[key];
-        }
-        catch (KeyNotFoundException ex)
-        {
-            throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
-        }
+      try
+      {
+        return LifeCycleStates[key];
+      }
+      catch (KeyNotFoundException ex)
+      {
+        throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
+      }
     }
 
     /// <summary>
@@ -417,14 +506,14 @@ namespace ImportData
             {"", null}
         };
 
-        try
-        {
-            return sexProperty[key];
-        }
-        catch (KeyNotFoundException ex)
-        {
-            throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
-        }
+      try
+      {
+        return sexProperty[key];
+      }
+      catch (KeyNotFoundException ex)
+      {
+        throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
+      }
     }
     #endregion
 
@@ -465,7 +554,7 @@ namespace ImportData
         return string.Empty;
 
       trrc = trrc.Trim();
-     
+
       return System.Text.RegularExpressions.Regex.IsMatch(trrc, @"(^\d{9}$)") ? string.Empty : Constants.Resources.IncorrecTrrcLength;
 
     }
@@ -501,11 +590,11 @@ namespace ImportData
 
       if (nonresident)
         return string.Empty;
-      
+
 
       // Проверить содержание ИНН. Должен состоять только из цифр. (Bug 87755)
       if (!Regex.IsMatch(tin, @"^\d*$"))
-          return Constants.Resources.NotOnlyDigitsTin;
+        return Constants.Resources.NotOnlyDigitsTin;
 
       // Проверить длину ИНН. Для компаний допустимы ИНН длиной 10 или 12 символов, для персон - только 12.
       if (forCompany && tin.Length != 10 && tin.Length != 12)
@@ -556,12 +645,12 @@ namespace ImportData
       return tin.Length == 10 ? CheckTinSum(tin, coefficient10) : (CheckTinSum(tin, coefficient11) && CheckTinSum(tin, coefficient12));
     }
 
-        /// <summary>
-        /// Проверка введенного ОКПО по количеству символов.
-        /// </summary>
-        /// <param name="psrn">ОКПО.</param>
-        /// <returns>Пустая строка, если длина ОКПО в порядке.
-        /// Иначе текст ошибки.</returns>
+    /// <summary>
+    /// Проверка введенного ОКПО по количеству символов.
+    /// </summary>
+    /// <param name="psrn">ОКПО.</param>
+    /// <returns>Пустая строка, если длина ОКПО в порядке.
+    /// Иначе текст ошибки.</returns>
     public static string CheckNceoLength(string nceo, bool nonresident)
     {
       if (string.IsNullOrWhiteSpace(nceo))

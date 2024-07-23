@@ -10,13 +10,14 @@ namespace ImportData
   class CompanyDirective : Entity
   {
     public int PropertiesCount = 14;
+    public override int RequestsPerBatch => 4;
 
     public override int GetPropertiesCount()
     {
       return PropertiesCount;
     }
 
-    public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0)
+    public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0, bool isBatch = false)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
       var variableForParameters = this.Parameters[shift + 0].Trim();
@@ -130,14 +131,14 @@ namespace ImportData
 
       var note = this.Parameters[shift + 11];
 
-			var documentRegisterIdStr = this.Parameters[shift + 12].Trim();
-			if (!int.TryParse(documentRegisterIdStr, out var documentRegisterId))
-				if (ExtraParameters.ContainsKey("doc_register_id"))
-					int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId);
+      var documentRegisterIdStr = this.Parameters[shift + 12].Trim();
+      if (!int.TryParse(documentRegisterIdStr, out var documentRegisterId))
+        if (ExtraParameters.ContainsKey("doc_register_id"))
+          int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId);
 
-			var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
+      var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
 
-			if (documentRegisters == null)
+      if (documentRegisters == null)
       {
         var message = string.Format("Не найден журнал регистрации по ИД \"{0}\"", documentRegisterIdStr);
         exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
@@ -151,7 +152,7 @@ namespace ImportData
       try
       {
         var isNewCompanyDirective = false;
-        var companyDirectives = BusinessLogic.GetEntitiesWithFilter<ICompanyDirective>(x => x.RegistrationNumber == regNumber && 
+        var companyDirectives = BusinessLogic.GetEntitiesWithFilter<ICompanyDirective>(x => x.RegistrationNumber == regNumber &&
             x.RegistrationDate.Value.ToString("d") == regDate.ToString("d") &&
             x.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger, true);
 
@@ -182,17 +183,17 @@ namespace ImportData
         else
           companyDirective.RegistrationDate = null;
 
-				companyDirective.RegistrationNumber = regNumber;
+        companyDirective.RegistrationNumber = regNumber;
         if (!string.IsNullOrEmpty(companyDirective.RegistrationNumber) && companyDirective.DocumentRegister != null)
           companyDirective.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
 
         ICompanyDirective createdCompanyDirective;
         if (isNewCompanyDirective)
         {
-          createdCompanyDirective = BusinessLogic.CreateEntity(companyDirective, exceptionList, logger);
-					// Дополнительно обновляем свойство Состояние, так как после установки регистрационного номера Состояние сбрасывается в значение "В разработке"
-					createdCompanyDirective?.UpdateLifeCycleState(lifeCycleState);
-				}
+          createdCompanyDirective = BusinessLogic.CreateEntity(companyDirective, exceptionList, logger, isBatch);
+          // Дополнительно обновляем свойство Состояние, так как после установки регистрационного номера Состояние сбрасывается в значение "В разработке"
+          createdCompanyDirective?.UpdateLifeCycleState(lifeCycleState, isBatch);
+        }
         else
         {
           // Карточку не обновляем, там ошибка, если у документа есть версия.
@@ -204,7 +205,7 @@ namespace ImportData
 
         var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
         if (!string.IsNullOrWhiteSpace(filePath))
-          exceptionList.AddRange(BusinessLogic.ImportBody(createdCompanyDirective, filePath, logger, update_body));
+          exceptionList.AddRange(BusinessLogic.ImportBody(createdCompanyDirective, filePath, logger, update_body, isBatch));
       }
       catch (Exception ex)
       {

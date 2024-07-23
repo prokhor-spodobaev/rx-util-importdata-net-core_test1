@@ -10,6 +10,8 @@ namespace ImportData
   class Order : Entity
   {
     public int PropertiesCount = 14;
+    public override int RequestsPerBatch => 4;
+
     /// <summary>
     /// Получить наименование число запрашиваемых параметров.
     /// </summary>
@@ -25,7 +27,7 @@ namespace ImportData
     /// <param name="shift">Сдвиг по горизонтали в XLSX документе. Необходим для обработки документов, составленных из элементов разных сущностей.</param>
     /// <param name="logger">Логировщик.</param>
     /// <returns>Число запрашиваемых параметров.</returns>
-    public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0)
+    public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0, bool isBatch = false)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
       var variableForParameters = this.Parameters[shift + 0].Trim();
@@ -76,7 +78,7 @@ namespace ImportData
       variableForParameters = this.Parameters[shift + 5].Trim();
       IDepartments department = null;
       if (businessUnit != null)
-        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters && 
+        department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters &&
         (d.BusinessUnit == null || d.BusinessUnit.Id == businessUnit.Id), exceptionList, logger, true);
       else
         department = BusinessLogic.GetEntityWithFilter<IDepartments>(d => d.Name == variableForParameters, exceptionList, logger);
@@ -138,14 +140,14 @@ namespace ImportData
 
       var note = this.Parameters[shift + 11];
 
-			var documentRegisterIdStr = this.Parameters[shift + 12].Trim();
-			if (!int.TryParse(documentRegisterIdStr, out var documentRegisterId))
-				if (ExtraParameters.ContainsKey("doc_register_id"))
-					int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId);
+      var documentRegisterIdStr = this.Parameters[shift + 12].Trim();
+      if (!int.TryParse(documentRegisterIdStr, out var documentRegisterId))
+        if (ExtraParameters.ContainsKey("doc_register_id"))
+          int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId);
 
-			var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
+      var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
 
-			if (documentRegisters == null)
+      if (documentRegisters == null)
       {
         var message = string.Format("Не найден журнал регистрации по ИД \"{0}\"", documentRegisterIdStr);
         exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
@@ -160,8 +162,8 @@ namespace ImportData
       {
         var isNewOrder = false;
         var orders = BusinessLogic.GetEntitiesWithFilter<IOrders>(x => x.RegistrationNumber == regNumber &&
-			x.RegistrationDate.Value.ToString("d") == regDate.ToString("d") &&
-			x.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger, true);
+      x.RegistrationDate.Value.ToString("d") == regDate.ToString("d") &&
+      x.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger, true);
 
         var order = (IOrders)IOfficialDocuments.GetDocumentByRegistrationDate(orders, regDate, logger, exceptionList);
         if (order == null)
@@ -194,10 +196,10 @@ namespace ImportData
         IOrders createdOrder;
         if (isNewOrder)
         {
-          createdOrder = BusinessLogic.CreateEntity(order, exceptionList, logger);
-					// Дополнительно обновляем свойство Состояние, так как после установки регистрационного номера Состояние сбрасывается в значение "В разработке"
-					createdOrder?.UpdateLifeCycleState(lifeCycleState);
-				}
+          createdOrder = BusinessLogic.CreateEntity(order, exceptionList, logger, isBatch);
+          // Дополнительно обновляем свойство Состояние, так как после установки регистрационного номера Состояние сбрасывается в значение "В разработке"
+          createdOrder?.UpdateLifeCycleState(lifeCycleState, isBatch);
+        }
         else
         {
           // Карточку не обновляем, там ошибка, если у документа есть версия.
@@ -209,7 +211,7 @@ namespace ImportData
 
         var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
         if (!string.IsNullOrWhiteSpace(filePath))
-          exceptionList.AddRange(BusinessLogic.ImportBody(createdOrder, filePath, logger, update_body));
+          exceptionList.AddRange(BusinessLogic.ImportBody(createdOrder, filePath, logger, update_body, isBatch));
       }
       catch (Exception ex)
       {
