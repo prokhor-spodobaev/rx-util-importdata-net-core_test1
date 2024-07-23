@@ -86,11 +86,11 @@ namespace ImportData.IntegrationServicesClient
       }
       catch (Exception ex)
       {
-        batch = new ODataBatch(client);
         throw;
       }
       finally
       {
+        batch = new ODataBatch(client);
         queuedRequestsCount = 0;
         idCounter = -1;
       }
