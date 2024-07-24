@@ -11,6 +11,8 @@ namespace ImportData
     class Addendum : Entity
     {
         public int PropertiesCount = 16;
+        public override int RequestsPerBatch => 4;
+
         /// <summary>
         /// Получить наименование число запрашиваемых параметров.
         /// </summary>
@@ -26,7 +28,7 @@ namespace ImportData
         /// <param name="shift">Сдвиг по горизонтали в XLSX документе. Необходим для обработки документов, составленных из элементов разных сущностей.</param>
         /// <param name="logger">Логировщик.</param>
         /// <returns>Число запрашиваемых параметров.</returns>
-        public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0)
+        public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0, bool isBatch = false)
         {
             var exceptionList = new List<Structures.ExceptionsStruct>();
             var variableForParameters = this.Parameters[shift + 0].Trim();
@@ -209,8 +211,8 @@ namespace ImportData
                     IAddendums createdAddendum;
                     if (isNewAddendum)
                     {
-                        createdAddendum = BusinessLogic.CreateEntity(addendum, exceptionList, logger);
-                        createdAddendum?.UpdateLifeCycleState(lifeCycleState);
+                        createdAddendum = BusinessLogic.CreateEntity(addendum, exceptionList, logger, isBatch);
+                        createdAddendum?.UpdateLifeCycleState(lifeCycleState, isBatch);
 
                     }
                     else
@@ -224,7 +226,7 @@ namespace ImportData
 
                     var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
                     if (!string.IsNullOrWhiteSpace(filePath))
-                        exceptionList.AddRange(BusinessLogic.ImportBody(createdAddendum, filePath, logger, update_body));
+                        exceptionList.AddRange(BusinessLogic.ImportBody(createdAddendum, filePath, logger, update_body, isBatch));
                 }
                 catch (Exception ex)
                 {

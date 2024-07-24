@@ -8,6 +8,8 @@ namespace ImportData
   class OutgoingLetterAddressees : Entity
   {
     public int PropertiesCount = 4;
+    public override int RequestsPerBatch => 1;
+
     /// <summary>
     /// Получить число запрашиваемых параметров.
     /// </summary>
@@ -25,7 +27,7 @@ namespace ImportData
     /// <param name="supplementEntity">Признак наличия дополнительной сущности.</param>
     /// <param name="ignoreDuplicates">Признак необходимости игнорировать дубликаты.</param>
     /// <returns>Список возникших при сохранении ошибок.</returns>
-    public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0)
+    public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0, bool isBatch = false)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
       var variableForParameters = this.Parameters[shift + 0].Trim();

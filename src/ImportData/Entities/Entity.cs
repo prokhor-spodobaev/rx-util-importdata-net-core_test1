@@ -12,6 +12,7 @@ namespace ImportData
         public string[] Parameters;
         public Dictionary<string, string> ExtraParameters;
         public int PropertiesCount = 0;
+        public virtual int RequestsPerBatch { get; } = 0;
 
         /// <summary>
         /// Получить наименование число запрашиваемых параметров.
@@ -28,7 +29,7 @@ namespace ImportData
         /// <param name="logger">Логировщик.</param>
         /// <param name="shift">Сдвиг по горизонтали в XLSX документе. Необходим для обработки документов, составленных из элементов разных сущностей.</param>
         /// <returns>Список ошибок.</returns>
-        public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0)
+        public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0, bool isBatch = false)
         {
             return new List<Structures.ExceptionsStruct>();
         }

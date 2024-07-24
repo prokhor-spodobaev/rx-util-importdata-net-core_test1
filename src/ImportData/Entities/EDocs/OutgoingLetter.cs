@@ -10,6 +10,8 @@ namespace ImportData
   class OutgoingLetter : Entity
   {
     public int PropertiesCount = 12;
+    public override int RequestsPerBatch => 3;
+
     /// <summary>
     /// Получить наименование число запрашиваемых параметров.
     /// </summary>
@@ -25,7 +27,7 @@ namespace ImportData
     /// <param name="shift">Сдвиг по горизонтали в XLSX документе. Необходим для обработки документов, составленных из элементов разных сущностей.</param>
     /// <param name="logger">Логировщик.</param>
     /// <returns>Число запрашиваемых параметров.</returns>
-    public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0)
+    public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0, bool isBatch = false)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
       var variableForParameters = this.Parameters[shift + 0].Trim();
@@ -110,14 +112,14 @@ namespace ImportData
         logger.Warn(message);
       }
 
-			var documentRegisterIdStr = this.Parameters[shift + 10].Trim();
-			if (!int.TryParse(documentRegisterIdStr, out var documentRegisterId))
-				if (ExtraParameters.ContainsKey("doc_register_id"))
-					int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId);
+      var documentRegisterIdStr = this.Parameters[shift + 10].Trim();
+      if (!int.TryParse(documentRegisterIdStr, out var documentRegisterId))
+        if (ExtraParameters.ContainsKey("doc_register_id"))
+          int.TryParse(ExtraParameters["doc_register_id"], out documentRegisterId);
 
-			var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
+      var documentRegisters = documentRegisterId != 0 ? BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(r => r.Id == documentRegisterId, exceptionList, logger) : null;
 
-			if (documentRegisters == null)
+      if (documentRegisters == null)
       {
         var message = string.Format("Не найден журнал регистрации по ИД \"{0}\"", documentRegisterIdStr);
         exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
@@ -133,9 +135,9 @@ namespace ImportData
         var isNewOutgoingLetter = false;
         var regDateBeginningOfDay = BeginningOfDay(regDate.UtcDateTime);
         var outgoingLetters = BusinessLogic.GetEntitiesWithFilter<IOutgoingLetters>(x => x.RegistrationNumber == regNumber &&
-			x.RegistrationDate.Value.ToString("d") == regDate.ToString("d") &&
-			x.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger, true);
-        
+      x.RegistrationDate.Value.ToString("d") == regDate.ToString("d") &&
+      x.DocumentRegister.Id == documentRegisters.Id, exceptionList, logger, true);
+
         var outgoingLetter = (IOutgoingLetters)IOfficialDocuments.GetDocumentByRegistrationDate(outgoingLetters, regDate, logger, exceptionList);
         if (outgoingLetter == null)
         {
@@ -158,13 +160,13 @@ namespace ImportData
         if (regDate != DateTimeOffset.MinValue)
           outgoingLetter.RegistrationDate = regDate.UtcDateTime;
         else
-					outgoingLetter.RegistrationDate = null;
+          outgoingLetter.RegistrationDate = null;
         if (!string.IsNullOrEmpty(outgoingLetter.RegistrationNumber) && outgoingLetter.DocumentRegister != null)
           outgoingLetter.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
-				IOutgoingLetters createdOutgoingLetter;
+        IOutgoingLetters createdOutgoingLetter;
         if (isNewOutgoingLetter)
         {
-          createdOutgoingLetter = BusinessLogic.CreateEntity(outgoingLetter, exceptionList, logger);
+          createdOutgoingLetter = BusinessLogic.CreateEntity(outgoingLetter, exceptionList, logger, isBatch);
         }
         else
         {
@@ -174,7 +176,7 @@ namespace ImportData
 
         var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
         if (!string.IsNullOrWhiteSpace(filePath))
-          exceptionList.AddRange(BusinessLogic.ImportBody(createdOutgoingLetter, filePath, logger, update_body));
+          exceptionList.AddRange(BusinessLogic.ImportBody(createdOutgoingLetter, filePath, logger, update_body, isBatch));
       }
       catch (Exception ex)
       {
