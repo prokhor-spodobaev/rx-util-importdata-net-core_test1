@@ -144,7 +144,6 @@ namespace ImportData
 
             variableForParameters = this.Parameters[shift + 19].Trim();
             var bank = BusinessLogic.GetEntityWithFilter<IBanks>(b => b.Name == variableForParameters, exceptionList, logger);
-
             if (!string.IsNullOrEmpty(this.Parameters[shift + 19]) && bank == null)
             {
                 var message = string.Format("Не найден Банк \"{1}\". Наименование НОР: \"{0}\". ", name, this.Parameters[shift + 19].Trim());

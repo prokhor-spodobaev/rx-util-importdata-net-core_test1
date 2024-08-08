@@ -101,17 +101,14 @@ namespace ImportData
 
             variableForParameters = this.Parameters[shift + 14].Trim();
             var bank = BusinessLogic.GetEntityWithFilter<IBanks>(b => b.Name == variableForParameters, exceptionList, logger);
-
             if (!string.IsNullOrEmpty(this.Parameters[shift + 14].Trim()) && bank == null)
             {
                 var message = string.Format("Не найден Банк \"{3}\". Персона: \"{0} {1} {2}\". ", lastName, firstName, middleName, this.Parameters[shift + 14].Trim());
                 exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
                 logger.Warn(message);
             }
-
             var account = this.Parameters[shift + 15].Trim();
             var note = this.Parameters[shift + 16].Trim();
-
             try
             {
                 IPersons person = null;
@@ -121,13 +118,11 @@ namespace ImportData
                 {
                     person = BusinessLogic.GetEntityWithFilter<IPersons>(x => x.LastName == lastName && x.FirstName == firstName && x.MiddleName == middleName, exceptionList, logger);
                 }
-
                 if (person is null)
                 {
                     isNewPerson = true;
                     person = new IPersons();
                 }
-
                 person.Name = string.Format("{0} {1} {2}", lastName, firstName, middleName);
                 person.LastName = lastName;
                 person.FirstName = firstName;
@@ -147,7 +142,6 @@ namespace ImportData
                 person.Account = account;
                 person.Note = note;
                 person.Status = "Active";
-
                 if (isNewPerson)
                     BusinessLogic.CreateEntity(person, exceptionList, logger);
                 else
