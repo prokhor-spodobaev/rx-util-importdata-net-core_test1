@@ -5,6 +5,11 @@ namespace ImportData.IntegrationServicesClient.Models
   [EntityName("Замещения")]
   public class ISubstitutions : IEntity
   {
+    public string Name { get; set; }
+        public override string ToString()
+        {
+            return Name;
+        }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public bool IsSystem { get; set; }

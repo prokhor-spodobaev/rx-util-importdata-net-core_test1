@@ -3,6 +3,11 @@
     [EntityName("Журналы регистрации")]
     public class IDocumentRegisters : IEntity
     {
+        public string Name { get; set; }
+        public override string ToString()
+        {
+            return Name;
+        }
         public string Index { get; set; }
         public int NumberOfDigitsInNumber { get; set; }
         public string ValueExample { get; set; }

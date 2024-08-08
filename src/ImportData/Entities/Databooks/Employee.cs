@@ -7,7 +7,7 @@ namespace ImportData
 {
     class Employee : Person
     {
-        public int PropertiesCount = 19;
+        public int PropertiesCount = 20;
         /// <summary>
         /// Получить наименование число запрашиваемых параметров.
         /// </summary>

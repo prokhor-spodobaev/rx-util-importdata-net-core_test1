@@ -90,8 +90,15 @@ namespace ImportData.IntegrationServicesClient
     /// <returns>Созданна сущность.</returns>
     public static T CreateEntity<T>(T entity, Logger logger) where T : class
     {
-      var data = client.For<T>().Set(entity).InsertEntryAsync().Result;
+      //var data = client.For<T>().Set(entity).InsertEntryAsync().Result;
+      //return data;
 
+      var task = Task.Run(async () =>
+      {
+          return await client.For<T>().Set(entity).InsertEntryAsync();
+      });
+
+      var data = task.Result;
       return data;
     }
 
@@ -103,8 +110,14 @@ namespace ImportData.IntegrationServicesClient
     /// <returns>Обновленная сущность.</returns>
     public static T UpdateEntity<T>(T entity) where T : class
     {
-      var data = client.For<T>().Key(entity).Set(entity).UpdateEntryAsync().Result;
+      //var data = client.For<T>().Key(entity).Set(entity).UpdateEntryAsync().Result;
+      //return data;
+      var task = Task.Run(async () =>
+      {
+          return await client.For<T>().Key(entity).Set(entity).UpdateEntryAsync();
+      });
 
+      var data = task.Result;
       return data;
     }
 

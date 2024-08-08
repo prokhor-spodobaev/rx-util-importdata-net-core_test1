@@ -3,6 +3,11 @@
     [EntityName("Виды документов")]
     public class IDocumentKinds : IEntity
     {
+        public string Name { get; set; }
+        public override string ToString()
+        {
+            return Name;
+        }
         public string Note { get; set; }
         public int DeadlineInDays { get; set; }
         public string ShortName { get; set; }

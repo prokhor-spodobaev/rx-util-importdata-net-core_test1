@@ -7,6 +7,11 @@ namespace ImportData.IntegrationServicesClient.Models
     [EntityName("Дело")]
     public class ICaseFiles : IEntity
     {
+        public string Name { get; set; }
+        public override string ToString()
+        {
+            return Name;
+        }
         public string Title { get; set; }
         public string Index { get; set; }
         public DateTimeOffset? StartDate { get; set; }

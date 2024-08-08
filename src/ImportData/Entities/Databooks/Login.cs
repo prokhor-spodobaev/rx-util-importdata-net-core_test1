@@ -7,7 +7,7 @@ namespace ImportData.Entities.Databooks
 {
   public class Login : Entity
   {
-    public int PropertiesCount = 4;
+    public int PropertiesCount = 5;
 
     /// <summary>
     /// Получить наименование число запрашиваемых параметров.
@@ -62,7 +62,9 @@ namespace ImportData.Entities.Databooks
       }
       var middleName = this.Parameters[shift + 3].Trim();
       var emplName = string.IsNullOrWhiteSpace(middleName) ? string.Format("{0} {1}", lastName, firstName) : string.Format("{0} {1} {2}", lastName, firstName, middleName);
-      var employee = BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == emplName, exceptionList, logger);
+
+      var email = this.Parameters[shift + 4].Trim().ToLower();
+      var employee = BusinessLogic.GetEntityWithFilter<IEmployees>(x => (email == "" && x.Name == emplName) || (email != "" && x.Email.ToLower().Trim() == email), exceptionList, logger);
 
       if (employee == null)
       {
@@ -72,7 +74,6 @@ namespace ImportData.Entities.Databooks
 
         return exceptionList;
       }
-
       try
       {
 

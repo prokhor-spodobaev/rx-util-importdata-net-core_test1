@@ -3,7 +3,12 @@
     [EntityName("Контрагент")]
     public class ICounterparties : IEntity
     {
-        public string TIN { get; set; }
+
+        public string Name { get; set; }
+        public override string ToString()
+        {
+            return Name;
+        }        public string TIN { get; set; }
         public string LegalAddress { get; set; }
         public string PostalAddress { get; set; }
         public string Phones { get; set; }
