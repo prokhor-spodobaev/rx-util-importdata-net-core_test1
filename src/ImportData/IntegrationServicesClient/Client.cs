@@ -92,9 +92,10 @@ namespace ImportData.IntegrationServicesClient
     {
       //var data = client.For<T>().Set(entity).InsertEntryAsync().Result;
       //return data;
-
+      
       var task = Task.Run(async () =>
       {
+          //return await client.For<T>().Set(entity);
           return await client.For<T>().Set(entity).InsertEntryAsync();
       });
 

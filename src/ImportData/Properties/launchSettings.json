@@ -1,7 +1,8 @@
 {
   "profiles": {
     "ImportData": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "-n Andrey -p 123 -a ImportSignatureSettings -f \"C:\\templates\\Право подписи.xlsx\" -d ignore"
     }
   }
 }

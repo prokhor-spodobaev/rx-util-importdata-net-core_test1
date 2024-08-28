@@ -8,6 +8,7 @@ using ImportData.Entities.Databooks;
 using ImportData.IntegrationServicesClient.Exceptions;
 using ImportData.IntegrationServicesClient.Models;
 using Simple.OData.Client;
+using DocumentFormat.OpenXml.Drawing;
 
 namespace ImportData
 {
@@ -93,6 +94,9 @@ namespace ImportData
         case "importcurrencies":
 		  EntityProcessor.Process(typeof(Currency), xlsxPath, Constants.SheetNames.Currencies, extraParameters, ignoreDuplicates, isBatch, logger);
 		  break;
+        case "importsignaturesettings":
+          EntityProcessor.Process(typeof(SignatureSetting), xlsxPath, Constants.SheetNames.SignatureSettings, extraParameters, ignoreDuplicates, isBatch, logger);
+          break;
 		default:
           break;
       }
@@ -159,7 +163,7 @@ namespace ImportData
         try
         {
           #region Аутентификация.
-          ConfigSettingsService.SetSourcePath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DefaultConfigSettingsName));
+          ConfigSettingsService.SetSourcePath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DefaultConfigSettingsName));
           Client.Setup(login, password, logger);
           ConfigSettingsService.CheckConnectionToService(login, logger);
           #endregion
